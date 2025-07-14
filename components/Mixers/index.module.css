@@ -1,0 +1,25 @@
+.glow path {
+  fill: black;
+  stroke: none;
+}
+
+.hiddenPath {
+  fill: none;
+  stroke: none;
+}
+
+.clipPath {
+  stroke-width: 6px;
+  fill: none;
+  stroke: var(--primary-color);
+}
+
+.fill path {
+  fill: var(--primary-color);
+  stroke: none;
+}
+
+.colorPatches rect {
+  fill: var(--primary-color);
+  stroke: none;
+}

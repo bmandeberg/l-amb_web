@@ -1,15 +1,22 @@
 'use client'
 
-import { useState } from 'react'
-import LinearKnob from '@/components/LinearKnob'
+import { CSSProperties as CSS } from 'react'
+import { primaryColor } from './globals'
+import Voice from '@/components/Voice'
+import Mixers from '@/components/Mixers'
 import styles from './page.module.css'
 
 export default function Home() {
-  const [knobValue, setKnobValue] = useState(0)
-
   return (
-    <div className={styles.page}>
-      <LinearKnob min={0} max={100} value={knobValue} onChange={setKnobValue} />
+    <div className={styles.page} style={{ '--primary-color': primaryColor } as CSS}>
+      <Mixers lfo1={0} lfo2={1} lfo3={0} allOn={true} />
+      <div className={styles.voices}>
+        <Voice />
+        <div style={{ width: 160 }} />
+        <Voice />
+        <Voice />
+        <Voice />
+      </div>
     </div>
   )
 }

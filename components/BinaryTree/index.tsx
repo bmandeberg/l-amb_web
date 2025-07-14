@@ -7,7 +7,7 @@ interface MixersProps {
   allOn: boolean
 }
 
-export default function Mixers({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
+export default function BinaryTree({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
   return (
     <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" width="1202" height="685" viewBox="0 0 1202 685">
       <defs>
@@ -325,9 +325,9 @@ export default function Mixers({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
       {/* hacky color patches when allOn */}
       {allOn && (
         <g className={styles.colorPatches}>
-          <rect x="584" y="14" width="24" height="24" />
-          <rect x="464" y="220" width="24" height="24" />
-          <rect x="345" y="426" width="24" height="24" />
+          <rect x="581" y="14" width="30" height="24" />
+          <rect x="455" y="220" width="30" height="24" />
+          <rect x="342" y="426" width="30" height="24" />
         </g>
       )}
     </svg>

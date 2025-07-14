@@ -12,7 +12,7 @@ export default function Home() {
       <BinaryTree lfo1={0} lfo2={1} lfo3={0} allOn={true} />
       <div className={styles.voices}>
         <Voice />
-        <div style={{ width: 160 }} />
+        <div style={{ width: 164 }} />
         <Voice />
         <Voice />
         <Voice />

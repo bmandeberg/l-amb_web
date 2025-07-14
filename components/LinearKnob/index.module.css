@@ -1,0 +1,11 @@
+.knobContainer {
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+.knobContainer path {
+  stroke-linecap: round;
+}

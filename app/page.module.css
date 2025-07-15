@@ -50,11 +50,11 @@
   left: 40px;
   gap: 172px;
   width: 480px;
-  transition: opacity 0.3s ease-in-out;
 }
 
 .lfoControl {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  transition: opacity 0.3s ease-in-out;
 }

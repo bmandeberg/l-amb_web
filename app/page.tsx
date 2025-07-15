@@ -63,14 +63,14 @@ export default function LAMBApp() {
           </div>
           <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} />
         </div>
-        <div className={styles.lfoControls} style={{ opacity: playing ? 1 : 0 }}>
-          <div className={styles.lfoControl}>
+        <div className={styles.lfoControls}>
+          <div className={styles.lfoControl} style={{ opacity: playing ? 1 : 0 }}>
             <LFOScope value={lfo1} />
           </div>
-          <div className={styles.lfoControl} style={{ marginRight: 120 }}>
+          <div className={styles.lfoControl} style={{ marginRight: 120, opacity: playing ? 1 : 0 }}>
             <LFOScope value={lfo2} />
           </div>
-          <div className={styles.lfoControl} style={{ marginRight: 230 }}>
+          <div className={styles.lfoControl} style={{ marginRight: 230, opacity: playing ? 1 : 0 }}>
             <LFOScope value={lfo3} />
           </div>
         </div>

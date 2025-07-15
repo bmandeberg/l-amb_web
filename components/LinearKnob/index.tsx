@@ -1,6 +1,9 @@
+'use client'
+
 import { useMemo, useRef } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { gray, primaryColor } from '@/app/globals'
+import { constrain } from '@/util/math'
 import styles from './index.module.css'
 
 interface LinearKnobProps {
@@ -110,8 +113,4 @@ export default function LinearKnob({ min, max, value, onChange, onStart, onEnd }
       </svg>
     </div>
   )
-}
-
-function constrain(n: number, min: number, max: number) {
-  return Math.min(Math.max(n, min), max)
 }

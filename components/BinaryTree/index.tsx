@@ -1,3 +1,6 @@
+'use client'
+
+import { expoMap } from '@/util/math'
 import styles from './index.module.css'
 
 interface MixersProps {
@@ -279,42 +282,42 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
 
       {/* inner glow */}
       <g>
-        <g mask="url(#mask)" style={{ opacity: allOn ? 1 : lfo1 }}>
+        <g mask="url(#mask)" style={{ opacity: allOn ? 1 : expoMap(lfo1) }}>
           <path
             d="M586.9,38.2h67.6s44.8,0,85.9,71.2l324.3,561.8h119.3L845.6,85c-41.1-71.2-85.9-71.2-85.9-71.2h-158.7l-14.1,24.4h0Z"
             fill="#fff"
           />
         </g>
 
-        <g mask="url(#mask-1)" style={{ opacity: allOn ? 1 : 1 - lfo1 }}>
+        <g mask="url(#mask-1)" style={{ opacity: allOn ? 1 : expoMap(1 - lfo1) }}>
           <path
             d="M586.9,38.2h-39.4s-44.8,0-85.9,71.2l-63.7,110.3h-75.4s-37.8,0-75.9,55.3l109.7-190C397.5,13.8,442.3,13.8,442.3,13.8h158.7l-14.1,24.4h0Z"
             fill="#fff"
           />
         </g>
 
-        <g mask="url(#mask-2)" style={{ opacity: allOn ? 1 : 1 - lfo2 }}>
+        <g mask="url(#mask-2)" style={{ opacity: allOn ? 1 : expoMap(1 - lfo2) }}>
           <path
             d="M468.1,244.1h-40.2s-44.8,0-85.9,71.2l-63.4,110.3h-75.3s-37.6,0-75.5,54.8l109-189.5c41.1-71.2,85.9-71.2,85.9-71.2h159.6l-14.1,24.4h-.1Z"
             fill="#fff"
           />
         </g>
 
-        <g mask="url(#mask-3)" style={{ opacity: allOn ? 1 : lfo2 }}>
+        <g mask="url(#mask-3)" style={{ opacity: allOn ? 1 : expoMap(lfo2) }}>
           <path
             d="M468.1,244.1h66.7s44.8,0,85.9,71.2l205.4,355.9h119.3l-219.4-380.3c-41.1-71.2-85.9-71.2-85.9-71.2h-157.9l-14.1,24.4h0Z"
             fill="#fff"
           />
         </g>
 
-        <g mask="url(#mask-4)" style={{ opacity: allOn ? 1 : lfo3 }}>
+        <g mask="url(#mask-4)" style={{ opacity: allOn ? 1 : expoMap(lfo3) }}>
           <path
             d="M349.2,450h66.2s44.8,0,85.9,71.2l86,150h119.3l-100.1-174.4c-41.1-71.2-85.9-71.2-85.9-71.2h-157.4l-14.1,24.4h0Z"
             fill="#fff"
           />
         </g>
 
-        <g mask="url(#mask-5)" style={{ opacity: allOn ? 1 : 1 - lfo3 }}>
+        <g mask="url(#mask-5)" style={{ opacity: allOn ? 1 : expoMap(1 - lfo3) }}>
           <path
             d="M349.2,450h-40.7s-44.8,0-85.9,71.2l-85.3,150H18l99.4-174.4c41.1-71.2,85.9-71.2,85.9-71.2h160l-14.1,24.4h0Z"
             fill="#fff"

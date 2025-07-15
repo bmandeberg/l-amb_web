@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties as CSS, useState, useCallback } from 'react'
+import { CSSProperties as CSS, useState, useCallback, useEffect } from 'react'
 import Image from 'next/image'
 import * as Tone from 'tone'
 import getNativeContext from '@/util/getNativeContext'
@@ -37,6 +37,19 @@ export default function LAMBApp() {
       return !playing
     })
   }, [initialized])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') {
+        e.preventDefault() // prevent scrolling
+        playStop()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [playStop])
 
   return (
     <div className={styles.page} style={{ '--primary-color': primaryColor } as CSS}>

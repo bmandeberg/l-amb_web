@@ -41,3 +41,20 @@
   pointer-events: none;
   opacity: 0.75;
 }
+
+.lfoControls {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 156px;
+  left: 40px;
+  gap: 172px;
+  width: 480px;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.lfoControl {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}

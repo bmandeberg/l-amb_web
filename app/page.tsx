@@ -7,6 +7,7 @@ import getNativeContext from '@/util/getNativeContext'
 import { primaryColor } from './globals'
 import Voice from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
+import LFOScope from '@/components/LFOScope'
 import useLFO from '@/hooks/useLFO'
 import styles from './page.module.css'
 
@@ -14,7 +15,7 @@ export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
 
-  const lfo1 = useLFO(initialized, { frequency: 1, dutyCycle: 0.5, shape: 1 })
+  const lfo1 = useLFO(initialized, { frequency: 1, dutyCycle: 0.25, shape: 1 })
   const lfo2 = useLFO(initialized, { frequency: 2, dutyCycle: 0.5, shape: 0 })
   const lfo3 = useLFO(initialized, { frequency: 0.5, dutyCycle: 0.5, shape: 1 })
 
@@ -61,6 +62,17 @@ export default function LAMBApp() {
             />
           </div>
           <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} />
+        </div>
+        <div className={styles.lfoControls} style={{ opacity: playing ? 1 : 0 }}>
+          <div className={styles.lfoControl}>
+            <LFOScope value={lfo1} />
+          </div>
+          <div className={styles.lfoControl} style={{ marginRight: 120 }}>
+            <LFOScope value={lfo2} />
+          </div>
+          <div className={styles.lfoControl} style={{ marginRight: 230 }}>
+            <LFOScope value={lfo3} />
+          </div>
         </div>
       </div>
     </div>

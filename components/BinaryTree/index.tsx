@@ -1,6 +1,7 @@
 'use client'
 
 import { expoMap } from '@/util/math'
+import cn from 'classnames'
 import styles from './index.module.css'
 
 interface MixersProps {
@@ -12,7 +13,14 @@ interface MixersProps {
 
 export default function BinaryTree({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
   return (
-    <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" width="1202" height="685" viewBox="0 0 1202 685">
+    <svg
+      id="Layer_1"
+      style={{ transform: 'scale(0.8)' }}
+      xmlns="http://www.w3.org/2000/svg"
+      version="1.1"
+      width="1202"
+      height="685"
+      viewBox="0 0 1202 685">
       <defs>
         <filter
           id="mixersGlow"
@@ -140,7 +148,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
       </defs>
 
       {/* inner fills */}
-      <g className={styles.fill}>
+      <g className={cn(styles.fill, { [styles.allOn]: allOn })}>
         <path
           style={{ opacity: allOn ? 1 : lfo3 }}
           d="M349.2,450h66.2s44.8,0,85.9,71.2l86,150h119.3l-100.1-174.4c-41.1-71.2-85.9-71.2-85.9-71.2h-157.4l-14.1,24.4h0Z"
@@ -176,7 +184,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
       </g>
 
       {/* inner stroke */}
-      <g>
+      <g className={cn({ [styles.allOn]: allOn })}>
         <path
           className={styles.hiddenPath}
           id="mixersStroke5"
@@ -281,7 +289,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
       </g>
 
       {/* inner glow */}
-      <g>
+      <g className={cn({ [styles.allOn]: allOn })}>
         <g mask="url(#mask)" style={{ opacity: allOn ? 1 : expoMap(lfo1) }}>
           <path
             d="M586.9,38.2h67.6s44.8,0,85.9,71.2l324.3,561.8h119.3L845.6,85c-41.1-71.2-85.9-71.2-85.9-71.2h-158.7l-14.1,24.4h0Z"

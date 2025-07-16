@@ -16,8 +16,8 @@ export default function LAMBApp() {
   const [playing, setPlaying] = useState(false)
 
   const lfo1 = useLFO(initialized, { frequency: 1, dutyCycle: 0.25, shape: 1 })
-  const lfo2 = useLFO(initialized, { frequency: 2, dutyCycle: 0.5, shape: 0 })
-  const lfo3 = useLFO(initialized, { frequency: 0.5, dutyCycle: 0.5, shape: 1 })
+  const lfo2 = useLFO(initialized, { frequency: 0.5, dutyCycle: 0.25, shape: 0 })
+  const lfo3 = useLFO(initialized, { frequency: 2, dutyCycle: 0.5, shape: 1 })
 
   const playStop = useCallback(async () => {
     if (!initialized) {
@@ -27,7 +27,6 @@ export default function LAMBApp() {
 
     setPlaying((playing) => {
       const ctx = getNativeContext()
-
       if (!playing) {
         ctx.resume()
       } else {
@@ -53,10 +52,10 @@ export default function LAMBApp() {
 
   return (
     <div className={styles.page} style={{ '--primary-color': primaryColor } as CSS}>
-      <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!initialized} />
+      <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} />
       <div className={styles.voices}>
         <Voice />
-        <div style={{ width: 164 }} />
+        <div style={{ width: 146 }} />
         <Voice />
         <Voice />
         <Voice />
@@ -80,10 +79,10 @@ export default function LAMBApp() {
           <div className={styles.lfoControl} style={{ opacity: playing ? 1 : 0 }}>
             <LFOScope value={lfo1} />
           </div>
-          <div className={styles.lfoControl} style={{ marginRight: 120, opacity: playing ? 1 : 0 }}>
+          <div className={styles.lfoControl} style={{ marginRight: 95, opacity: playing ? 1 : 0 }}>
             <LFOScope value={lfo2} />
           </div>
-          <div className={styles.lfoControl} style={{ marginRight: 230, opacity: playing ? 1 : 0 }}>
+          <div className={styles.lfoControl} style={{ marginRight: 190, opacity: playing ? 1 : 0 }}>
             <LFOScope value={lfo3} />
           </div>
         </div>

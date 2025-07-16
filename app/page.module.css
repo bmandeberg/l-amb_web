@@ -4,6 +4,7 @@
   align-items: center;
   position: relative;
   padding: 60px;
+  color: var(--secondary-color);
 }
 
 .header {
@@ -34,6 +35,13 @@
   width: 961.6px;
 }
 
+.voiceContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
 .infoLayer {
   position: absolute;
   inset: 0;
@@ -47,7 +55,7 @@
   display: flex;
   flex-direction: column;
   top: 170px;
-  left: 174px;
+  left: 10vw;
   gap: 60px;
   width: 424px;
 }
@@ -57,10 +65,36 @@
   flex-direction: column;
   align-items: flex-end;
   opacity: 0;
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .lfoControl.active {
   opacity: 1;
   pointer-events: all;
+}
+
+.voiceAux {
+  position: absolute;
+  top: 776px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 87px;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.voiceAux.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.voiceAuxControl {
+  width: 105px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }

@@ -7,6 +7,7 @@ import cn from 'classnames'
 import getNativeContext from '@/util/getNativeContext'
 import { primaryColor, secondaryColor } from './globals'
 import { LFOParameters } from '@/tone/lfoNode'
+import { midiNoteNumberToNoteName } from '@/util/midi'
 import Voice from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
 import LFOScope from '@/components/LFOScope'
@@ -21,6 +22,11 @@ const lfo3Default: LFOParameters = { frequency: 2, dutyCycle: 0.5, shape: 1 }
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
+
+  const [pitch1, setPitch1] = useState(12)
+  const [pitch2, setPitch2] = useState(24)
+  const [pitch3, setPitch3] = useState(36)
+  const [pitch4, setPitch4] = useState(48)
 
   const {
     value: lfo1,
@@ -77,13 +83,22 @@ export default function LAMBApp() {
       className={styles.page}
       style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor } as CSS}>
       <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} />
+
       <div className={styles.voices}>
-        <Voice />
-        <div style={{ width: 146 }} />
-        <Voice />
-        <Voice />
-        <Voice />
+        <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
+          <Voice pitch={pitch1} setPitch={setPitch1} />
+        </div>
+        <div className={styles.voiceContainer}>
+          <Voice pitch={pitch2} setPitch={setPitch2} />
+        </div>
+        <div className={styles.voiceContainer}>
+          <Voice pitch={pitch3} setPitch={setPitch3} />
+        </div>
+        <div className={styles.voiceContainer}>
+          <Voice pitch={pitch4} setPitch={setPitch4} />
+        </div>
       </div>
+
       <div className={styles.infoLayer}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -97,7 +112,7 @@ export default function LAMBApp() {
               onClick={playStop}
             />
           </div>
-          <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} />
+          <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
         </div>
         <div className={styles.lfoControls}>
           <div className={cn(styles.lfoControl, { [styles.active]: playing })}>
@@ -126,6 +141,20 @@ export default function LAMBApp() {
               setDutyCycle={setLfo3Duty}
               setShape={setLfo3Shape}
             />
+          </div>
+        </div>
+        <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
+          <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
+            <p>{midiNoteNumberToNoteName(Math.round(pitch1))}</p>
+          </div>
+          <div className={styles.voiceAuxControl}>
+            <p>{midiNoteNumberToNoteName(Math.round(pitch2))}</p>
+          </div>
+          <div className={styles.voiceAuxControl}>
+            <p>{midiNoteNumberToNoteName(Math.round(pitch3))}</p>
+          </div>
+          <div className={styles.voiceAuxControl}>
+            <p>{midiNoteNumberToNoteName(Math.round(pitch4))}</p>
           </div>
         </div>
       </div>

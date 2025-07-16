@@ -1,20 +1,10 @@
 import type { Metadata } from 'next'
-import localFont from 'next/font/local'
+import { Share_Tech_Mono } from 'next/font/google'
 import './globals.css'
 
-const dinCondensed = localFont({
-  src: [
-    {
-      path: '../public/fonts/DINCondensed-Bold.woff2',
-      weight: '700',
-      style: 'normal',
-    },
-    {
-      path: '../public/fonts/DINCondensed-Bold.woff',
-      weight: '700',
-      style: 'normal',
-    },
-  ],
+const shareTechMono = Share_Tech_Mono({
+  subsets: ['latin'],
+  weight: '400',
 })
 
 export const metadata: Metadata = {
@@ -28,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={dinCondensed.className}>
+    <html lang="en" className={shareTechMono.className}>
       <body>{children}</body>
     </html>
   )

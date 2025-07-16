@@ -8,16 +8,20 @@ import getNativeContext from '@/util/getNativeContext'
 import { primaryColor, secondaryColor } from './globals'
 import { LFOParameters } from '@/tone/lfoNode'
 import { midiNoteNumberToNoteName } from '@/util/midi'
-import Voice from '@/components/Voice'
+import Voice, { ScaleName, scales } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
 import LFOScope from '@/components/LFOScope'
 import LFOControls from '@/components/LFOControls'
+import LinearKnob from '@/components/LinearKnob'
 import useLFO from '@/hooks/useLFO'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
 const lfo2Default: LFOParameters = { frequency: 0.5, dutyCycle: 0.25, shape: 0 }
 const lfo3Default: LFOParameters = { frequency: 2, dutyCycle: 0.5, shape: 1 }
+
+const scaleOptions = Object.keys(scales)
+const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
@@ -27,6 +31,9 @@ export default function LAMBApp() {
   const [pitch2, setPitch2] = useState(24)
   const [pitch3, setPitch3] = useState(36)
   const [pitch4, setPitch4] = useState(48)
+
+  const [transpose, setTranspose] = useState(0)
+  const [scale, setScale] = useState(0)
 
   const {
     value: lfo1,
@@ -82,23 +89,26 @@ export default function LAMBApp() {
     <div
       className={styles.page}
       style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor } as CSS}>
+      {/* main binary tree graph */}
       <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} />
 
+      {/* voices */}
       <div className={styles.voices}>
         <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-          <Voice pitch={pitch1} setPitch={setPitch1} />
+          <Voice pitch={pitch1} setPitch={setPitch1} scale={scaleOptions[scale] as ScaleName} />
         </div>
         <div className={styles.voiceContainer}>
-          <Voice pitch={pitch2} setPitch={setPitch2} />
+          <Voice pitch={pitch2} setPitch={setPitch2} scale={scaleOptions[scale] as ScaleName} />
         </div>
         <div className={styles.voiceContainer}>
-          <Voice pitch={pitch3} setPitch={setPitch3} />
+          <Voice pitch={pitch3} setPitch={setPitch3} scale={scaleOptions[scale] as ScaleName} />
         </div>
         <div className={styles.voiceContainer}>
-          <Voice pitch={pitch4} setPitch={setPitch4} />
+          <Voice pitch={pitch4} setPitch={setPitch4} scale={scaleOptions[scale] as ScaleName} />
         </div>
       </div>
 
+      {/* info overlay */}
       <div className={styles.infoLayer}>
         <div className={styles.header}>
           <div className={styles.headerLeft}>
@@ -114,6 +124,7 @@ export default function LAMBApp() {
           </div>
           <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
         </div>
+
         <div className={styles.lfoControls}>
           <div className={cn(styles.lfoControl, { [styles.active]: playing })}>
             <LFOScope value={lfo1} />
@@ -143,18 +154,55 @@ export default function LAMBApp() {
             />
           </div>
         </div>
+
         <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
           <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
-            <p>{midiNoteNumberToNoteName(pitch1)}</p>
+            <p>{midiNoteNumberToNoteName(pitch1 + transpose)}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(pitch2)}</p>
+            <p>{midiNoteNumberToNoteName(pitch2 + transpose)}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(pitch3)}</p>
+            <p>{midiNoteNumberToNoteName(pitch3 + transpose)}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(pitch4)}</p>
+            <p>{midiNoteNumberToNoteName(pitch4 + transpose)}</p>
+            <div className={styles.voiceGlobalControls}>
+              <div className={styles.voiceGlobalControl}>
+                <LinearKnob
+                  min={0}
+                  max={11}
+                  step={1}
+                  value={transpose}
+                  onChange={setTranspose}
+                  strokeColor={secondaryColor}
+                />
+                <p>
+                  root:
+                  <br />
+                  {musicNotes[transpose]}
+                </p>
+              </div>
+              <div className={styles.voiceGlobalControl}>
+                <LinearKnob
+                  min={0}
+                  max={scaleOptions.length - 1}
+                  step={1}
+                  value={scale}
+                  onChange={setScale}
+                  strokeColor={secondaryColor}
+                />
+                <p>
+                  scale:
+                  <br />
+                  {scaleOptions[scale]}
+                </p>
+              </div>
+              <svg className={styles.voiceGlobalControlDivider} width="60" height="40">
+                <line x1="0" y1="20" x2="60" y2="20" stroke={secondaryColor} strokeWidth="2" />
+                <line x1="59" y1="0" x2="59" y2="40" stroke={secondaryColor} strokeWidth="2" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>

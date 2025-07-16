@@ -81,7 +81,6 @@
   align-items: center;
   justify-content: center;
   gap: 87px;
-  font-size: 20px;
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
 }
@@ -97,4 +96,35 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  position: relative;
+}
+
+.voiceGlobalControls {
+  position: absolute;
+  left: 100%;
+  top: -44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  font-size: 28px;
+  transform: translateY(-50%) scale(0.65);
+}
+
+.voiceGlobalControl {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 300px;
+}
+
+.voiceGlobalControl p {
+  margin-top: -4px;
+}
+
+.voiceGlobalControlDivider {
+  position: absolute;
+  left: -74px;
+  top: 50%;
+  transform: translateY(-50%);
 }

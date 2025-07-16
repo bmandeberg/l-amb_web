@@ -1,12 +1,11 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import LinearKnob from '@/components/LinearKnob'
 import { primaryColor } from '@/app/globals'
-import { constrain } from '@/util/math'
 import styles from './index.module.css'
 
 // MIDI note 12 - 84 (C0 - C6, 16.35Hz - 8372Hz)
-const minPitch = 12
-const maxPitch = 84
+export const minPitch = 12
+export const maxPitch = 84
 
 export const scales = {
   chromatic: [1],
@@ -59,7 +58,7 @@ export default function Voice({ pitch, setPitch, scale }: VoiceProps) {
   const updatePitch = useCallback(
     (value: number) => {
       setLocalPitch(value)
-      setPitch(constrain(availablePitches[value - 1], minPitch, maxPitch) || minPitch)
+      setPitch(availablePitches[value - 1] || minPitch)
     },
     [availablePitches, setPitch]
   )

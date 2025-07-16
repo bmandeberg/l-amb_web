@@ -8,7 +8,8 @@ import getNativeContext from '@/util/getNativeContext'
 import { primaryColor, secondaryColor } from './globals'
 import { LFOParameters } from '@/tone/lfoNode'
 import { midiNoteNumberToNoteName } from '@/util/midi'
-import Voice, { ScaleName, scales } from '@/components/Voice'
+import { constrain } from '@/util/math'
+import Voice, { ScaleName, scales, minPitch, maxPitch } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
 import LFOScope from '@/components/LFOScope'
 import LFOControls from '@/components/LFOControls'
@@ -157,16 +158,16 @@ export default function LAMBApp() {
 
         <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
           <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
-            <p>{midiNoteNumberToNoteName(pitch1 + transpose)}</p>
+            <p>{midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch))}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(pitch2 + transpose)}</p>
+            <p>{midiNoteNumberToNoteName(constrain(pitch2 + transpose, minPitch, maxPitch))}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(pitch3 + transpose)}</p>
+            <p>{midiNoteNumberToNoteName(constrain(pitch3 + transpose, minPitch, maxPitch))}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(pitch4 + transpose)}</p>
+            <p>{midiNoteNumberToNoteName(constrain(pitch4 + transpose, minPitch, maxPitch))}</p>
             <div className={styles.voiceGlobalControls}>
               <div className={styles.voiceGlobalControl}>
                 <LinearKnob

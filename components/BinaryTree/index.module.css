@@ -19,12 +19,21 @@
   stroke: none;
 }
 
+.colorPatches {
+  opacity: 0;
+  /* transition: opacity 0.1s ease-in-out; */
+}
+
+.colorPatches.allOn {
+  opacity: 1;
+}
+
 .colorPatches rect {
   fill: var(--primary-color);
   stroke: none;
 }
 
-.allOn g,
+/* .allOn g,
 .allOn path {
   transition: opacity 0.2s ease-in-out;
-}
+} */

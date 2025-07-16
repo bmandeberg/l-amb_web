@@ -1,5 +1,3 @@
-'use client'
-
 import { expoMap } from '@/util/math'
 import cn from 'classnames'
 import styles from './index.module.css'
@@ -334,13 +332,11 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn }: MixersProps) {
       </g>
 
       {/* hacky color patches when allOn */}
-      {allOn && (
-        <g className={styles.colorPatches}>
-          <rect x="581" y="14" width="30" height="24" />
-          <rect x="455" y="220" width="30" height="24" />
-          <rect x="342" y="426" width="30" height="24" />
-        </g>
-      )}
+      <g className={cn(styles.colorPatches, { [styles.allOn]: allOn })}>
+        <rect x="581" y="14" width="30" height="24" />
+        <rect x="455" y="220" width="30" height="24" />
+        <rect x="342" y="426" width="30" height="24" />
+      </g>
     </svg>
   )
 }

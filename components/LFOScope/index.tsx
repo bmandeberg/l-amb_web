@@ -5,7 +5,7 @@ interface LFOScopeProps {
   value: number
 }
 
-const width = 250
+const width = 292
 const height = 40
 
 export default function LFOScope({ value }: LFOScopeProps) {

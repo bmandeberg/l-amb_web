@@ -1,10 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createLFO, LFOParameters } from '@/tone/lfoNode'
 
 export default function useLFO(initialized: boolean, lfoParams: LFOParameters) {
   const [value, setValue] = useState(0)
+  const setFrequency = useRef<null | ((hz: number) => void)>(null)
+  const setDuty = useRef<null | ((d: number) => void)>(null)
+  const setShape = useRef<null | ((s: 0 | 1) => void)>(null)
 
   useEffect(() => {
     if (!initialized) return
@@ -16,6 +19,9 @@ export default function useLFO(initialized: boolean, lfoParams: LFOParameters) {
       lfoObj.node.port.onmessage = (e) => {
         if (isMounted) setValue(e.data as number)
       }
+      setFrequency.current = lfoObj.setFrequency
+      setDuty.current = lfoObj.setDuty
+      setShape.current = lfoObj.setShape
     })()
 
     return () => {
@@ -25,5 +31,5 @@ export default function useLFO(initialized: boolean, lfoParams: LFOParameters) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized])
 
-  return value // 0…1 – updates ≈60 Hz
+  return { value, setFrequency, setDuty, setShape }
 }

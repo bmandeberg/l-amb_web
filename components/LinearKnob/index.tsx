@@ -11,6 +11,7 @@ interface LinearKnobProps {
   max: number
   value: number
   taper?: 'linear' | 'log' | number
+  step?: number
   strokeColor?: string
   glow?: boolean
   onChange?: (value: number) => void
@@ -30,6 +31,7 @@ export default function LinearKnob({
   max,
   value,
   taper = 'linear',
+  step = 0,
   glow,
   strokeColor,
   onChange,
@@ -41,16 +43,22 @@ export default function LinearKnob({
   // Convert a normalized ratio [0–1] → actual value, applying taper
   const ratioToValue = (r: number) => {
     r = constrain(r, 0, 1)
+    let v: number
     if (taper === 'log') {
       // log taper: equal steps in ratio give multiplicative steps in value
-      return Math.exp(Math.log(min) + r * (Math.log(max) - Math.log(min)))
-    }
-    if (typeof taper === 'number') {
+      v = Math.exp(Math.log(min) + r * (Math.log(max) - Math.log(min)))
+    } else if (typeof taper === 'number') {
       // custom exponent
-      return min + (max - min) * Math.pow(r, taper)
+      v = min + (max - min) * Math.pow(r, taper)
+    } else {
+      // linear
+      v = min + (max - min) * r
     }
-    // linear
-    return min + (max - min) * r
+    // snap to step
+    if (step > 0) {
+      v = Math.round(v / step) * step
+    }
+    return constrain(v, min, max)
   }
 
   // Convert an actual value → normalized ratio [0–1], applying inverse taper

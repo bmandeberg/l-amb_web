@@ -145,16 +145,16 @@ export default function LAMBApp() {
         </div>
         <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
           <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
-            <p>{midiNoteNumberToNoteName(Math.round(pitch1))}</p>
+            <p>{midiNoteNumberToNoteName(pitch1)}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(Math.round(pitch2))}</p>
+            <p>{midiNoteNumberToNoteName(pitch2)}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(Math.round(pitch3))}</p>
+            <p>{midiNoteNumberToNoteName(pitch3)}</p>
           </div>
           <div className={styles.voiceAuxControl}>
-            <p>{midiNoteNumberToNoteName(Math.round(pitch4))}</p>
+            <p>{midiNoteNumberToNoteName(pitch4)}</p>
           </div>
         </div>
       </div>

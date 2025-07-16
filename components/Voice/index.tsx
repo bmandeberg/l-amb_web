@@ -12,7 +12,7 @@ interface VoiceProps {
 export default function Voice({ pitch, setPitch }: VoiceProps) {
   return (
     <div className={styles.voice}>
-      <LinearKnob min={12} max={84} value={pitch} onChange={setPitch} strokeColor={primaryColor} glow />
+      <LinearKnob min={12} max={84} step={1} value={pitch} onChange={setPitch} strokeColor={primaryColor} glow />
     </div>
   )
 }

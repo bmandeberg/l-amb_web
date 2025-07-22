@@ -77,20 +77,22 @@ export default function Voice({ pitch, setPitch, scale }: VoiceProps) {
     updatePitch(closestIndex + 1)
   }, [availablePitches, updatePitch])
 
-  const knob = useMemo(
+  const content = useMemo(
     () => (
-      <LinearKnob
-        min={1}
-        max={availablePitches.length}
-        step={1}
-        value={localPitch}
-        onChange={updatePitch}
-        strokeColor={primaryColor}
-        glow
-      />
+      <div className={styles.voice}>
+        <LinearKnob
+          min={1}
+          max={availablePitches.length}
+          step={1}
+          value={localPitch}
+          onChange={updatePitch}
+          strokeColor={primaryColor}
+          glow
+        />
+      </div>
     ),
     [availablePitches, localPitch, updatePitch]
   )
 
-  return <div className={styles.voice}>{knob}</div>
+  return content
 }

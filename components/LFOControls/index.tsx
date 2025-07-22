@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import ReactSwitch from 'react-switch'
 import useLambStore from '@/app/state'
 import { LFOParameters } from '@/tone/createLFO'
@@ -48,39 +48,52 @@ export default function LFOControls({ init, lfo1, setFrequency, setDutyCycle, se
     [setShape]
   )
 
-  return (
-    <div className={styles.lfoControls}>
-      <div className={styles.lfoControl}>
-        <LinearKnob
-          min={0.05}
-          max={10}
-          value={frequency}
-          onChange={updateFrequency}
-          strokeColor={secondaryColor}
-          taper="log"
-        />
-        <p>FREQ</p>
+  const content = useMemo(
+    () => (
+      <div className={styles.lfoControls}>
+        <div className={styles.lfoControl}>
+          <LinearKnob
+            min={0.05}
+            max={10}
+            value={frequency}
+            onChange={updateFrequency}
+            strokeColor={secondaryColor}
+            taper="log"
+          />
+          <p>FREQ</p>
+        </div>
+        <div className={styles.lfoControl} style={{ marginLeft: -20 }}>
+          <LinearKnob min={0} max={1} value={dutyCycle} onChange={updateDutyCycle} strokeColor={secondaryColor} />
+          <p>DUTY</p>
+        </div>
+        <div className={styles.shapeControl}>
+          <svg width={14} height={14} viewBox="0 0 14 14">
+            <rect
+              x={0}
+              y={0}
+              width={14}
+              height={14}
+              stroke={shape ? gray : secondaryColor}
+              strokeWidth={4}
+              fill="none"
+            />
+          </svg>
+          <ReactSwitch
+            onChange={updateShape}
+            checked={shape}
+            uncheckedIcon={false}
+            checkedIcon={false}
+            width={48}
+            height={24}
+          />
+          <svg width={14} height={14} viewBox="0 0 14 14">
+            <polygon points="7,1 13,13 1,13" stroke={shape ? secondaryColor : gray} strokeWidth={2} fill="none" />
+          </svg>
+        </div>
       </div>
-      <div className={styles.lfoControl} style={{ marginLeft: -20 }}>
-        <LinearKnob min={0} max={1} value={dutyCycle} onChange={updateDutyCycle} strokeColor={secondaryColor} />
-        <p>DUTY</p>
-      </div>
-      <div className={styles.shapeControl}>
-        <svg width={14} height={14} viewBox="0 0 14 14">
-          <rect x={0} y={0} width={14} height={14} stroke={shape ? gray : secondaryColor} strokeWidth={4} fill="none" />
-        </svg>
-        <ReactSwitch
-          onChange={updateShape}
-          checked={shape}
-          uncheckedIcon={false}
-          checkedIcon={false}
-          width={48}
-          height={24}
-        />
-        <svg width={14} height={14} viewBox="0 0 14 14">
-          <polygon points="7,1 13,13 1,13" stroke={shape ? secondaryColor : gray} strokeWidth={2} fill="none" />
-        </svg>
-      </div>
-    </div>
+    ),
+    [dutyCycle, frequency, shape, updateDutyCycle, updateFrequency, updateShape]
   )
+
+  return content
 }

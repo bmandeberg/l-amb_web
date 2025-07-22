@@ -1,0 +1,72 @@
+.sequenceSteps {
+  display: flex;
+  align-items: center;
+  margin-top: -2px;
+  padding-left: 9px;
+}
+
+.sequenceStep {
+  transform: scale(0.65);
+  pointer-events: all;
+  width: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 8px;
+}
+
+.skipStep {
+  margin-top: 14px;
+  cursor: pointer;
+}
+
+.sequencerControls {
+  display: flex;
+  margin-left: 66px;
+  margin-top: 6px;
+  gap: 7px;
+}
+
+.syncSwitch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+}
+
+.knobControl {
+  transform: scale(0.65) translateY(-39%);
+  text-align: center;
+}
+
+.knobControl p {
+  margin-top: -4px;
+}
+
+.divMultSymbol {
+  font-size: 24px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.sequencerPointer {
+  margin-right: -6px;
+  margin-left: 4px;
+}
+
+.sequenceSelector {
+  display: flex;
+}
+
+.sequenceSelector p {
+  margin-top: -2px;
+  margin-left: -2px;
+  font-size: 16px;
+}
+
+.verticalDivider {
+  width: 1px;
+  height: 28px;
+  background-color: var(--secondary-color);
+}

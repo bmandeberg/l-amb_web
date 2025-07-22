@@ -6,14 +6,16 @@ import * as Tone from 'tone'
 import cn from 'classnames'
 import getNativeContext from '@/util/getNativeContext'
 import { primaryColor, secondaryColor } from './globals'
-import { LFOParameters } from '@/tone/lfoNode'
+import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
+import useLambStore from '@/app/state'
 import Voice, { ScaleName, scales, minPitch, maxPitch } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
 import LFOScope from '@/components/LFOScope'
 import LFOControls from '@/components/LFOControls'
 import LinearKnob from '@/components/LinearKnob'
+import Sequencer from '@/components/Sequencer'
 import useLFO from '@/hooks/useLFO'
 import styles from './page.module.css'
 
@@ -27,6 +29,9 @@ const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const [sequencerValue, setSequencerValue] = useState(0)
+
+  const lfo1Freq = useLambStore((state) => state.lfo1Freq)
 
   const [pitch1, setPitch1] = useState(12)
   const [pitch2, setPitch2] = useState(24)
@@ -41,6 +46,7 @@ export default function LAMBApp() {
     setFrequency: setLfo1Frequency,
     setDuty: setLfo1Duty,
     setShape: setLfo1Shape,
+    phase: lfo1Phase,
   } = useLFO(initialized, lfo1Default)
   const {
     value: lfo2,
@@ -111,6 +117,7 @@ export default function LAMBApp() {
 
       {/* info overlay */}
       <div className={styles.infoLayer}>
+        {/* header */}
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <Image src="/logotype-red.png" alt="L-AMB Logo" width={289.36} height={40} />
@@ -126,17 +133,21 @@ export default function LAMBApp() {
           <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
         </div>
 
+        {/* main LFO controls */}
         <div className={styles.lfoControls}>
-          <div className={cn(styles.lfoControl, { [styles.active]: playing })}>
+          <div className={cn(styles.lfoControl, styles.hide, { [styles.active]: playing })}>
             <LFOScope value={lfo1} />
             <LFOControls
               init={lfo1Default}
               setFrequency={setLfo1Frequency}
               setDutyCycle={setLfo1Duty}
               setShape={setLfo1Shape}
+              lfo1
             />
           </div>
-          <div className={cn(styles.lfoControl, { [styles.active]: playing })} style={{ marginRight: 100 }}>
+          <div
+            className={cn(styles.lfoControl, styles.hide, { [styles.active]: playing })}
+            style={{ marginRight: 100 }}>
             <LFOScope value={lfo2} />
             <LFOControls
               init={lfo2Default}
@@ -145,7 +156,9 @@ export default function LAMBApp() {
               setShape={setLfo2Shape}
             />
           </div>
-          <div className={cn(styles.lfoControl, { [styles.active]: playing })} style={{ marginRight: 197 }}>
+          <div
+            className={cn(styles.lfoControl, styles.hide, { [styles.active]: playing })}
+            style={{ marginRight: 197 }}>
             <LFOScope value={lfo3} />
             <LFOControls
               init={lfo3Default}
@@ -156,7 +169,8 @@ export default function LAMBApp() {
           </div>
         </div>
 
-        <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
+        {/* voice controls */}
+        <div className={cn(styles.voiceAux, styles.hide, { [styles.active]: playing })}>
           <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
             <p>{midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch))}</p>
           </div>
@@ -205,6 +219,11 @@ export default function LAMBApp() {
               </svg>
             </div>
           </div>
+        </div>
+
+        {/* sequencer */}
+        <div className={cn(styles.sequencerContainer, styles.hide, { [styles.active]: playing })}>
+          <Sequencer setSequencerValue={setSequencerValue} initialized={initialized} lfo1Phase={lfo1Phase} />
         </div>
       </div>
     </div>

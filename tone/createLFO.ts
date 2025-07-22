@@ -27,5 +27,8 @@ export async function createLFO({
     setFrequency: (hz: number) => (node.parameters.get('frequency')!.value = hz),
     setDuty: (d: number) => (node.parameters.get('dutyCycle')!.value = d),
     setShape: (s: 0 | 1) => (node.parameters.get('shape')!.value = s),
+    setPhase: (phase: number) => {
+      node.port.postMessage({ type: 'setPhase', value: phase })
+    },
   }
 }

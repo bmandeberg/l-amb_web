@@ -13,6 +13,13 @@ class CustomLFOProcessor extends AudioWorkletProcessor {
     super()
     this.phase = 0
     this.framesSincePost = 0
+
+    this.port.onmessage = (e) => {
+      const { type, value } = e.data || {}
+      if (type === 'setPhase') {
+        this.phase = ((value % 1) + 1) % 1 // force 0–1 wrap
+      }
+    }
   }
 
   process(_inputs, outputs, parameters) {
@@ -28,10 +35,10 @@ class CustomLFOProcessor extends AudioWorkletProcessor {
 
       let v
       if (shape === 0) {
-        // **Square / PWM**
+        // Square / PWM
         v = this.phase < duty ? 1 : 0
       } else {
-        // **Triangle family**
+        // Triangle family
         if (this.phase < duty) {
           // Rising section: 0 → 1 over [0, duty)
           v = this.phase / Math.max(duty, 1e-6)
@@ -40,12 +47,13 @@ class CustomLFOProcessor extends AudioWorkletProcessor {
           v = 1 - (this.phase - duty) / Math.max(1 - duty, 1e-6)
         }
       }
-      output[i] = v // already 0…1
+      output[i] = v // between 0 and 1
 
-      /* ---- throttle visual updates to ~60 fps ---- */
+      // throttle visual updates to ~60 fps
+      // 44100/60 ≈ 735
       if (++this.framesSincePost >= 735) {
-        // 44100/60 ≈ 735
-        this.port.postMessage(v)
+        // this.port.postMessage(v)
+        this.port.postMessage({ type: 'tick', value: v, phase: this.phase })
         this.framesSincePost = 0
       }
     }

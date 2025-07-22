@@ -1,28 +1,35 @@
 import React, { useState, useCallback } from 'react'
 import ReactSwitch from 'react-switch'
-import { LFOParameters } from '@/tone/lfoNode'
+import useLambStore from '@/app/state'
+import { LFOParameters } from '@/tone/createLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { gray, secondaryColor } from '@/app/globals'
 import styles from './index.module.css'
 
 interface LFOControlsProps {
   init: LFOParameters
+  lfo1?: boolean
   setFrequency: React.RefObject<null | ((hz: number) => void)>
   setDutyCycle: React.RefObject<null | ((d: number) => void)>
   setShape: React.RefObject<null | ((s: 0 | 1) => void)>
 }
 
-export default function LFOControls({ init, setFrequency, setDutyCycle, setShape }: LFOControlsProps) {
+export default function LFOControls({ init, lfo1, setFrequency, setDutyCycle, setShape }: LFOControlsProps) {
   const [frequency, setLocalFrequency] = useState<number>(init.frequency)
   const [dutyCycle, setLocalDutyCycle] = useState<number>(init.dutyCycle)
   const [shape, setLocalShape] = useState<boolean>(!!init.shape)
 
+  const setLfo1Freq = useLambStore((state) => state.setLfo1Freq)
+
   const updateFrequency = useCallback(
     (hz: number) => {
       setLocalFrequency(hz)
+      if (lfo1) {
+        setLfo1Freq(hz)
+      }
       setFrequency?.current?.(hz)
     },
-    [setFrequency]
+    [setFrequency, setLfo1Freq, lfo1]
   )
 
   const updateDutyCycle = useCallback(
@@ -63,7 +70,6 @@ export default function LFOControls({ init, setFrequency, setDutyCycle, setShape
           <rect x={0} y={0} width={14} height={14} stroke={shape ? gray : secondaryColor} strokeWidth={4} fill="none" />
         </svg>
         <ReactSwitch
-          className={styles.shapeSwitch}
           onChange={updateShape}
           checked={shape}
           uncheckedIcon={false}

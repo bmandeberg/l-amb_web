@@ -50,6 +50,15 @@
   opacity: 0.75;
 }
 
+.hide {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+.hide.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
 .lfoControls {
   position: absolute;
   display: flex;
@@ -64,13 +73,6 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.lfoControl.active {
-  opacity: 1;
-  pointer-events: all;
 }
 
 .voiceAux {
@@ -81,13 +83,6 @@
   align-items: center;
   justify-content: center;
   gap: 87px;
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-}
-
-.voiceAux.active {
-  opacity: 1;
-  pointer-events: all;
 }
 
 .voiceAuxControl {
@@ -114,12 +109,12 @@
 .voiceGlobalControl {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
+  gap: 14px;
   width: 300px;
 }
 
 .voiceGlobalControl p {
-  margin-top: -4px;
+  margin-top: -2px;
 }
 
 .voiceGlobalControlDivider {
@@ -127,4 +122,10 @@
   left: -74px;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.sequencerContainer {
+  position: absolute;
+  left: 64%;
+  top: 20%;
 }

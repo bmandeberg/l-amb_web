@@ -4,8 +4,9 @@ import { CSSProperties as CSS, useState, useCallback, useEffect, useMemo } from 
 import Image from 'next/image'
 import * as Tone from 'tone'
 import cn from 'classnames'
+import ReactSwitch from 'react-switch'
 import getNativeContext from '@/util/getNativeContext'
-import { primaryColor, secondaryColor } from './globals'
+import { primaryColor, secondaryColor, gray } from './globals'
 import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
@@ -29,7 +30,6 @@ const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
-  const [sequencerValue, setSequencerValue] = useState(0)
 
   const lfo1Freq = useLambStore((state) => state.lfo1Freq)
 
@@ -92,11 +92,38 @@ export default function LAMBApp() {
     }
   }, [playStop])
 
+  // modulation
+  const [sequencerValue, setSequencerValue] = useState(0)
+  const [auxLfoFreq, setAuxLfoFreq] = useState(1)
+  const [auxLfoShape, setLocalAuxLfoShape] = useState(true)
+
+  const {
+    value: auxLfo,
+    setFrequency: setAuxLfoFrequency,
+    setShape: setAuxLfoShape,
+  } = useLFO(initialized, { frequency: auxLfoFreq, shape: auxLfoShape ? 1 : 0, dutyCycle: 0.5 } as LFOParameters)
+
+  const updateAuxLfoShape = useCallback(
+    (newShape: boolean) => {
+      setLocalAuxLfoShape(newShape)
+      setAuxLfoShape?.current?.(newShape ? 1 : 0)
+    },
+    [setAuxLfoShape]
+  )
+
+  const updateAuxLfoFreq = useCallback(
+    (hz: number) => {
+      setAuxLfoFreq(hz)
+      setAuxLfoFrequency?.current?.(hz)
+    },
+    [setAuxLfoFrequency]
+  )
+
   const content = useMemo(
     () => (
       <div
         className={styles.page}
-        style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor } as CSS}>
+        style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor, '--gray': gray } as CSS}>
         {/* main binary tree graph */}
         <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} />
 
@@ -222,9 +249,61 @@ export default function LAMBApp() {
             </div>
           </div>
 
-          {/* sequencer */}
-          <div className={cn(styles.sequencerContainer, styles.hide, { [styles.active]: playing })}>
+          {/* modulation */}
+          <div className={cn(styles.modulationContainer, styles.hide, { [styles.active]: playing })}>
             <Sequencer setSequencerValue={setSequencerValue} initialized={initialized} lfo1Phase={lfo1Phase} />
+
+            <div className={styles.horizontalDivider}></div>
+
+            <div className={styles.auxLfoContainer}>
+              <p>LFO</p>
+
+              <div className={styles.auxLfoControl}>
+                <LinearKnob
+                  min={0.1}
+                  max={10}
+                  value={auxLfoFreq}
+                  onChange={updateAuxLfoFreq}
+                  strokeColor={secondaryColor}
+                  taper="log"
+                />
+                <p className={styles.auxLfoFreq}>{auxLfoFreq.toFixed(2)} Hz</p>
+              </div>
+
+              <div className={styles.auxLfoIndicator} style={{ opacity: auxLfo * 0.7 + 0.3 }}></div>
+            </div>
+
+            <div className={styles.shapeControl}>
+              <svg width={14} height={14} viewBox="0 0 14 14">
+                <rect
+                  x={0}
+                  y={0}
+                  width={14}
+                  height={14}
+                  stroke={auxLfoShape ? gray : secondaryColor}
+                  strokeWidth={4}
+                  fill="none"
+                />
+              </svg>
+              <ReactSwitch
+                onChange={updateAuxLfoShape}
+                checked={auxLfoShape}
+                uncheckedIcon={false}
+                checkedIcon={false}
+                width={48}
+                height={24}
+              />
+              <svg width={14} height={14} viewBox="0 0 14 14">
+                <polygon
+                  points="7,1 13,13 1,13"
+                  stroke={auxLfoShape ? secondaryColor : gray}
+                  strokeWidth={2}
+                  fill="none"
+                />
+              </svg>
+            </div>
+
+            {/* mod matrix */}
           </div>
         </div>
       </div>
@@ -252,6 +331,11 @@ export default function LAMBApp() {
       setLfo3Frequency,
       setLfo3Shape,
       transpose,
+      auxLfoFreq,
+      auxLfoShape,
+      updateAuxLfoFreq,
+      updateAuxLfoShape,
+      auxLfo,
     ]
   )
 

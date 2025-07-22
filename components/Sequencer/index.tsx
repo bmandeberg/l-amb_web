@@ -129,7 +129,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase }:
   const content = useMemo(
     () => (
       <div>
-        <p>SEQUENCER</p>
+        <p className={styles.sequencerTitle}>SEQUENCER</p>
 
         {/* main sequencer knobs */}
         <div className={styles.sequenceSteps}>

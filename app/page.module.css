@@ -126,13 +126,13 @@
 
 .modulationContainer {
   position: absolute;
-  left: 64%;
+  left: 64.2%;
   top: 20%;
 }
 
 .auxLfoContainer {
   display: flex;
-  margin-left: 120px;
+  margin-left: 124px;
 }
 
 .auxLfoFreq {
@@ -144,7 +144,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: -2px;
+  margin-left: 4px;
 }
 
 .shapeControl {
@@ -152,7 +152,7 @@
   align-items: center;
   gap: 8px;
   margin-top: -14px;
-  margin-left: 162px;
+  margin-left: 168px;
 }
 
 .auxLfoIndicator {
@@ -165,7 +165,7 @@
 }
 
 .horizontalDivider {
-  width: 158px;
+  width: 160px;
   height: 1px;
   background-color: var(--secondary-color);
   margin-top: -16px;

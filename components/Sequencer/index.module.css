@@ -1,3 +1,7 @@
+.sequencerTitle {
+  margin-left: -2px;
+}
+
 .sequenceSteps {
   display: flex;
   align-items: center;

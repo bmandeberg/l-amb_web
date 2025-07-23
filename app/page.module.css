@@ -97,11 +97,11 @@
 .voiceGlobalControls {
   position: absolute;
   left: 100%;
-  top: -44px;
+  top: -42px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
   font-size: 28px;
   transform: translateY(-50%) scale(0.65);
 }
@@ -152,7 +152,7 @@
   align-items: center;
   gap: 8px;
   margin-top: -14px;
-  margin-left: 168px;
+  margin-left: 166px;
 }
 
 .auxLfoIndicator {
@@ -168,7 +168,15 @@
   width: 160px;
   height: 1px;
   background-color: var(--secondary-color);
-  margin-top: -16px;
+  margin-top: -18px;
   margin-bottom: 26px;
   margin-left: 101px;
+}
+
+.modMatrixLabel {
+  position: absolute;
+  left: 450px;
+  top: 184px;
+  font-size: 16px;
+  color: var(--secondary-color);
 }

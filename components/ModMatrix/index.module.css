@@ -1,0 +1,42 @@
+.modMatrix {
+  font-size: 12px;
+  position: absolute;
+  left: 282px;
+  top: 208px;
+  width: 254px;
+  height: 290px;
+  border-collapse: collapse;
+}
+
+.modMatrix th,
+.modMatrix td {
+  border: 1px solid var(--secondary-color);
+  padding: 2px;
+  text-align: center;
+  touch-action: none;
+}
+
+.noBorder {
+  border: none !important;
+}
+
+.cellWidth {
+  width: 37px;
+}
+
+.modCell {
+  opacity: 0.65;
+  cursor: grab;
+  position: relative;
+}
+
+.modValue {
+  position: absolute;
+  inset: 0;
+  background-color: var(--secondary-color);
+  opacity: 0.65;
+}
+
+.modValueText {
+  mix-blend-mode: screen;
+}

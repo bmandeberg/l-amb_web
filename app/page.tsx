@@ -11,13 +11,14 @@ import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
 import useLambStore from '@/app/state'
+import useLFO from '@/hooks/useLFO'
 import Voice, { ScaleName, scales, minPitch, maxPitch } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
 import LFOScope from '@/components/LFOScope'
 import LFOControls from '@/components/LFOControls'
 import LinearKnob from '@/components/LinearKnob'
 import Sequencer from '@/components/Sequencer'
-import useLFO from '@/hooks/useLFO'
+import ModMatrix from '@/components/ModMatrix'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
@@ -256,7 +257,7 @@ export default function LAMBApp() {
             <div className={styles.horizontalDivider}></div>
 
             <div className={styles.auxLfoContainer}>
-              <p>LFO</p>
+              <p>LFO4</p>
 
               <div className={styles.auxLfoControl}>
                 <LinearKnob
@@ -304,6 +305,8 @@ export default function LAMBApp() {
             </div>
 
             {/* mod matrix */}
+            <ModMatrix />
+            <p className={styles.modMatrixLabel}>MOD MATRIX</p>
           </div>
         </div>
       </div>

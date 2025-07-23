@@ -10,7 +10,6 @@ import { primaryColor, secondaryColor, gray } from './globals'
 import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
-import useLambStore from '@/app/state'
 import useLFO from '@/hooks/useLFO'
 import Voice, { ScaleName, scales, minPitch, maxPitch } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
@@ -31,8 +30,7 @@ const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
-
-  const lfo1Freq = useLambStore((state) => state.lfo1Freq)
+  const [modOff, setModOff] = useState(false)
 
   const [pitch1, setPitch1] = useState(12)
   const [pitch2, setPitch2] = useState(24)
@@ -251,10 +249,14 @@ export default function LAMBApp() {
           </div>
 
           {/* modulation */}
-          <div className={cn(styles.modulationContainer, styles.hide, { [styles.active]: playing })}>
+          <div
+            className={cn(styles.modulationContainer, styles.hide, {
+              [styles.active]: playing,
+              [styles.bypassed]: modOff && playing,
+            })}>
             <Sequencer setSequencerValue={setSequencerValue} initialized={initialized} lfo1Phase={lfo1Phase} />
 
-            <div className={styles.horizontalDivider}></div>
+            <div className={styles.horizontalDivider} style={{ marginTop: -18 }}></div>
 
             <div className={styles.auxLfoContainer}>
               <p>LFO4</p>
@@ -304,6 +306,23 @@ export default function LAMBApp() {
               </svg>
             </div>
 
+            <div className={styles.horizontalDivider} style={{ marginLeft: 190, marginTop: 30, width: 70 }}></div>
+
+            <div className={styles.modOff}>
+              <p>MOD OFF</p>
+              <svg
+                className={styles.modOffToggle}
+                width="13"
+                height="13"
+                viewBox="0 0 13 13"
+                onClick={() => {
+                  setModOff((modOff) => !modOff)
+                }}>
+                <line x1="0" y1="0" x2="13" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
+                <line x1="13" y1="0" x2="0" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
+              </svg>
+            </div>
+
             {/* mod matrix */}
             <ModMatrix />
             <p className={styles.modMatrixLabel}>MOD MATRIX</p>
@@ -339,6 +358,7 @@ export default function LAMBApp() {
       updateAuxLfoFreq,
       updateAuxLfoShape,
       auxLfo,
+      modOff,
     ]
   )
 

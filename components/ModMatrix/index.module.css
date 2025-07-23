@@ -6,6 +6,7 @@
   width: 254px;
   height: 290px;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .modMatrix th,
@@ -21,7 +22,7 @@
 }
 
 .cellWidth {
-  width: 37px;
+  width: 36px;
 }
 
 .modCell {

@@ -1,5 +1,5 @@
 import cn from 'classnames'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { constrain } from '@/util/math'
 import useLambStore from '@/app/state'
@@ -29,10 +29,10 @@ export default function ModMatrix() {
       if (dragModCell.current) return
       dragModCell.current = { x: colIndex, y: rowIndex }
     },
-    onDrag: ({ delta: [_dx, dy], event }) => {
+    onDrag: ({ delta, event }) => {
       const cellHeight = (event.currentTarget as HTMLTableCellElement)?.clientHeight
       if (!cellHeight || !dragModCell.current) return
-      const amountChanged = -dy / cellHeight
+      const amountChanged = -delta[1] / cellHeight
       const newMatrix = [...modMatrix]
       const x = dragModCell.current?.x
       const y = dragModCell.current?.y
@@ -44,43 +44,50 @@ export default function ModMatrix() {
     },
   })
 
-  return (
-    <table className={styles.modMatrix}>
-      <thead>
-        <tr>
-          <th className={styles.noBorder}>
-            <svg
-              width="68"
-              height="18"
-              viewBox="0 0 68 18"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-label="curved arrow from right to bottom">
-              <path d="M64 6 L34 6 34 17" fill="none" stroke="currentColor" strokeWidth="1" />
-              <path d="M30 14 L34 17 38 14" fill="none" stroke="currentColor" strokeWidth="1" />
-            </svg>
-          </th>
-          {modSources.map((source) => (
-            <th key={source} className={styles.cellWidth}>
-              {source}
+  const content = useMemo(
+    () => (
+      <table className={styles.modMatrix}>
+        <thead>
+          <tr>
+            <th className={styles.noBorder}>
+              <svg
+                width="68"
+                height="18"
+                viewBox="0 0 68 18"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-label="curved arrow from right to bottom">
+                <path d="M64 6 L34 6 34 17" fill="none" stroke="currentColor" strokeWidth="1" />
+                <path d="M30 14 L34 17 38 14" fill="none" stroke="currentColor" strokeWidth="1" />
+              </svg>
             </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {modDestinations.map((destination, rowIndex) => (
-          <tr key={destination}>
-            <td>{destination}</td>
-            {modSources.map((source, colIndex) => (
-              <td key={source} className={cn(styles.cellWidth, styles.modCell)} {...dragModValue(rowIndex, colIndex)}>
-                <div className={styles.modValue} style={{ top: `${(1 - modMatrix[rowIndex][colIndex]) * 100}%` }}></div>
-                <span className={styles.modValueText}>
-                  {modMatrix[rowIndex][colIndex] ? modMatrix[rowIndex][colIndex].toFixed(2) : '0'}
-                </span>
-              </td>
+            {modSources.map((source) => (
+              <th key={source} className={styles.cellWidth}>
+                {source}
+              </th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {modDestinations.map((destination, rowIndex) => (
+            <tr key={destination}>
+              <td>{destination}</td>
+              {modSources.map((source, colIndex) => (
+                <td key={source} className={cn(styles.cellWidth, styles.modCell)} {...dragModValue(rowIndex, colIndex)}>
+                  <div
+                    className={styles.modValue}
+                    style={{ top: `${(1 - modMatrix[rowIndex][colIndex]) * 100}%` }}></div>
+                  <span className={styles.modValueText}>
+                    {modMatrix[rowIndex][colIndex] ? modMatrix[rowIndex][colIndex].toFixed(2) : '0'}
+                  </span>
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ),
+    [dragModValue, modMatrix]
   )
+
+  return content
 }

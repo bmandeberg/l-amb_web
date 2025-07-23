@@ -50,13 +50,18 @@
   opacity: 0.75;
 }
 
-.hide {
-  opacity: 0;
-  transition: opacity 0.2s ease-in-out;
-}
-.hide.active {
-  opacity: 1;
+.active {
   pointer-events: all;
+}
+
+.infoBody {
+  opacity: 0;
+  transition: opacity 0.5s step-end;
+}
+
+.infoBody.playing {
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .lfoControls {

@@ -4,6 +4,7 @@ import useLambStore from '@/app/state'
 import { clockDivMultOptions, numClockOptions } from '@/util/clock'
 import { LFOParameters } from '@/tone/createLFO'
 import useLFO from '@/hooks/useLFO'
+import useFlicker from '@/hooks/useFlicker'
 import LinearKnob from '@/components/LinearKnob'
 import { secondaryColor, gray } from '@/app/globals'
 import styles from './index.module.css'
@@ -20,9 +21,10 @@ interface SequencerProps {
   setSequencerValue: (sequencerValue: number) => void
   initialized: boolean
   lfo1Phase?: React.RefObject<null | number>
+  playing: boolean
 }
 
-export default function Sequencer({ setSequencerValue, initialized, lfo1Phase }: SequencerProps) {
+export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, playing }: SequencerProps) {
   const [step, setStep] = useState<number>(0)
   const [skip, setSkip] = useState<boolean[]>(Array(NUM_STEPS).fill(false))
   const [values, setValues] = useState<number[]>(Array(NUM_STEPS).fill(0.5))
@@ -126,9 +128,11 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase }:
     }
   }, [lfo1Freq, setFrequency, freeSeq, clockDivMultIndex, lfo1Phase, setPhase])
 
+  const { opacity: flicker } = useFlicker(playing)
+
   const content = useMemo(
     () => (
-      <div>
+      <div style={{ opacity: flicker }}>
         <p className={styles.sequencerTitle}>SEQUENCER</p>
 
         {/* main sequencer knobs */}
@@ -233,7 +237,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase }:
         </div>
       </div>
     ),
-    [step, values, skip, freeSeq, internalFreq, clockDivMultIndex, sequenceIndex]
+    [step, values, skip, freeSeq, internalFreq, clockDivMultIndex, sequenceIndex, flicker]
   )
 
   return content

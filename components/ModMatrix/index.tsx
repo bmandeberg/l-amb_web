@@ -3,6 +3,7 @@ import { useRef, useMemo } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { constrain } from '@/util/math'
 import useLambStore from '@/app/state'
+import useFlicker from '@/hooks/useFlicker'
 import styles from './index.module.css'
 
 export const modSources = ['LFO1', 'LFO2', 'LFO3', 'SEQ', 'LFO4']
@@ -19,7 +20,7 @@ export const modDestinations = [
   'VOICE4',
 ]
 
-export default function ModMatrix() {
+export default function ModMatrix({ playing }: { playing: boolean }) {
   const modMatrix = useLambStore((state) => state.modMatrix)
   const setModMatrix = useLambStore((state) => state.setModMatrix)
 
@@ -44,9 +45,11 @@ export default function ModMatrix() {
     },
   })
 
+  const { opacity: flicker } = useFlicker(playing)
+
   const content = useMemo(
     () => (
-      <table className={styles.modMatrix}>
+      <table className={styles.modMatrix} style={{ opacity: flicker }}>
         <thead>
           <tr>
             <th className={styles.noBorder}>

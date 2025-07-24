@@ -19,6 +19,7 @@ import LFOControls from '@/components/LFOControls'
 import LinearKnob from '@/components/LinearKnob'
 import Sequencer from '@/components/Sequencer'
 import ModMatrix from '@/components/ModMatrix'
+import TiltContainer from '@/components/TiltContainer'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
@@ -132,23 +133,25 @@ export default function LAMBApp() {
         className={styles.page}
         style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor, '--gray': gray } as CSS}>
         {/* main binary tree graph */}
-        <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} />
+        <TiltContainer maxTilt={1} perspective={900}>
+          <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} />
 
-        {/* voices */}
-        <div className={styles.voices}>
-          <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-            <Voice pitch={pitch1} setPitch={setPitch1} scale={scaleOptions[scale] as ScaleName} />
+          {/* voices */}
+          <div className={styles.voices}>
+            <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
+              <Voice pitch={pitch1} setPitch={setPitch1} scale={scaleOptions[scale] as ScaleName} />
+            </div>
+            <div className={styles.voiceContainer}>
+              <Voice pitch={pitch2} setPitch={setPitch2} scale={scaleOptions[scale] as ScaleName} />
+            </div>
+            <div className={styles.voiceContainer}>
+              <Voice pitch={pitch3} setPitch={setPitch3} scale={scaleOptions[scale] as ScaleName} />
+            </div>
+            <div className={styles.voiceContainer}>
+              <Voice pitch={pitch4} setPitch={setPitch4} scale={scaleOptions[scale] as ScaleName} />
+            </div>
           </div>
-          <div className={styles.voiceContainer}>
-            <Voice pitch={pitch2} setPitch={setPitch2} scale={scaleOptions[scale] as ScaleName} />
-          </div>
-          <div className={styles.voiceContainer}>
-            <Voice pitch={pitch3} setPitch={setPitch3} scale={scaleOptions[scale] as ScaleName} />
-          </div>
-          <div className={styles.voiceContainer}>
-            <Voice pitch={pitch4} setPitch={setPitch4} scale={scaleOptions[scale] as ScaleName} />
-          </div>
-        </div>
+        </TiltContainer>
 
         {/* info overlay */}
         <div className={styles.infoLayer}>
@@ -168,184 +171,186 @@ export default function LAMBApp() {
             <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
           </div>
 
-          <div className={cn(styles.infoBody, { [styles.playing]: playing })}>
-            {/* main LFO controls */}
-            <div className={styles.lfoControls}>
-              <div className={cn(styles.lfoControl, { [styles.active]: playing })} style={{ opacity: flicker1 }}>
-                <LFOScope value={lfo1} />
-                <LFOControls
-                  init={lfo1Default}
-                  setFrequency={setLfo1Frequency}
-                  setDutyCycle={setLfo1Duty}
-                  setShape={setLfo1Shape}
-                  lfo1
-                />
+          <TiltContainer maxTilt={0.5} perspective={900}>
+            <div className={cn(styles.infoBody, { [styles.playing]: playing })}>
+              {/* main LFO controls */}
+              <div className={styles.lfoControls}>
+                <div className={cn(styles.lfoControl, { [styles.active]: playing })} style={{ opacity: flicker1 }}>
+                  <LFOScope value={lfo1} />
+                  <LFOControls
+                    init={lfo1Default}
+                    setFrequency={setLfo1Frequency}
+                    setDutyCycle={setLfo1Duty}
+                    setShape={setLfo1Shape}
+                    lfo1
+                  />
+                </div>
+                <div
+                  className={cn(styles.lfoControl, { [styles.active]: playing })}
+                  style={{ marginRight: 100, opacity: flicker2 }}>
+                  <LFOScope value={lfo2} />
+                  <LFOControls
+                    init={lfo2Default}
+                    setFrequency={setLfo2Frequency}
+                    setDutyCycle={setLfo2Duty}
+                    setShape={setLfo2Shape}
+                  />
+                </div>
+                <div
+                  className={cn(styles.lfoControl, { [styles.active]: playing })}
+                  style={{ marginRight: 197, opacity: flicker3 }}>
+                  <LFOScope value={lfo3} />
+                  <LFOControls
+                    init={lfo3Default}
+                    setFrequency={setLfo3Frequency}
+                    setDutyCycle={setLfo3Duty}
+                    setShape={setLfo3Shape}
+                  />
+                </div>
               </div>
-              <div
-                className={cn(styles.lfoControl, { [styles.active]: playing })}
-                style={{ marginRight: 100, opacity: flicker2 }}>
-                <LFOScope value={lfo2} />
-                <LFOControls
-                  init={lfo2Default}
-                  setFrequency={setLfo2Frequency}
-                  setDutyCycle={setLfo2Duty}
-                  setShape={setLfo2Shape}
-                />
-              </div>
-              <div
-                className={cn(styles.lfoControl, { [styles.active]: playing })}
-                style={{ marginRight: 197, opacity: flicker3 }}>
-                <LFOScope value={lfo3} />
-                <LFOControls
-                  init={lfo3Default}
-                  setFrequency={setLfo3Frequency}
-                  setDutyCycle={setLfo3Duty}
-                  setShape={setLfo3Shape}
-                />
-              </div>
-            </div>
 
-            {/* voice controls */}
-            <div className={cn(styles.voiceAux, { [styles.active]: playing })} style={{ opacity: flicker4 }}>
-              <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
-                <p>{midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch))}</p>
-              </div>
-              <div className={styles.voiceAuxControl}>
-                <p>{midiNoteNumberToNoteName(constrain(pitch2 + transpose, minPitch, maxPitch))}</p>
-              </div>
-              <div className={styles.voiceAuxControl}>
-                <p>{midiNoteNumberToNoteName(constrain(pitch3 + transpose, minPitch, maxPitch))}</p>
-              </div>
-              <div className={styles.voiceAuxControl}>
-                <p>{midiNoteNumberToNoteName(constrain(pitch4 + transpose, minPitch, maxPitch))}</p>
-                <div className={styles.voiceGlobalControls}>
-                  <div className={styles.voiceGlobalControl}>
-                    <LinearKnob
-                      min={0}
-                      max={11}
-                      step={1}
-                      value={transpose}
-                      onChange={setTranspose}
-                      strokeColor={secondaryColor}
-                    />
-                    <p>
-                      root:
-                      <br />
-                      {musicNotes[transpose]}
-                    </p>
+              {/* voice controls */}
+              <div className={cn(styles.voiceAux, { [styles.active]: playing })} style={{ opacity: flicker4 }}>
+                <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
+                  <p>{midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch))}</p>
+                </div>
+                <div className={styles.voiceAuxControl}>
+                  <p>{midiNoteNumberToNoteName(constrain(pitch2 + transpose, minPitch, maxPitch))}</p>
+                </div>
+                <div className={styles.voiceAuxControl}>
+                  <p>{midiNoteNumberToNoteName(constrain(pitch3 + transpose, minPitch, maxPitch))}</p>
+                </div>
+                <div className={styles.voiceAuxControl}>
+                  <p>{midiNoteNumberToNoteName(constrain(pitch4 + transpose, minPitch, maxPitch))}</p>
+                  <div className={styles.voiceGlobalControls}>
+                    <div className={styles.voiceGlobalControl}>
+                      <LinearKnob
+                        min={0}
+                        max={11}
+                        step={1}
+                        value={transpose}
+                        onChange={setTranspose}
+                        strokeColor={secondaryColor}
+                      />
+                      <p>
+                        root:
+                        <br />
+                        {musicNotes[transpose]}
+                      </p>
+                    </div>
+                    <div className={styles.voiceGlobalControl}>
+                      <LinearKnob
+                        min={0}
+                        max={scaleOptions.length - 1}
+                        step={1}
+                        value={scale}
+                        onChange={setScale}
+                        strokeColor={secondaryColor}
+                      />
+                      <p>
+                        scale:
+                        <br />
+                        {scaleOptions[scale]}
+                      </p>
+                    </div>
+                    <svg className={styles.voiceGlobalControlDivider} width="60" height="40">
+                      <line x1="0" y1="20" x2="60" y2="20" stroke={secondaryColor} strokeWidth="2" />
+                      <line x1="59" y1="0" x2="59" y2="40" stroke={secondaryColor} strokeWidth="2" />
+                    </svg>
                   </div>
-                  <div className={styles.voiceGlobalControl}>
+                </div>
+              </div>
+
+              {/* modulation */}
+              <div
+                className={cn(styles.modulationContainer, {
+                  [styles.active]: playing,
+                  [styles.bypassed]: modOff,
+                })}>
+                <Sequencer
+                  setSequencerValue={setSequencerValue}
+                  initialized={initialized}
+                  lfo1Phase={lfo1Phase}
+                  playing={playing}
+                />
+
+                <div className={styles.horizontalDivider} style={{ marginTop: -18, opacity: flicker5 }}></div>
+
+                <div className={styles.auxLfoContainer} style={{ opacity: flicker5 }}>
+                  <p>LFO4</p>
+
+                  <div className={styles.auxLfoControl}>
                     <LinearKnob
-                      min={0}
-                      max={scaleOptions.length - 1}
-                      step={1}
-                      value={scale}
-                      onChange={setScale}
+                      min={0.1}
+                      max={10}
+                      value={auxLfoFreq}
+                      onChange={updateAuxLfoFreq}
                       strokeColor={secondaryColor}
+                      taper="log"
                     />
-                    <p>
-                      scale:
-                      <br />
-                      {scaleOptions[scale]}
-                    </p>
+                    <p className={styles.auxLfoFreq}>{auxLfoFreq.toFixed(2)} Hz</p>
                   </div>
-                  <svg className={styles.voiceGlobalControlDivider} width="60" height="40">
-                    <line x1="0" y1="20" x2="60" y2="20" stroke={secondaryColor} strokeWidth="2" />
-                    <line x1="59" y1="0" x2="59" y2="40" stroke={secondaryColor} strokeWidth="2" />
+
+                  <div className={styles.auxLfoIndicator} style={{ opacity: auxLfo * 0.7 + 0.3 }}></div>
+                </div>
+
+                <div className={styles.shapeControl} style={{ opacity: flicker5 }}>
+                  <svg width={14} height={14} viewBox="0 0 14 14">
+                    <rect
+                      x={0}
+                      y={0}
+                      width={14}
+                      height={14}
+                      stroke={auxLfoShape ? gray : secondaryColor}
+                      strokeWidth={4}
+                      fill="none"
+                    />
+                  </svg>
+                  <ReactSwitch
+                    onChange={updateAuxLfoShape}
+                    checked={auxLfoShape}
+                    uncheckedIcon={false}
+                    checkedIcon={false}
+                    width={48}
+                    height={24}
+                  />
+                  <svg width={14} height={14} viewBox="0 0 14 14">
+                    <polygon
+                      points="7,1 13,13 1,13"
+                      stroke={auxLfoShape ? secondaryColor : gray}
+                      strokeWidth={2}
+                      fill="none"
+                    />
                   </svg>
                 </div>
-              </div>
-            </div>
 
-            {/* modulation */}
-            <div
-              className={cn(styles.modulationContainer, {
-                [styles.active]: playing,
-                [styles.bypassed]: modOff,
-              })}>
-              <Sequencer
-                setSequencerValue={setSequencerValue}
-                initialized={initialized}
-                lfo1Phase={lfo1Phase}
-                playing={playing}
-              />
+                <div
+                  className={styles.horizontalDivider}
+                  style={{ marginLeft: 190, marginTop: 30, width: 70, opacity: flicker5 }}></div>
 
-              <div className={styles.horizontalDivider} style={{ marginTop: -18, opacity: flicker5 }}></div>
-
-              <div className={styles.auxLfoContainer} style={{ opacity: flicker5 }}>
-                <p>LFO4</p>
-
-                <div className={styles.auxLfoControl}>
-                  <LinearKnob
-                    min={0.1}
-                    max={10}
-                    value={auxLfoFreq}
-                    onChange={updateAuxLfoFreq}
-                    strokeColor={secondaryColor}
-                    taper="log"
-                  />
-                  <p className={styles.auxLfoFreq}>{auxLfoFreq.toFixed(2)} Hz</p>
+                <div className={styles.modOff} style={{ opacity: flicker5 }}>
+                  <p>MOD OFF</p>
+                  <svg
+                    className={styles.modOffToggle}
+                    width="13"
+                    height="13"
+                    viewBox="0 0 13 13"
+                    onClick={() => {
+                      setModOff((modOff) => !modOff)
+                    }}>
+                    <line x1="0" y1="0" x2="13" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
+                    <line x1="13" y1="0" x2="0" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
+                  </svg>
                 </div>
 
-                <div className={styles.auxLfoIndicator} style={{ opacity: auxLfo * 0.7 + 0.3 }}></div>
+                {/* mod matrix */}
+                <ModMatrix playing={playing} />
+                <p className={styles.modMatrixLabel} style={{ opacity: flicker5 }}>
+                  MOD MATRIX
+                </p>
               </div>
-
-              <div className={styles.shapeControl} style={{ opacity: flicker5 }}>
-                <svg width={14} height={14} viewBox="0 0 14 14">
-                  <rect
-                    x={0}
-                    y={0}
-                    width={14}
-                    height={14}
-                    stroke={auxLfoShape ? gray : secondaryColor}
-                    strokeWidth={4}
-                    fill="none"
-                  />
-                </svg>
-                <ReactSwitch
-                  onChange={updateAuxLfoShape}
-                  checked={auxLfoShape}
-                  uncheckedIcon={false}
-                  checkedIcon={false}
-                  width={48}
-                  height={24}
-                />
-                <svg width={14} height={14} viewBox="0 0 14 14">
-                  <polygon
-                    points="7,1 13,13 1,13"
-                    stroke={auxLfoShape ? secondaryColor : gray}
-                    strokeWidth={2}
-                    fill="none"
-                  />
-                </svg>
-              </div>
-
-              <div
-                className={styles.horizontalDivider}
-                style={{ marginLeft: 190, marginTop: 30, width: 70, opacity: flicker5 }}></div>
-
-              <div className={styles.modOff} style={{ opacity: flicker5 }}>
-                <p>MOD OFF</p>
-                <svg
-                  className={styles.modOffToggle}
-                  width="13"
-                  height="13"
-                  viewBox="0 0 13 13"
-                  onClick={() => {
-                    setModOff((modOff) => !modOff)
-                  }}>
-                  <line x1="0" y1="0" x2="13" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
-                  <line x1="13" y1="0" x2="0" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
-                </svg>
-              </div>
-
-              {/* mod matrix */}
-              <ModMatrix playing={playing} />
-              <p className={styles.modMatrixLabel} style={{ opacity: flicker5 }}>
-                MOD MATRIX
-              </p>
             </div>
-          </div>
+          </TiltContainer>
         </div>
       </div>
     ),

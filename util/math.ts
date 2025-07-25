@@ -12,3 +12,11 @@ export function expoMap(t: number, k: number = 4) {
 export function constrain(n: number, min: number, max: number) {
   return Math.min(Math.max(n, min), max)
 }
+
+export function polar(angleDeg: number, radius: number, cx: number, cy: number) {
+  const rad = (angleDeg * Math.PI) / 180
+  return {
+    x: cx + radius * Math.cos(rad),
+    y: cy - radius * Math.sin(rad),
+  }
+}

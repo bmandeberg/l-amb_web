@@ -21,6 +21,7 @@ import LinearKnob from '@/components/LinearKnob'
 import Sequencer from '@/components/Sequencer'
 import ModMatrix from '@/components/ModMatrix'
 import TiltContainer from '@/components/TiltContainer'
+import Checkbox from '@/components/Checkbox'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
@@ -34,6 +35,9 @@ export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [modOff, setModOff] = useState(false)
+  const [syncLfos, setSyncLfos] = useState(false)
+  const [solo2, setSolo2] = useState(false)
+  const [solo3, setSolo3] = useState(false)
 
   const [pitch1, setPitch1] = useState(12)
   const [pitch2, setPitch2] = useState(24)
@@ -137,9 +141,12 @@ export default function LAMBApp() {
     [modMatrix, modOff, lfo1, lfo2, lfo3, auxLfo, sequencerValue]
   )
 
+  const showLfo1Controls = useMemo(() => playing && !solo2 && !solo3, [playing, solo2, solo3])
+  const showLfo2Controls = useMemo(() => playing && !solo3, [playing, solo3])
+
   // flicker effect
-  const { opacity: flicker1 } = useFlicker(playing)
-  const { opacity: flicker2 } = useFlicker(playing)
+  const { opacity: flicker1 } = useFlicker(showLfo1Controls)
+  const { opacity: flicker2 } = useFlicker(showLfo2Controls)
   const { opacity: flicker3 } = useFlicker(playing)
   const { opacity: flicker4 } = useFlicker(playing)
   const { opacity: flicker5 } = useFlicker(playing)
@@ -151,7 +158,7 @@ export default function LAMBApp() {
         style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor, '--gray': gray } as CSS}>
         {/* main binary tree graph */}
         <TiltContainer maxTilt={1} perspective={900}>
-          <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} />
+          <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />
 
           {/* voices */}
           <div className={styles.voices}>
@@ -192,43 +199,69 @@ export default function LAMBApp() {
             <div className={cn(styles.infoBody, { [styles.playing]: playing })}>
               {/* main LFO controls */}
               <div className={styles.lfoControls}>
-                <div className={cn(styles.lfoControl, { [styles.active]: playing })} style={{ opacity: flicker1 }}>
-                  <LFOScope value={lfo1} />
-                  <LFOControls
-                    init={lfo1Default}
-                    setFrequency={setLfo1Frequency}
-                    setDutyCycle={setLfo1Duty}
-                    setShape={setLfo1Shape}
-                    lfo1
-                    freqMod={modVal(0)}
-                    dutyMod={modVal(1)}
-                  />
+                <div
+                  className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
+                  style={{ opacity: flicker1 }}>
+                  <div className={styles.lfoControlHeader}>
+                    <p>LFO1</p>
+                    <div>
+                      <Checkbox checked={syncLfos} onChange={setSyncLfos} label="SYNC" />
+                    </div>
+                  </div>
+                  <div className={styles.lfoControl}>
+                    <LFOScope value={lfo1} />
+                    <LFOControls
+                      init={lfo1Default}
+                      setFrequency={setLfo1Frequency}
+                      setDutyCycle={setLfo1Duty}
+                      setShape={setLfo1Shape}
+                      lfo1
+                      freqMod={modVal(0)}
+                      dutyMod={modVal(1)}
+                    />
+                  </div>
                 </div>
                 <div
-                  className={cn(styles.lfoControl, { [styles.active]: playing })}
+                  className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
                   style={{ marginRight: 100, opacity: flicker2 }}>
-                  <LFOScope value={lfo2} />
-                  <LFOControls
-                    init={lfo2Default}
-                    setFrequency={setLfo2Frequency}
-                    setDutyCycle={setLfo2Duty}
-                    setShape={setLfo2Shape}
-                    freqMod={modVal(2)}
-                    dutyMod={modVal(3)}
-                  />
+                  <div className={styles.lfoControlHeader}>
+                    <p>LFO2</p>
+                    <div>
+                      <Checkbox checked={solo2} onChange={setSolo2} label="SOLO" />
+                    </div>
+                  </div>
+                  <div className={styles.lfoControl}>
+                    <LFOScope value={lfo2} />
+                    <LFOControls
+                      init={lfo2Default}
+                      setFrequency={setLfo2Frequency}
+                      setDutyCycle={setLfo2Duty}
+                      setShape={setLfo2Shape}
+                      freqMod={modVal(2)}
+                      dutyMod={modVal(3)}
+                    />
+                  </div>
                 </div>
                 <div
-                  className={cn(styles.lfoControl, { [styles.active]: playing })}
+                  className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
                   style={{ marginRight: 197, opacity: flicker3 }}>
-                  <LFOScope value={lfo3} />
-                  <LFOControls
-                    init={lfo3Default}
-                    setFrequency={setLfo3Frequency}
-                    setDutyCycle={setLfo3Duty}
-                    setShape={setLfo3Shape}
-                    freqMod={modVal(4)}
-                    dutyMod={modVal(5)}
-                  />
+                  <div className={styles.lfoControlHeader}>
+                    <p>LFO3</p>
+                    <div>
+                      <Checkbox checked={solo3} onChange={setSolo3} label="SOLO" />
+                    </div>
+                  </div>
+                  <div className={styles.lfoControl}>
+                    <LFOScope value={lfo3} />
+                    <LFOControls
+                      init={lfo3Default}
+                      setFrequency={setLfo3Frequency}
+                      setDutyCycle={setLfo3Duty}
+                      setShape={setLfo3Shape}
+                      freqMod={modVal(4)}
+                      dutyMod={modVal(5)}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -412,6 +445,9 @@ export default function LAMBApp() {
       flicker4,
       flicker5,
       modVal,
+      syncLfos,
+      solo2,
+      solo3,
     ]
   )
 

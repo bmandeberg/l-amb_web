@@ -1,0 +1,27 @@
+/* keeps layout predictable wherever you drop it */
+.wrapper {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* hide the browser checkbox, but leave it accessible */
+.native {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* unified icon sizing & interaction states */
+.icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.checkboxText {
+  margin-top: 6px;
+  font-size: 12px;
+  text-align: center;
+}

@@ -129,7 +129,10 @@ export default function LAMBApp() {
       if (modOff) return 0
 
       const modSources = [lfo1, lfo2, lfo3, sequencerValue, auxLfo]
-      return modSources.reduce((acc, source, index) => acc + (source - 0.5) * modMatrix[sourceIndex][index], 0)
+      return modSources.reduce(
+        (acc, source, destinationIndex) => acc + (source - 0.5) * modMatrix[sourceIndex][destinationIndex],
+        0
+      )
     },
     [modMatrix, modOff, lfo1, lfo2, lfo3, auxLfo, sequencerValue]
   )

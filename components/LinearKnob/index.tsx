@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useCallback } from 'react'
+import { useMemo, useRef, useCallback, useEffect } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { gray } from '@/app/globals'
 import { constrain, polar } from '@/util/math'
@@ -12,9 +12,11 @@ interface LinearKnobProps {
   value: number
   taper?: 'linear' | 'log' | number
   step?: number
+  modVal?: number // –0.5 … +0.5 modulation input
   strokeColor?: string
   glow?: boolean
   onChange?: (value: number) => void
+  setModdedValue?: (value: number) => void
   onStart?: () => void
   onEnd?: () => void
 }
@@ -25,10 +27,7 @@ const CX = SIZE / 2
 const CY = SIZE / 2
 const START_ANGLE = 225
 const RANGE = 270
-
-function snapToStep(v: number, step: number) {
-  return step > 0 ? Math.round(v / step) * step : v
-}
+const DRAG_SCALAR = 150 // drag sensitivity
 
 export default function LinearKnob({
   min,
@@ -36,16 +35,19 @@ export default function LinearKnob({
   value,
   taper = 'linear',
   step = 0,
+  modVal = 0,
   glow,
   strokeColor,
   onChange,
+  setModdedValue,
   onStart,
   onEnd,
 }: LinearKnobProps) {
-  // always use snapped value for visuals and drag
+  // Always snap the incoming value for consistency
   const snappedValue = useMemo(() => snapToStep(value, step), [value, step])
   const valueRef = useRef(snappedValue)
 
+  // Convert ratio ↔ value (taper + step)
   const ratioToValue = useCallback(
     (r: number) => {
       r = constrain(r, 0, 1)
@@ -79,12 +81,22 @@ export default function LinearKnob({
     [min, max, taper]
   )
 
+  // Base ratio from the snappedValue
+  const baseRatio = useMemo(() => valueToRatio(value), [value, valueToRatio])
+
+  // Clamp modulation input to –0.5…+0.5, then shift the display ratio
+  const displayRatio = useMemo(() => constrain(baseRatio + modVal, 0, 1), [baseRatio, modVal])
+
+  // Drag logic remains based on baseRatio/value only
   const drag = useGesture({
     onDrag: ({ movement: [dx, dy] }) => {
-      const dragScalar = 150
-      const delta = (dx - dy) / dragScalar
+      const delta = (dx - dy) / DRAG_SCALAR
       const startRatio = valueToRatio(valueRef.current)
       const newRatio = constrain(startRatio + delta, 0, 1)
+
+      // update actual value that includes modulation
+      setModdedValue?.(ratioToValue(newRatio + modVal))
+
       const newValue = ratioToValue(newRatio)
       onChange?.(newValue)
     },
@@ -95,17 +107,20 @@ export default function LinearKnob({
     onDragEnd: () => onEnd?.(),
   })
 
-  // always use the snapped value for visuals
-  const ratio = useMemo(() => valueToRatio(snappedValue), [snappedValue, valueToRatio])
+  // update actual value that includes modulation
+  useEffect(() => {
+    setModdedValue?.(ratioToValue(baseRatio + modVal))
+  }, [modVal, ratioToValue, setModdedValue, baseRatio])
 
+  // Build SVG paths & rotation using displayRatio
   const filledArcD = useMemo(() => {
-    if (ratio <= 0) return ''
-    const endAngle = START_ANGLE - ratio * RANGE
+    if (displayRatio <= 0) return ''
+    const endAng = START_ANGLE - displayRatio * RANGE
     const { x: x0, y: y0 } = polar(START_ANGLE, RADIUS, CX, CY)
-    const { x: x1, y: y1 } = polar(endAngle, RADIUS, CX, CY)
-    const largeArc = ratio * RANGE > 180 ? 1 : 0
+    const { x: x1, y: y1 } = polar(endAng, RADIUS, CX, CY)
+    const largeArc = displayRatio * RANGE > 180 ? 1 : 0
     return `M ${x0} ${y0} A ${RADIUS} ${RADIUS} 0 ${largeArc} 1 ${x1} ${y1}`
-  }, [ratio])
+  }, [displayRatio])
 
   const content = useMemo(
     () => (
@@ -132,7 +147,7 @@ export default function LinearKnob({
             fill="none"
             stroke={gray}
             strokeWidth="3"
-            transform={`rotate(${ratio * RANGE} ${CX} ${CY})`}
+            transform={`rotate(${displayRatio * RANGE} ${CX} ${CY})`}
           />
 
           {/* filled arc */}
@@ -149,8 +164,12 @@ export default function LinearKnob({
         </svg>
       </div>
     ),
-    [drag, filledArcD, strokeColor, glow, ratio]
+    [drag, filledArcD, strokeColor, glow, displayRatio]
   )
 
   return content
+}
+
+function snapToStep(v: number, step: number) {
+  return step > 0 ? Math.round(v / step) * step : v
 }

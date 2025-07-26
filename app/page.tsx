@@ -12,6 +12,7 @@ import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
 import useLFO from '@/hooks/useLFO'
 import useFlicker from '@/hooks/useFlicker'
+import useLambStore from '@/app/state'
 import Voice, { ScaleName, scales, minPitch, maxPitch } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
 import LFOScope from '@/components/LFOScope'
@@ -120,6 +121,19 @@ export default function LAMBApp() {
     [setAuxLfoFrequency]
   )
 
+  // apply modulation
+  const modMatrix = useLambStore((state) => state.modMatrix)
+
+  const modVal = useCallback(
+    (sourceIndex: number) => {
+      if (modOff) return 0
+
+      const modSources = [lfo1, lfo2, lfo3, sequencerValue, auxLfo]
+      return modSources.reduce((acc, source, index) => acc + (source - 0.5) * modMatrix[sourceIndex][index], 0)
+    },
+    [modMatrix, modOff, lfo1, lfo2, lfo3, auxLfo, sequencerValue]
+  )
+
   // flicker effect
   const { opacity: flicker1 } = useFlicker(playing)
   const { opacity: flicker2 } = useFlicker(playing)
@@ -139,16 +153,16 @@ export default function LAMBApp() {
           {/* voices */}
           <div className={styles.voices}>
             <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-              <Voice pitch={pitch1} setPitch={setPitch1} scale={scaleOptions[scale] as ScaleName} />
+              <Voice pitch={pitch1} setPitch={setPitch1} scale={scaleOptions[scale] as ScaleName} modVal={modVal(6)} />
             </div>
             <div className={styles.voiceContainer}>
-              <Voice pitch={pitch2} setPitch={setPitch2} scale={scaleOptions[scale] as ScaleName} />
+              <Voice pitch={pitch2} setPitch={setPitch2} scale={scaleOptions[scale] as ScaleName} modVal={modVal(7)} />
             </div>
             <div className={styles.voiceContainer}>
-              <Voice pitch={pitch3} setPitch={setPitch3} scale={scaleOptions[scale] as ScaleName} />
+              <Voice pitch={pitch3} setPitch={setPitch3} scale={scaleOptions[scale] as ScaleName} modVal={modVal(8)} />
             </div>
             <div className={styles.voiceContainer}>
-              <Voice pitch={pitch4} setPitch={setPitch4} scale={scaleOptions[scale] as ScaleName} />
+              <Voice pitch={pitch4} setPitch={setPitch4} scale={scaleOptions[scale] as ScaleName} modVal={modVal(9)} />
             </div>
           </div>
         </TiltContainer>
@@ -183,6 +197,8 @@ export default function LAMBApp() {
                     setDutyCycle={setLfo1Duty}
                     setShape={setLfo1Shape}
                     lfo1
+                    freqMod={modVal(0)}
+                    dutyMod={modVal(1)}
                   />
                 </div>
                 <div
@@ -194,6 +210,8 @@ export default function LAMBApp() {
                     setFrequency={setLfo2Frequency}
                     setDutyCycle={setLfo2Duty}
                     setShape={setLfo2Shape}
+                    freqMod={modVal(2)}
+                    dutyMod={modVal(3)}
                   />
                 </div>
                 <div
@@ -205,6 +223,8 @@ export default function LAMBApp() {
                     setFrequency={setLfo3Frequency}
                     setDutyCycle={setLfo3Duty}
                     setShape={setLfo3Shape}
+                    freqMod={modVal(4)}
+                    dutyMod={modVal(5)}
                   />
                 </div>
               </div>
@@ -388,6 +408,7 @@ export default function LAMBApp() {
       flicker3,
       flicker4,
       flicker5,
+      modVal,
     ]
   )
 

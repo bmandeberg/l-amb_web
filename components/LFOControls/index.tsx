@@ -11,10 +11,20 @@ interface LFOControlsProps {
   lfo1?: boolean
   setFrequency: React.RefObject<null | ((hz: number) => void)>
   setDutyCycle: React.RefObject<null | ((d: number) => void)>
+  freqMod: number
+  dutyMod: number
   setShape: React.RefObject<null | ((s: 0 | 1) => void)>
 }
 
-export default function LFOControls({ init, lfo1, setFrequency, setDutyCycle, setShape }: LFOControlsProps) {
+export default function LFOControls({
+  init,
+  lfo1,
+  setFrequency,
+  setDutyCycle,
+  freqMod,
+  dutyMod,
+  setShape,
+}: LFOControlsProps) {
   const [frequency, setLocalFrequency] = useState<number>(init.frequency)
   const [dutyCycle, setLocalDutyCycle] = useState<number>(init.dutyCycle)
   const [shape, setLocalShape] = useState<boolean>(!!init.shape)
@@ -23,7 +33,6 @@ export default function LFOControls({ init, lfo1, setFrequency, setDutyCycle, se
 
   const updateFrequency = useCallback(
     (hz: number) => {
-      setLocalFrequency(hz)
       if (lfo1) {
         setLfo1Freq(hz)
       }
@@ -34,7 +43,6 @@ export default function LFOControls({ init, lfo1, setFrequency, setDutyCycle, se
 
   const updateDutyCycle = useCallback(
     (d: number) => {
-      setLocalDutyCycle(d)
       setDutyCycle?.current?.(d)
     },
     [setDutyCycle]
@@ -56,14 +64,24 @@ export default function LFOControls({ init, lfo1, setFrequency, setDutyCycle, se
             min={0.05}
             max={10}
             value={frequency}
-            onChange={updateFrequency}
+            onChange={setLocalFrequency}
+            setModdedValue={updateFrequency}
             strokeColor={secondaryColor}
             taper="log"
+            modVal={freqMod}
           />
           <p>FREQ</p>
         </div>
         <div className={styles.lfoControl} style={{ marginLeft: -20 }}>
-          <LinearKnob min={0} max={1} value={dutyCycle} onChange={updateDutyCycle} strokeColor={secondaryColor} />
+          <LinearKnob
+            min={0}
+            max={1}
+            value={dutyCycle}
+            onChange={setLocalDutyCycle}
+            setModdedValue={updateDutyCycle}
+            strokeColor={secondaryColor}
+            modVal={dutyMod}
+          />
           <p>DUTY</p>
         </div>
         <div className={styles.shapeControl}>
@@ -92,7 +110,7 @@ export default function LFOControls({ init, lfo1, setFrequency, setDutyCycle, se
         </div>
       </div>
     ),
-    [dutyCycle, frequency, shape, updateDutyCycle, updateFrequency, updateShape]
+    [dutyCycle, frequency, shape, updateDutyCycle, updateFrequency, updateShape, freqMod, dutyMod]
   )
 
   return content

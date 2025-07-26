@@ -27,9 +27,10 @@ interface VoiceProps {
   pitch: number
   setPitch: (value: number) => void
   scale: ScaleName
+  modVal: number
 }
 
-export default function Voice({ pitch, setPitch, scale }: VoiceProps) {
+export default function Voice({ pitch, setPitch, scale, modVal }: VoiceProps) {
   const [localPitch, setLocalPitch] = useState(pitch)
   const pitchRef = useRef(pitch)
 
@@ -57,7 +58,6 @@ export default function Voice({ pitch, setPitch, scale }: VoiceProps) {
 
   const updatePitch = useCallback(
     (value: number) => {
-      setLocalPitch(value)
       setPitch(availablePitches[value - 1] || minPitch)
     },
     [availablePitches, setPitch]
@@ -74,6 +74,8 @@ export default function Voice({ pitch, setPitch, scale }: VoiceProps) {
         closestIndex = i
       }
     }
+
+    setLocalPitch(closestIndex + 1)
     updatePitch(closestIndex + 1)
   }, [availablePitches, updatePitch])
 
@@ -85,13 +87,15 @@ export default function Voice({ pitch, setPitch, scale }: VoiceProps) {
           max={availablePitches.length}
           step={1}
           value={localPitch}
-          onChange={updatePitch}
+          onChange={setLocalPitch}
+          setModdedValue={updatePitch}
           strokeColor={primaryColor}
           glow
+          modVal={modVal}
         />
       </div>
     ),
-    [availablePitches, localPitch, updatePitch]
+    [availablePitches, localPitch, updatePitch, modVal]
   )
 
   return content

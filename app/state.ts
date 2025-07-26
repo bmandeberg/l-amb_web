@@ -1,5 +1,8 @@
 import { create } from 'zustand'
 
+const NUM_MOD_SOURCES = 5
+const NUM_MOD_DESTINATIONS = 10
+
 export interface LambStore {
   lfo1Freq: number
   setLfo1Freq: (freq: number) => void
@@ -10,7 +13,7 @@ export interface LambStore {
 const useLambStore = create<LambStore>((set) => ({
   lfo1Freq: 1,
   setLfo1Freq: (freq: number) => set({ lfo1Freq: freq }),
-  modMatrix: Array.from({ length: 10 }, () => Array(5).fill(0)),
+  modMatrix: Array.from({ length: NUM_MOD_DESTINATIONS }, () => Array(NUM_MOD_SOURCES).fill(0)),
   setModMatrix: (modMatrix: number[][]) => set({ modMatrix }),
 }))
 

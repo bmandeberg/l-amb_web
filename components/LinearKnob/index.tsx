@@ -26,6 +26,10 @@ const CY = SIZE / 2
 const START_ANGLE = 225
 const RANGE = 270
 
+function snapToStep(v: number, step: number) {
+  return step > 0 ? Math.round(v / step) * step : v
+}
+
 export default function LinearKnob({
   min,
   max,
@@ -38,38 +42,33 @@ export default function LinearKnob({
   onStart,
   onEnd,
 }: LinearKnobProps) {
-  const valueRef = useRef(value)
+  // always use snapped value for visuals and drag
+  const snappedValue = useMemo(() => snapToStep(value, step), [value, step])
+  const valueRef = useRef(snappedValue)
 
-  // Convert a normalized ratio [0–1] → actual value, applying taper
   const ratioToValue = useCallback(
     (r: number) => {
       r = constrain(r, 0, 1)
       let v: number
       if (taper === 'log') {
-        // log taper: equal steps in ratio give multiplicative steps in value
+        if (min <= 0) throw new Error('Log taper requires min > 0')
         v = Math.exp(Math.log(min) + r * (Math.log(max) - Math.log(min)))
       } else if (typeof taper === 'number') {
-        // custom exponent
         v = min + (max - min) * Math.pow(r, taper)
       } else {
-        // linear
         v = min + (max - min) * r
       }
-      // snap to step
-      if (step > 0) {
-        v = Math.round(v / step) * step
-      }
-      return constrain(v, min, max)
+      return constrain(snapToStep(v, step), min, max)
     },
     [min, max, taper, step]
   )
 
-  // Convert an actual value → normalized ratio [0–1], applying inverse taper
   const valueToRatio = useCallback(
     (v: number) => {
       const clamped = constrain(v, min, max)
       const linearR = (clamped - min) / (max - min)
       if (taper === 'log') {
+        if (min <= 0) throw new Error('Log taper requires min > 0')
         return (Math.log(clamped) - Math.log(min)) / (Math.log(max) - Math.log(min))
       }
       if (typeof taper === 'number') {
@@ -82,7 +81,6 @@ export default function LinearKnob({
 
   const drag = useGesture({
     onDrag: ({ movement: [dx, dy] }) => {
-      // compute how much to nudge the ratio
       const dragScalar = 150
       const delta = (dx - dy) / dragScalar
       const startRatio = valueToRatio(valueRef.current)
@@ -91,14 +89,14 @@ export default function LinearKnob({
       onChange?.(newValue)
     },
     onDragStart: () => {
-      valueRef.current = value
+      valueRef.current = snappedValue
       onStart?.()
     },
     onDragEnd: () => onEnd?.(),
   })
 
-  // current ratio drives the arc and pointer
-  const ratio = useMemo(() => valueToRatio(value), [value, valueToRatio])
+  // always use the snapped value for visuals
+  const ratio = useMemo(() => valueToRatio(snappedValue), [snappedValue, valueToRatio])
 
   const filledArcD = useMemo(() => {
     if (ratio <= 0) return ''
@@ -108,8 +106,6 @@ export default function LinearKnob({
     const largeArc = ratio * RANGE > 180 ? 1 : 0
     return `M ${x0} ${y0} A ${RADIUS} ${RADIUS} 0 ${largeArc} 1 ${x1} ${y1}`
   }, [ratio])
-
-  const rotation = ratio * RANGE
 
   const content = useMemo(
     () => (
@@ -136,7 +132,7 @@ export default function LinearKnob({
             fill="none"
             stroke={gray}
             strokeWidth="3"
-            transform={`rotate(${rotation} ${CX} ${CY})`}
+            transform={`rotate(${ratio * RANGE} ${CX} ${CY})`}
           />
 
           {/* filled arc */}
@@ -153,7 +149,7 @@ export default function LinearKnob({
         </svg>
       </div>
     ),
-    [drag, filledArcD, rotation, strokeColor, glow]
+    [drag, filledArcD, strokeColor, glow, ratio]
   )
 
   return content

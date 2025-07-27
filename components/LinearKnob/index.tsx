@@ -19,6 +19,7 @@ interface LinearKnobProps {
   setModdedValue?: (value: number) => void
   onStart?: () => void
   onEnd?: () => void
+  defaultValue?: number
 }
 
 const SIZE = 70
@@ -42,10 +43,17 @@ export default function LinearKnob({
   setModdedValue,
   onStart,
   onEnd,
+  defaultValue,
 }: LinearKnobProps) {
   // Always snap the incoming value for consistency
   const snappedValue = useMemo(() => snapToStep(value, step), [value, step])
   const valueRef = useRef(snappedValue)
+  const initialValue = useRef(defaultValue ?? snappedValue)
+
+  const modValRef = useRef(modVal)
+  useEffect(() => {
+    modValRef.current = modVal
+  }, [modVal])
 
   // Convert ratio ↔ value (taper + step)
   const ratioToValue = useCallback(
@@ -107,6 +115,14 @@ export default function LinearKnob({
     onDragEnd: () => onEnd?.(),
   })
 
+  const handleDoubleClick = useCallback(() => {
+    // Reset to initial value on double-click
+    const resetValue = initialValue.current ?? snappedValue
+    const newRatio = valueToRatio(resetValue)
+    setModdedValue?.(ratioToValue(newRatio + modValRef.current))
+    onChange?.(resetValue)
+  }, [onChange, ratioToValue, setModdedValue, snappedValue, valueToRatio])
+
   // update actual value that includes modulation
   useEffect(() => {
     setModdedValue?.(ratioToValue(baseRatio + modVal))
@@ -124,7 +140,12 @@ export default function LinearKnob({
 
   const content = useMemo(
     () => (
-      <div className={styles.knobContainer} style={{ width: SIZE, height: SIZE }} draggable="false" {...drag()}>
+      <div
+        className={styles.knobContainer}
+        style={{ width: SIZE, height: SIZE }}
+        draggable="false"
+        {...drag()}
+        onDoubleClick={handleDoubleClick}>
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
           <defs>
             <filter id="knobArcGlow" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
@@ -164,7 +185,7 @@ export default function LinearKnob({
         </svg>
       </div>
     ),
-    [drag, filledArcD, strokeColor, glow, displayRatio]
+    [drag, filledArcD, strokeColor, glow, displayRatio, handleDoubleClick]
   )
 
   return content

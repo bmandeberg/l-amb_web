@@ -128,6 +128,7 @@ export default function LFOControls({
             setModdedValue={updateDutyCycle}
             strokeColor={secondaryColor}
             modVal={dutyMod}
+            defaultValue={0.5}
           />
           <p className={styles.lfoControlValue}>{(dutyCycle * 100).toFixed(0) + '%'}</p>
           <p className={styles.lfoControlLabel}>DUTY</p>

@@ -112,7 +112,12 @@ export default function LFOControls({
             taper={syncLfos ? undefined : 'log'}
             modVal={freqMod}
           />
-          <p>FREQ</p>
+          <p className={styles.lfoControlValue}>
+            {syncLfos
+              ? (clockDivMultIndex < numClockOptions / 2 - 1 ? '÷' : '×') + clockDivMultOptions[clockDivMultIndex]
+              : frequency.toFixed(2) + ' Hz'}
+          </p>
+          <p className={styles.lfoControlLabel}>FREQ</p>
         </div>
         <div className={styles.lfoControl} style={{ marginLeft: -20 }}>
           <LinearKnob
@@ -124,7 +129,8 @@ export default function LFOControls({
             strokeColor={secondaryColor}
             modVal={dutyMod}
           />
-          <p>DUTY</p>
+          <p className={styles.lfoControlValue}>{(dutyCycle * 100).toFixed(0) + '%'}</p>
+          <p className={styles.lfoControlLabel}>DUTY</p>
         </div>
         <div className={styles.shapeControl}>
           <svg width={14} height={14} viewBox="0 0 14 14">

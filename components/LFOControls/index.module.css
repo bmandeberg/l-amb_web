@@ -11,10 +11,20 @@
   font-size: 28px;
   transform: scale(0.65);
   margin-right: -2px;
+  position: relative;
 }
 
-.lfoControl p {
+.lfoControlLabel {
   margin-top: -4px;
+}
+
+.lfoControlValue {
+  text-align: center;
+  position: absolute;
+  top: 100%;
+  left: 25%;
+  transform: translateX(-50%);
+  font-size: 18px;
 }
 
 .shapeControl {

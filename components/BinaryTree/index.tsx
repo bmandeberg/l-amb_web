@@ -3,7 +3,7 @@ import { expoMap } from '@/util/math'
 import cn from 'classnames'
 import styles from './index.module.css'
 
-const HIDDEN_OPACITY = 0.05
+const HIDDEN_OPACITY = 0.075
 
 interface MixersProps {
   lfo1: number

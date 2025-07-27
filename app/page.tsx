@@ -59,12 +59,14 @@ export default function LAMBApp() {
     setFrequency: setLfo2Frequency,
     setDuty: setLfo2Duty,
     setShape: setLfo2Shape,
+    setPhase: setLfo2Phase,
   } = useLFO(initialized, lfo2Default)
   const {
     value: lfo3,
     setFrequency: setLfo3Frequency,
     setDuty: setLfo3Duty,
     setShape: setLfo3Shape,
+    setPhase: setLfo3Phase,
   } = useLFO(initialized, lfo3Default)
 
   const playStop = useCallback(async () => {
@@ -239,6 +241,9 @@ export default function LAMBApp() {
                       setShape={setLfo2Shape}
                       freqMod={modVal(2)}
                       dutyMod={modVal(3)}
+                      syncLfos={syncLfos}
+                      lfo1Phase={lfo1Phase}
+                      setPhase={setLfo2Phase}
                     />
                   </div>
                 </div>
@@ -260,6 +265,9 @@ export default function LAMBApp() {
                       setShape={setLfo3Shape}
                       freqMod={modVal(4)}
                       dutyMod={modVal(5)}
+                      syncLfos={syncLfos}
+                      lfo1Phase={lfo1Phase}
+                      setPhase={setLfo3Phase}
                     />
                   </div>
                 </div>

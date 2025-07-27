@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import ReactSwitch from 'react-switch'
 import useLambStore from '@/app/state'
 import { LFOParameters } from '@/tone/createLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { gray, secondaryColor } from '@/app/globals'
+import { clockDivMultOptions, numClockOptions } from '@/util/clock'
 import styles from './index.module.css'
 
 interface LFOControlsProps {
@@ -14,6 +15,9 @@ interface LFOControlsProps {
   freqMod: number
   dutyMod: number
   setShape: React.RefObject<null | ((s: 0 | 1) => void)>
+  lfo1Phase?: React.RefObject<null | number>
+  setPhase?: React.RefObject<null | ((phase: number) => void)>
+  syncLfos?: boolean
 }
 
 export default function LFOControls({
@@ -24,22 +28,59 @@ export default function LFOControls({
   freqMod,
   dutyMod,
   setShape,
+  lfo1Phase,
+  setPhase,
+  syncLfos,
 }: LFOControlsProps) {
   const [frequency, setLocalFrequency] = useState<number>(init.frequency)
+  const frequencyRef = useRef<number>(frequency)
+  const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(Math.floor(numClockOptions / 2))
+  const clockDivMultRef = useRef<number>(clockDivMultIndex)
   const [dutyCycle, setLocalDutyCycle] = useState<number>(init.dutyCycle)
   const [shape, setLocalShape] = useState<boolean>(!!init.shape)
 
+  const lfo1Freq = useLambStore((state) => state.lfo1Freq)
   const setLfo1Freq = useLambStore((state) => state.setLfo1Freq)
 
+  useEffect(() => {
+    frequencyRef.current = frequency
+  }, [frequency])
+  useEffect(() => {
+    clockDivMultRef.current = clockDivMultIndex
+  }, [clockDivMultIndex])
+
   const updateFrequency = useCallback(
-    (hz: number) => {
+    (hzOrClockIndex: number) => {
       if (lfo1) {
-        setLfo1Freq(hz)
+        setLfo1Freq(hzOrClockIndex)
       }
-      setFrequency?.current?.(hz)
+
+      if (syncLfos) {
+        const clockDivMult = clockDivMultOptions[hzOrClockIndex]
+        const divMultFreq = hzOrClockIndex < numClockOptions / 2 ? lfo1Freq / clockDivMult : lfo1Freq * clockDivMult
+        setFrequency?.current?.(divMultFreq)
+      } else {
+        setFrequency?.current?.(hzOrClockIndex)
+      }
     },
-    [setFrequency, setLfo1Freq, lfo1]
+    [setFrequency, setLfo1Freq, lfo1, syncLfos, lfo1Freq]
   )
+
+  useEffect(() => {
+    if (syncLfos) {
+      const clockDivMult = clockDivMultOptions[clockDivMultRef.current]
+      const divMultFreq =
+        clockDivMultRef.current < numClockOptions / 2 ? lfo1Freq / clockDivMult : lfo1Freq * clockDivMult
+      setFrequency?.current?.(divMultFreq)
+
+      // set phase to match lfo1 phase
+      if (lfo1Phase && lfo1Phase?.current !== null) {
+        setPhase?.current?.(lfo1Phase.current)
+      }
+    } else {
+      setFrequency?.current?.(frequencyRef.current)
+    }
+  }, [lfo1Freq, syncLfos, setFrequency, setPhase, lfo1Phase])
 
   const updateDutyCycle = useCallback(
     (d: number) => {
@@ -61,13 +102,14 @@ export default function LFOControls({
       <div className={styles.lfoControls}>
         <div className={styles.lfoControl}>
           <LinearKnob
-            min={0.05}
-            max={10}
-            value={frequency}
-            onChange={setLocalFrequency}
+            min={syncLfos ? 0 : 0.05}
+            max={syncLfos ? numClockOptions - 1 : 10}
+            step={syncLfos ? 1 : undefined}
+            value={syncLfos ? clockDivMultIndex : frequency}
+            onChange={syncLfos ? setClockDivMultIndex : setLocalFrequency}
             setModdedValue={updateFrequency}
             strokeColor={secondaryColor}
-            taper="log"
+            taper={syncLfos ? undefined : 'log'}
             modVal={freqMod}
           />
           <p>FREQ</p>
@@ -110,7 +152,18 @@ export default function LFOControls({
         </div>
       </div>
     ),
-    [dutyCycle, frequency, shape, updateDutyCycle, updateFrequency, updateShape, freqMod, dutyMod]
+    [
+      dutyCycle,
+      frequency,
+      shape,
+      updateDutyCycle,
+      updateFrequency,
+      updateShape,
+      freqMod,
+      dutyMod,
+      syncLfos,
+      clockDivMultIndex,
+    ]
   )
 
   return content

@@ -122,7 +122,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
       setFrequency?.current?.(divMultFreq)
 
       // set phase to match lfo1 phase
-      if (lfo1Phase && lfo1Phase.current !== null) {
+      if (lfo1Phase && lfo1Phase?.current !== null) {
         setPhase?.current?.(lfo1Phase.current)
       }
     }

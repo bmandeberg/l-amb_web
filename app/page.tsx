@@ -153,6 +153,10 @@ export default function LAMBApp() {
   const { opacity: flicker4 } = useFlicker(playing)
   const { opacity: flicker5 } = useFlicker(playing)
 
+  const pitch1Level = useMemo(() => (1 - lfo3) * (1 - lfo2) * (1 - lfo1), [lfo1, lfo2, lfo3])
+  const pitch2Level = useMemo(() => lfo3 * (1 - lfo2) * (1 - lfo1), [lfo1, lfo2, lfo3])
+  const pitch3Level = useMemo(() => lfo2 * (1 - lfo1), [lfo1, lfo2])
+
   const content = useMemo(
     () => (
       <div
@@ -163,18 +167,46 @@ export default function LAMBApp() {
           <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />
 
           {/* voices */}
-          <div className={styles.voices}>
+          <div className={cn(styles.voices, { [styles.active]: playing, [styles.playing]: playing })}>
             <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-              <Voice pitch={pitch1} setPitch={setPitch1} scale={scaleOptions[scale] as ScaleName} modVal={modVal(6)} />
+              <Voice
+                pitch={pitch1}
+                setPitch={setPitch1}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(6)}
+                level={pitch1Level}
+                index={0}
+              />
             </div>
             <div className={styles.voiceContainer}>
-              <Voice pitch={pitch2} setPitch={setPitch2} scale={scaleOptions[scale] as ScaleName} modVal={modVal(7)} />
+              <Voice
+                pitch={pitch2}
+                setPitch={setPitch2}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(7)}
+                level={pitch2Level}
+                index={1}
+              />
             </div>
             <div className={styles.voiceContainer}>
-              <Voice pitch={pitch3} setPitch={setPitch3} scale={scaleOptions[scale] as ScaleName} modVal={modVal(8)} />
+              <Voice
+                pitch={pitch3}
+                setPitch={setPitch3}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(8)}
+                level={pitch3Level}
+                index={2}
+              />
             </div>
             <div className={styles.voiceContainer}>
-              <Voice pitch={pitch4} setPitch={setPitch4} scale={scaleOptions[scale] as ScaleName} modVal={modVal(9)} />
+              <Voice
+                pitch={pitch4}
+                setPitch={setPitch4}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(9)}
+                level={lfo1}
+                index={3}
+              />
             </div>
           </div>
         </TiltContainer>
@@ -456,6 +488,11 @@ export default function LAMBApp() {
       syncLfos,
       solo2,
       solo3,
+      setLfo2Phase,
+      setLfo3Phase,
+      pitch1Level,
+      pitch2Level,
+      pitch3Level,
     ]
   )
 

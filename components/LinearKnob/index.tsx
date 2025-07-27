@@ -3,8 +3,10 @@
 import { useMemo, useRef, useCallback, useEffect } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { gray } from '@/app/globals'
-import { constrain, polar } from '@/util/math'
+import { constrain, polar, snapToStep } from '@/util/math'
 import styles from './index.module.css'
+
+const GLOW_OPACITY = 0.8
 
 interface LinearKnobProps {
   min: number
@@ -15,6 +17,8 @@ interface LinearKnobProps {
   modVal?: number // –0.5 … +0.5 modulation input
   strokeColor?: string
   glow?: boolean
+  glowAmount?: number
+  glowIndex?: number
   onChange?: (value: number) => void
   setModdedValue?: (value: number) => void
   onStart?: () => void
@@ -38,6 +42,8 @@ export default function LinearKnob({
   step = 0,
   modVal = 0,
   glow,
+  glowAmount,
+  glowIndex,
   strokeColor,
   onChange,
   setModdedValue,
@@ -138,6 +144,8 @@ export default function LinearKnob({
     return `M ${x0} ${y0} A ${RADIUS} ${RADIUS} 0 ${largeArc} 1 ${x1} ${y1}`
   }, [displayRatio])
 
+  const svgFilterId = useMemo(() => `knobArcGlow-${glowIndex}`, [glowIndex])
+
   const content = useMemo(
     () => (
       <div
@@ -148,9 +156,9 @@ export default function LinearKnob({
         onDoubleClick={handleDoubleClick}>
         <svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
           <defs>
-            <filter id="knobArcGlow" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
+            <filter id={svgFilterId} x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
               <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
-              <feFlood floodColor="white" floodOpacity="0.72" result="tint" />
+              <feFlood floodColor="white" floodOpacity={(glowAmount ?? 1) * GLOW_OPACITY} result="tint" />
               <feComposite in="tint" in2="blur" operator="in" result="glow" />
               <feMerge>
                 <feMergeNode in="glow" />
@@ -179,18 +187,14 @@ export default function LinearKnob({
               stroke={strokeColor || gray}
               strokeWidth="3"
               strokeLinecap="round"
-              filter={glow ? 'url(#knobArcGlow)' : undefined}
+              filter={glow ? `url(#${svgFilterId})` : undefined}
             />
           )}
         </svg>
       </div>
     ),
-    [drag, filledArcD, strokeColor, glow, displayRatio, handleDoubleClick]
+    [drag, filledArcD, strokeColor, glow, displayRatio, handleDoubleClick, glowAmount, svgFilterId]
   )
 
   return content
-}
-
-function snapToStep(v: number, step: number) {
-  return step > 0 ? Math.round(v / step) * step : v
 }

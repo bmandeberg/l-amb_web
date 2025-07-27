@@ -31,6 +31,9 @@
   display: flex;
   gap: 122px;
   width: 961.6px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .voiceContainer {
@@ -59,7 +62,7 @@
   height: 100%;
 }
 
-.infoBody.playing {
+.playing {
   opacity: 1;
   transition: opacity 0.2s ease-in-out;
 }

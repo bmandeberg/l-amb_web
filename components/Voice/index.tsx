@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import LinearKnob from '@/components/LinearKnob'
-import { primaryColor } from '@/app/globals'
+import { lerpHex } from '@/util/math'
+import { primaryColor, gray } from '@/app/globals'
 import styles from './index.module.css'
 
 // MIDI note 12 - 84 (C0 - C6, 16.35Hz - 8372Hz)
@@ -28,9 +29,11 @@ interface VoiceProps {
   setPitch: (value: number) => void
   scale: ScaleName
   modVal: number
+  level: number
+  index: number
 }
 
-export default function Voice({ pitch, setPitch, scale, modVal }: VoiceProps) {
+export default function Voice({ pitch, setPitch, scale, modVal, level, index }: VoiceProps) {
   const [localPitch, setLocalPitch] = useState(pitch)
   const pitchRef = useRef(pitch)
 
@@ -89,13 +92,15 @@ export default function Voice({ pitch, setPitch, scale, modVal }: VoiceProps) {
           value={localPitch}
           onChange={setLocalPitch}
           setModdedValue={updatePitch}
-          strokeColor={primaryColor}
+          strokeColor={lerpHex(gray, primaryColor, level)}
           glow
+          glowAmount={level}
           modVal={modVal}
+          glowIndex={index}
         />
       </div>
     ),
-    [availablePitches, localPitch, updatePitch, modVal]
+    [availablePitches, localPitch, updatePitch, modVal, level, index]
   )
 
   return content

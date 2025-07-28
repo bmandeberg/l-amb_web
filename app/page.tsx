@@ -22,6 +22,7 @@ import Sequencer from '@/components/Sequencer'
 import ModMatrix from '@/components/ModMatrix'
 import TiltContainer from '@/components/TiltContainer'
 import Checkbox from '@/components/Checkbox'
+import Background from '@/components/Background'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
@@ -162,6 +163,9 @@ export default function LAMBApp() {
       <div
         className={styles.page}
         style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor, '--gray': gray } as CSS}>
+        {/* background */}
+        <Background levels={[pitch1Level, pitch2Level, pitch3Level, lfo1]} pitches={[pitch1, pitch2, pitch3, pitch4]} />
+
         {/* main binary tree graph */}
         <TiltContainer maxTilt={1} perspective={900}>
           <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />

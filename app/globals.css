@@ -1,5 +1,5 @@
 body {
-  background: #000;
+  background: #fff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 18px;
@@ -17,13 +17,13 @@ a {
 }
 
 .react-switch-handle {
-  background: #000 !important;
-  border: 2px solid #ff0000 !important;
+  background: transparent !important;
+  border: 2px solid #ff47ff !important;
 }
 
 .react-switch-bg {
-  background: #000 !important;
-  border: 1.7px solid #4d4d4d !important;
+  background: transparent !important;
+  border: 1.7px solid #666666 !important;
 }
 
 p,

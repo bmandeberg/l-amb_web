@@ -1,6 +1,6 @@
 'use client'
 
-import { CSSProperties as CSS, useState, useCallback, useEffect, useMemo } from 'react'
+import { CSSProperties as CSS, useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import Image from 'next/image'
 import * as Tone from 'tone'
 import cn from 'classnames'
@@ -31,6 +31,9 @@ const lfo3Default: LFOParameters = { frequency: 2, dutyCycle: 0.5, shape: 1 }
 const scaleOptions = Object.keys(scales)
 const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
+const BG_WIDTH = 2048 / 2
+const BG_HEIGHT = 1328 / 2
+
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -38,6 +41,7 @@ export default function LAMBApp() {
   const [syncLfos, setSyncLfos] = useState(false)
   const [solo2, setSolo2] = useState(false)
   const [solo3, setSolo3] = useState(false)
+  const bgGraphicRef = useRef<SVGLinearGradientElement>(null)
 
   const [pitch1, setPitch1] = useState(12)
   const [pitch2, setPitch2] = useState(24)
@@ -100,6 +104,28 @@ export default function LAMBApp() {
     }
   }, [playStop])
 
+  useEffect(() => {
+    function mouseMoveHandler(e: MouseEvent) {
+      if (!window || !bgGraphicRef.current) return
+      const { clientX, clientY } = e
+
+      const maxStopOpacity = constrain(1 - clientY / window.innerHeight, 0.1, 0.3)
+      bgGraphicRef.current.children[0].setAttribute(
+        'stop-opacity',
+        String((clientX / window.innerWidth) * maxStopOpacity)
+      )
+      bgGraphicRef.current.children[1].setAttribute(
+        'stop-opacity',
+        String((1 - clientX / window.innerWidth) * maxStopOpacity)
+      )
+    }
+
+    window.addEventListener('mousemove', mouseMoveHandler)
+    return () => {
+      window.removeEventListener('mousemove', mouseMoveHandler)
+    }
+  }, [])
+
   // modulation
   const [sequencerValue, setSequencerValue] = useState(0)
   const [auxLfoFreq, setAuxLfoFreq] = useState(1)
@@ -157,11 +183,69 @@ export default function LAMBApp() {
   const pitch2Level = useMemo(() => lfo3 * (1 - lfo2) * (1 - lfo1), [lfo1, lfo2, lfo3])
   const pitch3Level = useMemo(() => lfo2 * (1 - lfo1), [lfo1, lfo2])
 
+  const bgGraphic = useMemo(
+    () => (
+      <polygon points="28.6 627.1 283.2 627.1 395.4 820.2 1601.4 820.2 1693.7 661.4 1694.2 660.6 1694.2 211.1 1694.2 211.1 1634.7 108.6 232.2 108.6 196.8 169.5 14 484.1 14 602 28.6 627.1 28.6 627.1" />
+    ),
+    []
+  )
+
   const content = useMemo(
     () => (
       <div
         className={styles.page}
         style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor, '--gray': gray } as CSS}>
+        {/* background */}
+        <Image
+          className={styles.backgroundImage}
+          src="/bg.jpg"
+          alt="Background"
+          width={BG_WIDTH}
+          height={BG_HEIGHT}
+          draggable="false"
+        />
+
+        {/* container graphic */}
+        <TiltContainer maxTilt={1} perspective={700}>
+          <div className={styles.containerGraphicContainer}>
+            <svg
+              className={styles.containerGraphic}
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              version="1.1"
+              viewBox="0 0 1728 958"
+              width="1728"
+              fill="url(#gradientContainer)"
+              height="958">
+              <defs>
+                <clipPath id="shapeClip">{bgGraphic}</clipPath>
+
+                <filter id="blurContainer" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="20" />
+                </filter>
+
+                <linearGradient id="gradientContainer" x1="0%" y1="0%" x2="100%" y2="100%" ref={bgGraphicRef}>
+                  <stop offset="0%" stopColor="#fff" stopOpacity={0} />
+                  <stop offset="100%" stopColor="#fff" stopOpacity={0.5} />
+                </linearGradient>
+              </defs>
+
+              <image
+                href="/bg.jpg"
+                x="0"
+                y="0"
+                width="1728"
+                height="958"
+                preserveAspectRatio="xMidYMid slice"
+                clipPath="url(#shapeClip)"
+                filter="url(#blurContainer)"
+              />
+
+              {bgGraphic}
+            </svg>
+          </div>
+        </TiltContainer>
+
         {/* main binary tree graph */}
         <TiltContainer maxTilt={1} perspective={900}>
           <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />
@@ -216,7 +300,7 @@ export default function LAMBApp() {
           {/* header */}
           <div className={styles.header}>
             <div className={styles.headerLeft}>
-              <Image src="/logotype-red.png" alt="L-AMB Logo" width={289.36} height={40} />
+              <Image src="/logotype.png" alt="L-AMB Logo" width={289.36} height={40} />
               <Image
                 className={styles.playStopButton}
                 src={!playing ? '/play.svg' : '/stop.svg'}
@@ -226,7 +310,7 @@ export default function LAMBApp() {
                 onClick={playStop}
               />
             </div>
-            <Image src="/manberg-red.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
+            <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
           </div>
 
           <TiltContainer maxTilt={0.5} perspective={900}>
@@ -493,6 +577,7 @@ export default function LAMBApp() {
       pitch1Level,
       pitch2Level,
       pitch3Level,
+      bgGraphic,
     ]
   )
 

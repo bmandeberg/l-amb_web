@@ -6,6 +6,27 @@
   overflow: hidden;
 }
 
+.backgroundImage {
+  position: absolute;
+  width: 100vw;
+  height: auto;
+  bottom: -50px;
+  pointer-events: none;
+}
+
+.containerGraphicContainer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.containerGraphic {
+  filter: blur(2px);
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -48,7 +69,6 @@
   inset: 0;
   background-color: transparent;
   pointer-events: none;
-  opacity: 0.75;
 }
 
 .active {
@@ -73,7 +93,7 @@
   flex-direction: column;
   top: 170px;
   left: 10vw;
-  gap: 60px;
+  gap: 54px;
   width: 424px;
 }
 

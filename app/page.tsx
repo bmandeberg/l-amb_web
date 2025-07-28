@@ -11,7 +11,6 @@ import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
 import useLFO from '@/hooks/useLFO'
-import useFlicker from '@/hooks/useFlicker'
 import useLambStore from '@/app/state'
 import Voice, { ScaleName, scales, minPitch, maxPitch } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
@@ -172,22 +171,18 @@ export default function LAMBApp() {
   const showLfo1Controls = useMemo(() => playing && !solo2 && !solo3, [playing, solo2, solo3])
   const showLfo2Controls = useMemo(() => playing && !solo3, [playing, solo3])
 
-  // flicker effect
-  const { opacity: flicker1 } = useFlicker(showLfo1Controls)
-  const { opacity: flicker2 } = useFlicker(showLfo2Controls)
-  const { opacity: flicker3 } = useFlicker(playing)
-  const { opacity: flicker4 } = useFlicker(playing)
-  const { opacity: flicker5 } = useFlicker(playing)
-
   const pitch1Level = useMemo(() => (1 - lfo3) * (1 - lfo2) * (1 - lfo1), [lfo1, lfo2, lfo3])
   const pitch2Level = useMemo(() => lfo3 * (1 - lfo2) * (1 - lfo1), [lfo1, lfo2, lfo3])
   const pitch3Level = useMemo(() => lfo2 * (1 - lfo1), [lfo1, lfo2])
 
   const bgGraphic = useMemo(
     () => (
-      <polygon points="28.6 627.1 283.2 627.1 395.4 820.2 1601.4 820.2 1693.7 661.4 1694.2 660.6 1694.2 211.1 1694.2 211.1 1634.7 108.6 232.2 108.6 196.8 169.5 14 484.1 14 602 28.6 627.1 28.6 627.1" />
+      <polygon
+        className={cn(styles.bgClip, { [styles.active]: playing })}
+        points="28.6 627.1 283.2 627.1 395.4 820.2 1601.4 820.2 1693.7 661.4 1694.2 660.6 1694.2 211.1 1694.2 211.1 1634.7 108.6 232.2 108.6 196.8 169.5 14 484.1 14 602 28.6 627.1 28.6 627.1"
+      />
     ),
-    []
+    [playing]
   )
 
   const content = useMemo(
@@ -209,13 +204,14 @@ export default function LAMBApp() {
         <TiltContainer maxTilt={1} perspective={700}>
           <div className={styles.containerGraphicContainer}>
             <svg
-              className={styles.containerGraphic}
+              className={cn(styles.containerGraphic, { [styles.active]: playing })}
               xmlns="http://www.w3.org/2000/svg"
               xmlnsXlink="http://www.w3.org/1999/xlink"
               version="1.1"
               viewBox="0 0 1728 958"
               width="1728"
               fill="url(#gradientContainer)"
+              stroke="white"
               height="958">
               <defs>
                 <clipPath id="shapeClip">{bgGraphic}</clipPath>
@@ -246,55 +242,6 @@ export default function LAMBApp() {
           </div>
         </TiltContainer>
 
-        {/* main binary tree graph */}
-        <TiltContainer maxTilt={1} perspective={900}>
-          <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />
-
-          {/* voices */}
-          <div className={cn(styles.voices, { [styles.active]: playing, [styles.playing]: playing })}>
-            <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-              <Voice
-                pitch={pitch1}
-                setPitch={setPitch1}
-                scale={scaleOptions[scale] as ScaleName}
-                modVal={modVal(6)}
-                level={pitch1Level}
-                index={0}
-              />
-            </div>
-            <div className={styles.voiceContainer}>
-              <Voice
-                pitch={pitch2}
-                setPitch={setPitch2}
-                scale={scaleOptions[scale] as ScaleName}
-                modVal={modVal(7)}
-                level={pitch2Level}
-                index={1}
-              />
-            </div>
-            <div className={styles.voiceContainer}>
-              <Voice
-                pitch={pitch3}
-                setPitch={setPitch3}
-                scale={scaleOptions[scale] as ScaleName}
-                modVal={modVal(8)}
-                level={pitch3Level}
-                index={2}
-              />
-            </div>
-            <div className={styles.voiceContainer}>
-              <Voice
-                pitch={pitch4}
-                setPitch={setPitch4}
-                scale={scaleOptions[scale] as ScaleName}
-                modVal={modVal(9)}
-                level={lfo1}
-                index={3}
-              />
-            </div>
-          </div>
-        </TiltContainer>
-
         {/* info overlay */}
         <div className={styles.infoLayer}>
           {/* header */}
@@ -314,12 +261,10 @@ export default function LAMBApp() {
           </div>
 
           <TiltContainer maxTilt={0.5} perspective={900}>
-            <div className={cn(styles.infoBody, { [styles.playing]: playing })}>
+            <div className={cn(styles.infoBody, { [styles.active]: playing })}>
               {/* main LFO controls */}
               <div className={styles.lfoControls}>
-                <div
-                  className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
-                  style={{ opacity: flicker1 }}>
+                <div className={cn(styles.lfoControlContainer, { [styles.active]: showLfo1Controls })}>
                   <div className={styles.lfoControlHeader}>
                     <p>LFO1</p>
                     <div>
@@ -340,8 +285,8 @@ export default function LAMBApp() {
                   </div>
                 </div>
                 <div
-                  className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
-                  style={{ marginRight: 100, opacity: flicker2 }}>
+                  className={cn(styles.lfoControlContainer, { [styles.active]: showLfo2Controls })}
+                  style={{ marginRight: 100 }}>
                   <div className={styles.lfoControlHeader}>
                     <p>LFO2</p>
                     <div>
@@ -365,7 +310,7 @@ export default function LAMBApp() {
                 </div>
                 <div
                   className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
-                  style={{ marginRight: 197, opacity: flicker3 }}>
+                  style={{ marginRight: 197 }}>
                   <div className={styles.lfoControlHeader}>
                     <p>LFO3</p>
                     <div>
@@ -390,7 +335,7 @@ export default function LAMBApp() {
               </div>
 
               {/* voice controls */}
-              <div className={cn(styles.voiceAux, { [styles.active]: playing })} style={{ opacity: flicker4 }}>
+              <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
                 <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
                   <p>{midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch))}</p>
                 </div>
@@ -454,9 +399,9 @@ export default function LAMBApp() {
                   playing={playing}
                 />
 
-                <div className={styles.horizontalDivider} style={{ marginTop: -18, opacity: flicker5 }}></div>
+                <div className={styles.horizontalDivider} style={{ marginTop: -18 }}></div>
 
-                <div className={styles.auxLfoContainer} style={{ opacity: flicker5 }}>
+                <div className={styles.auxLfoContainer}>
                   <p>LFO4</p>
 
                   <div className={styles.auxLfoControl}>
@@ -474,7 +419,7 @@ export default function LAMBApp() {
                   <div className={styles.auxLfoIndicator} style={{ opacity: auxLfo * 0.7 + 0.3 }}></div>
                 </div>
 
-                <div className={styles.shapeControl} style={{ opacity: flicker5 }}>
+                <div className={styles.shapeControl}>
                   <svg width={14} height={14} viewBox="0 0 14 14">
                     <rect
                       x={0}
@@ -504,11 +449,9 @@ export default function LAMBApp() {
                   </svg>
                 </div>
 
-                <div
-                  className={styles.horizontalDivider}
-                  style={{ marginLeft: 190, marginTop: 30, width: 70, opacity: flicker5 }}></div>
+                <div className={styles.horizontalDivider} style={{ marginLeft: 190, marginTop: 30, width: 70 }}></div>
 
-                <div className={styles.modOff} style={{ opacity: flicker5 }}>
+                <div className={styles.modOff}>
                   <p>MOD OFF</p>
                   <svg
                     className={styles.modOffToggle}
@@ -525,13 +468,60 @@ export default function LAMBApp() {
 
                 {/* mod matrix */}
                 <ModMatrix playing={playing} />
-                <p className={styles.modMatrixLabel} style={{ opacity: flicker5 }}>
-                  MOD MATRIX
-                </p>
+                <p className={styles.modMatrixLabel}>MOD MATRIX</p>
               </div>
             </div>
           </TiltContainer>
         </div>
+
+        {/* main binary tree graph */}
+        <TiltContainer maxTilt={1} perspective={900}>
+          <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />
+
+          {/* voices */}
+          <div className={cn(styles.voices, { [styles.active]: playing })}>
+            <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
+              <Voice
+                pitch={pitch1}
+                setPitch={setPitch1}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(6)}
+                level={pitch1Level}
+                index={0}
+              />
+            </div>
+            <div className={styles.voiceContainer}>
+              <Voice
+                pitch={pitch2}
+                setPitch={setPitch2}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(7)}
+                level={pitch2Level}
+                index={1}
+              />
+            </div>
+            <div className={styles.voiceContainer}>
+              <Voice
+                pitch={pitch3}
+                setPitch={setPitch3}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(8)}
+                level={pitch3Level}
+                index={2}
+              />
+            </div>
+            <div className={styles.voiceContainer}>
+              <Voice
+                pitch={pitch4}
+                setPitch={setPitch4}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(9)}
+                level={lfo1}
+                index={3}
+              />
+            </div>
+          </div>
+        </TiltContainer>
       </div>
     ),
     [
@@ -563,11 +553,6 @@ export default function LAMBApp() {
       updateAuxLfoShape,
       auxLfo,
       modOff,
-      flicker1,
-      flicker2,
-      flicker3,
-      flicker4,
-      flicker5,
       modVal,
       syncLfos,
       solo2,
@@ -578,6 +563,8 @@ export default function LAMBApp() {
       pitch2Level,
       pitch3Level,
       bgGraphic,
+      showLfo1Controls,
+      showLfo2Controls,
     ]
   )
 

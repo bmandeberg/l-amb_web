@@ -3,7 +3,6 @@ import { useRef, useMemo } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { constrain } from '@/util/math'
 import useLambStore from '@/app/state'
-import useFlicker from '@/hooks/useFlicker'
 import styles from './index.module.css'
 
 export const modSources = ['LFO1', 'LFO2', 'LFO3', 'SEQ', 'LFO4']
@@ -45,11 +44,9 @@ export default function ModMatrix({ playing }: { playing: boolean }) {
     },
   })
 
-  const { opacity: flicker } = useFlicker(playing)
-
   const content = useMemo(
     () => (
-      <table className={styles.modMatrix} style={{ opacity: flicker }}>
+      <table className={cn(styles.modMatrix, { [styles.active]: playing })}>
         <thead>
           <tr>
             <th className={styles.noBorder}>

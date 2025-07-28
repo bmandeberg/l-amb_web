@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import ReactSwitch from 'react-switch'
+import cn from 'classnames'
 import useLambStore from '@/app/state'
 import { clockDivMultOptions, numClockOptions } from '@/util/clock'
 import { LFOParameters } from '@/tone/createLFO'
 import useLFO from '@/hooks/useLFO'
-import useFlicker from '@/hooks/useFlicker'
 import LinearKnob from '@/components/LinearKnob'
 import { secondaryColor, gray } from '@/app/globals'
 import styles from './index.module.css'
@@ -128,11 +128,9 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
     }
   }, [lfo1Freq, setFrequency, freeSeq, clockDivMultIndex, lfo1Phase, setPhase])
 
-  const { opacity: flicker } = useFlicker(playing)
-
   const content = useMemo(
     () => (
-      <div style={{ opacity: flicker }}>
+      <div className={cn(styles.sequencer, { [styles.active]: playing })}>
         <p className={styles.sequencerTitle}>SEQUENCER</p>
 
         {/* main sequencer knobs */}
@@ -237,7 +235,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
         </div>
       </div>
     ),
-    [step, values, skip, freeSeq, internalFreq, clockDivMultIndex, sequenceIndex, flicker]
+    [step, values, skip, freeSeq, internalFreq, clockDivMultIndex, sequenceIndex, playing]
   )
 
   return content

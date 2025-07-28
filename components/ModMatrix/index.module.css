@@ -7,6 +7,12 @@
   height: 290px;
   border-collapse: collapse;
   table-layout: fixed;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.modMatrix.active {
+  opacity: 1;
 }
 
 .modMatrix th,
@@ -39,5 +45,5 @@
 }
 
 .modValueText {
-  mix-blend-mode: screen;
+  mix-blend-mode: color-burn;
 }

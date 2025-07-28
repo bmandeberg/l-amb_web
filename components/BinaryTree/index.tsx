@@ -3,7 +3,7 @@ import { expoMap } from '@/util/math'
 import cn from 'classnames'
 import styles from './index.module.css'
 
-const HIDDEN_OPACITY = 0.075
+const HIDDEN_OPACITY = 0.15
 
 interface MixersProps {
   lfo1: number
@@ -19,7 +19,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
     () => (
       <svg
         id="Layer_1"
-        style={{ transform: 'scale(0.8)' }}
+        className={styles.binaryTree}
         xmlns="http://www.w3.org/2000/svg"
         version="1.1"
         width="1202"

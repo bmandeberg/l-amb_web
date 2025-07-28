@@ -8,4 +8,5 @@
   flex-direction: column;
   align-items: center;
   padding: 60px;
+  pointer-events: none;
 }

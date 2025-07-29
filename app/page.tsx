@@ -220,9 +220,10 @@ export default function LAMBApp() {
                   <feGaussianBlur in="SourceGraphic" stdDeviation="20" />
                 </filter>
 
-                <linearGradient id="gradientContainer" x1="0%" y1="0%" x2="100%" y2="100%" ref={bgGraphicRef}>
+                <linearGradient id="gradientContainer" x1="0%" y1="0%" x2="0%" y2="100%" ref={bgGraphicRef}>
                   <stop offset="0%" stopColor="#fff" stopOpacity={0} />
-                  <stop offset="100%" stopColor="#fff" stopOpacity={0.5} />
+                  <stop offset="50%" stopColor="#fff" stopOpacity={0.5} />
+                  <stop offset="100%" stopColor="#fff" stopOpacity={0} />
                 </linearGradient>
               </defs>
 

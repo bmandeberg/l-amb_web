@@ -103,20 +103,28 @@ export default function LAMBApp() {
     }
   }, [playStop])
 
+  // update linear gradient on the background container when the mouse moves
   useEffect(() => {
-    function mouseMoveHandler(e: MouseEvent) {
-      if (!window || !bgGraphicRef.current) return
-      const { clientX, clientY } = e
+    let rafId: number
 
-      const maxStopOpacity = constrain(1 - clientY / window.innerHeight, 0.1, 0.3)
-      bgGraphicRef.current.children[0].setAttribute(
-        'stop-opacity',
-        String((clientX / window.innerWidth) * maxStopOpacity)
-      )
-      bgGraphicRef.current.children[1].setAttribute(
-        'stop-opacity',
-        String((1 - clientX / window.innerWidth) * maxStopOpacity)
-      )
+    function mouseMoveHandler(e: MouseEvent) {
+      if (!window) return
+      if (rafId) cancelAnimationFrame(rafId)
+
+      rafId = requestAnimationFrame(() => {
+        if (!bgGraphicRef.current) return
+        const { clientX, clientY } = e
+
+        const maxStopOpacity = constrain(1 - clientY / window.innerHeight, 0.1, 0.3)
+        bgGraphicRef.current.children[0].setAttribute(
+          'stop-opacity',
+          String((clientX / window.innerWidth) * maxStopOpacity)
+        )
+        bgGraphicRef.current.children[1].setAttribute(
+          'stop-opacity',
+          String((1 - clientX / window.innerWidth) * maxStopOpacity)
+        )
+      })
     }
 
     window.addEventListener('mousemove', mouseMoveHandler)
@@ -177,9 +185,9 @@ export default function LAMBApp() {
 
   const bgGraphic = useMemo(
     () => (
-      <polygon
+      <path
         className={cn(styles.bgClip, { [styles.active]: playing })}
-        points="1049.3 108.6 678.1 108.6 663.5 133.6 217.7 133.6 14 484.1 14 602 28.6 627.1 283.2 627.1 395.4 820.2 490.5 819.9 513.1 781 834.3 781 857 820.2 1556.7 820.2 1621 709.6 1665.7 709.6 1694.2 660.6 1694.2 211.1 1672.4 173.6 1260.2 173.6 1236.9 133.6 1063.9 133.6 1049.3 108.6"
+        d="M1034.9,108.6h-342.3c-9,0-17.3,4.8-21.8,12.5h0c-4.5,7.7-12.8,12.5-21.8,12.5H232.2c-9,0-17.3,4.8-21.8,12.5L17.4,478.2c-2.2,3.8-3.4,8.2-3.4,12.7v104.3c0,4.5,1.2,8.8,3.4,12.7l3.9,6.7c4.5,7.8,12.8,12.5,21.8,12.5h225.6c9,0,17.3,4.8,21.8,12.5l97.6,168c4.5,7.8,12.9,12.6,21.9,12.5l66.1-.2c9,0,17.2-4.8,21.7-12.5l8-13.8c4.5-7.8,12.8-12.5,21.8-12.5h292.1c9,0,17.3,4.8,21.8,12.6l8.1,14c4.5,7.8,12.8,12.6,21.8,12.6h670.7c9,0,17.3-4.8,21.8-12.5l49.7-85.5c4.5-7.8,12.8-12.5,21.8-12.5h15.7c9,0,17.3-4.8,21.8-12.5l17.8-30.6c2.2-3.9,3.4-8.2,3.4-12.7V217.9c0-4.5-1.2-8.8-3.4-12.7l-11.1-19.1c-4.5-7.8-12.8-12.5-21.8-12.5h-383.2c-9,0-17.3-4.8-21.8-12.5l-8.7-14.9c-4.5-7.8-12.8-12.5-21.8-12.5h-144c-9,0-17.3-4.8-21.8-12.5h0c-4.5-7.7-12.8-12.5-21.8-12.5Z"
       />
     ),
     [playing]

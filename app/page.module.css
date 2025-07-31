@@ -28,7 +28,7 @@
 }
 
 .containerGraphic {
-  filter: blur(2px);
+  filter: blur(1.5px);
   opacity: 0;
   transition: opacity var(--transition-time) ease-in-out;
 }
@@ -41,6 +41,22 @@
 
 .bgClip.active {
   transform: scale(1);
+}
+
+.dividerLines {
+  stroke: #fff;
+  stroke-width: 1;
+  fill: none;
+  opacity: 0;
+  transform: scaleX(0.8);
+  transform-origin: center;
+  pointer-events: none;
+  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+}
+
+.dividerLines.active {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .header {
@@ -105,7 +121,7 @@
   flex-direction: column;
   top: 170px;
   left: 10.3vw;
-  gap: 54px;
+  gap: 57px;
   width: 424px;
 }
 
@@ -241,7 +257,7 @@
 .horizontalDivider {
   width: 160px;
   height: 1px;
-  background-color: var(--secondary-color);
+  background-color: transparent;
   margin-bottom: 26px;
   margin-left: 101px;
 }

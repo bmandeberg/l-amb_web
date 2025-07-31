@@ -8,7 +8,7 @@ const shareTechMono = Share_Tech_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'L-AMB Sequencer and Synthesizer',
+  title: 'L-AMB Sequencer / Synth',
   description: 'Custom musical sequencer and synthesizer using a binary tree of mixers',
 }
 

@@ -81,5 +81,5 @@
 .verticalDivider {
   width: 1px;
   height: 28px;
-  background-color: var(--secondary-color);
+  background-color: transparent;
 }

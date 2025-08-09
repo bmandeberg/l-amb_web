@@ -11,4 +11,5 @@
 
 .voiceType svg {
   cursor: pointer;
+  touch-action: none;
 }

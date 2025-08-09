@@ -15,12 +15,6 @@ export async function createLFO({
   // Make sure the worklet module is loaded once
   await ensureLFOWorkletLoaded()
 
-  // const node = new AudioWorkletNode(ctx, 'custom-lfo', {
-  //   numberOfOutputs: 1,
-  //   outputChannelCount: [1],
-  //   parameterData: { frequency, dutyCycle, shape },
-  // })
-
   const node = Tone.getContext().createAudioWorkletNode('custom-lfo', {
     numberOfOutputs: 1,
     outputChannelCount: [1],

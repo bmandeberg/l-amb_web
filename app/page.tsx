@@ -21,6 +21,7 @@ import Sequencer from '@/components/Sequencer'
 import ModMatrix from '@/components/ModMatrix'
 import TiltContainer from '@/components/TiltContainer'
 import Checkbox from '@/components/Checkbox'
+import VoiceTypeSelector, { VoiceType } from '@/components/VoiceTypeSelector'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
@@ -53,6 +54,10 @@ export default function LAMBApp() {
   const voiceBRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceCRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceDRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const [voiceAType, setVoiceAType] = useState<VoiceType>('triangle')
+  const [voiceBType, setVoiceBType] = useState<VoiceType>('triangle')
+  const [voiceCType, setVoiceCType] = useState<VoiceType>('triangle')
+  const [voiceDType, setVoiceDType] = useState<VoiceType>('triangle')
 
   const pitch1NoteName = useMemo(
     () => midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch)),
@@ -592,6 +597,7 @@ export default function LAMBApp() {
           {/* voices */}
           <div className={cn(styles.voices, { [styles.active]: playing })}>
             <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
+              <VoiceTypeSelector voiceType={voiceAType} setVoiceType={setVoiceAType} voiceRef={voiceARef} />
               <Voice
                 pitch={pitch1}
                 setPitch={setPitch1}
@@ -602,6 +608,7 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
+              <VoiceTypeSelector voiceType={voiceBType} setVoiceType={setVoiceBType} voiceRef={voiceBRef} />
               <Voice
                 pitch={pitch2}
                 setPitch={setPitch2}
@@ -612,6 +619,7 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
+              <VoiceTypeSelector voiceType={voiceCType} setVoiceType={setVoiceCType} voiceRef={voiceCRef} />
               <Voice
                 pitch={pitch3}
                 setPitch={setPitch3}
@@ -622,6 +630,7 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
+              <VoiceTypeSelector voiceType={voiceDType} setVoiceType={setVoiceDType} voiceRef={voiceDRef} />
               <Voice
                 pitch={pitch4}
                 setPitch={setPitch4}
@@ -680,6 +689,10 @@ export default function LAMBApp() {
       pitch2NoteName,
       pitch3NoteName,
       pitch4NoteName,
+      voiceAType,
+      voiceBType,
+      voiceCType,
+      voiceDType,
     ]
   )
 

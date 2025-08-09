@@ -21,6 +21,7 @@
   padding: 2px;
   text-align: center;
   touch-action: none;
+  font-weight: 400;
 }
 
 .noBorder {

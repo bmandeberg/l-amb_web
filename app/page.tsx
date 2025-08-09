@@ -24,7 +24,7 @@ import Checkbox from '@/components/Checkbox'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
-const lfo2Default: LFOParameters = { frequency: 0.5, dutyCycle: 0.25, shape: 0 }
+const lfo2Default: LFOParameters = { frequency: 0.5, dutyCycle: 0.25, shape: 1 }
 const lfo3Default: LFOParameters = { frequency: 2, dutyCycle: 0.5, shape: 1 }
 
 const scaleOptions = Object.keys(scales)

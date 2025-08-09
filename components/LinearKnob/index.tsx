@@ -24,6 +24,7 @@ interface LinearKnobProps {
   onStart?: () => void
   onEnd?: () => void
   defaultValue?: number
+  disableReset?: boolean
 }
 
 const SIZE = 70
@@ -50,6 +51,7 @@ export default function LinearKnob({
   onStart,
   onEnd,
   defaultValue,
+  disableReset,
 }: LinearKnobProps) {
   // Always snap the incoming value for consistency
   const snappedValue = useMemo(() => snapToStep(value, step), [value, step])
@@ -122,12 +124,13 @@ export default function LinearKnob({
   })
 
   const handleDoubleClick = useCallback(() => {
+    if (disableReset) return
     // Reset to initial value on double-click
     const resetValue = initialValue.current ?? snappedValue
     const newRatio = valueToRatio(resetValue)
     setModdedValue?.(ratioToValue(newRatio + modValRef.current))
     onChange?.(resetValue)
-  }, [onChange, ratioToValue, setModdedValue, snappedValue, valueToRatio])
+  }, [onChange, ratioToValue, setModdedValue, snappedValue, valueToRatio, disableReset])
 
   // update actual value that includes modulation
   useEffect(() => {

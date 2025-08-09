@@ -4,8 +4,8 @@ import { lerpHex } from '@/util/math'
 import { primaryColor, gray } from '@/app/globals'
 import styles from './index.module.css'
 
-// MIDI note 12 - 84 (C0 - C6, 16.35Hz - 8372Hz)
-export const minPitch = 12
+// MIDI note 24 - 84 (C1 - C6, 32.7Hz - 8372Hz)
+export const minPitch = 24
 export const maxPitch = 84
 
 export const scales = {
@@ -97,6 +97,7 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
           glowAmount={level}
           modVal={modVal}
           glowIndex={index}
+          disableReset
         />
       </div>
     ),

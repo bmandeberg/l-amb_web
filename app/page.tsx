@@ -56,6 +56,7 @@ export default function LAMBApp() {
     setDuty: setLfo1Duty,
     setShape: setLfo1Shape,
     phase: lfo1Phase,
+    node: lfo1Node,
   } = useLFO(initialized, lfo1Default)
   const {
     value: lfo2,
@@ -63,6 +64,7 @@ export default function LAMBApp() {
     setDuty: setLfo2Duty,
     setShape: setLfo2Shape,
     setPhase: setLfo2Phase,
+    node: lfo2Node,
   } = useLFO(initialized, lfo2Default)
   const {
     value: lfo3,
@@ -70,7 +72,47 @@ export default function LAMBApp() {
     setDuty: setLfo3Duty,
     setShape: setLfo3Shape,
     setPhase: setLfo3Phase,
+    node: lfo3Node,
   } = useLFO(initialized, lfo3Default)
+
+  // init audio path
+  useEffect(() => {
+    if (!initialized || !lfo3Node || !lfo2Node || !lfo1Node) return
+
+    const voiceAGain = new Tone.Gain(0)
+    const voiceA = new Tone.OmniOscillator({ volume: -8, frequency: 'C4', type: 'triangle' })
+      .connect(voiceAGain)
+      .start()
+    Tone.connect(lfo3Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceAGain.gain)))
+
+    const voiceBGain = new Tone.Gain(0)
+    const voiceB = new Tone.OmniOscillator({ volume: -8, frequency: 'E4', type: 'triangle' })
+      .connect(voiceBGain)
+      .start()
+    Tone.connect(lfo3Node, new Tone.Pow(2).connect(voiceBGain.gain))
+
+    const voiceABGain = new Tone.Gain(0)
+    voiceAGain.connect(voiceABGain)
+    voiceBGain.connect(voiceABGain)
+    Tone.connect(lfo2Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABGain.gain)))
+
+    const voiceCGain = new Tone.Gain(0)
+    const voiceC = new Tone.OmniOscillator({ volume: -8, frequency: 'G4', type: 'triangle' })
+      .connect(voiceCGain)
+      .start()
+    Tone.connect(lfo2Node, new Tone.Pow(2).connect(voiceCGain.gain))
+
+    const voiceABCGain = new Tone.Gain(0).toDestination()
+    voiceABGain.connect(voiceABCGain)
+    voiceCGain.connect(voiceABCGain)
+    Tone.connect(lfo1Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABCGain.gain)))
+
+    const voiceDGain = new Tone.Gain(0).toDestination()
+    const voiceD = new Tone.OmniOscillator({ volume: -8, frequency: 'F4', type: 'triangle' })
+      .connect(voiceDGain)
+      .start()
+    Tone.connect(lfo1Node, new Tone.Pow(2).connect(voiceDGain.gain))
+  }, [initialized, lfo3Node, lfo2Node, lfo1Node])
 
   const playStop = useCallback(async () => {
     if (!initialized) {

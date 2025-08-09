@@ -1,8 +1,10 @@
+import * as Tone from 'tone'
+
 let workletReady: Promise<void> | null = null
 
-export function ensureLFOWorkletLoaded(ctx: BaseAudioContext) {
+export function ensureLFOWorkletLoaded() {
   if (!workletReady) {
-    workletReady = ctx.audioWorklet.addModule('/worklets/lfo-processor.js')
+    workletReady = Tone.getContext().addAudioWorkletModule('/worklets/lfo-processor.js')
   }
   return workletReady
 }

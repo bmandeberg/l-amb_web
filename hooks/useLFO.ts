@@ -10,6 +10,7 @@ export default function useLFO(initialized: boolean, lfoParams: LFOParameters) {
   const setShape = useRef<null | ((s: 0 | 1) => void)>(null)
   const setPhase = useRef<null | ((phase: number) => void)>(null)
   const phase = useRef<null | number>(null)
+  const [node, setNode] = useState<null | AudioWorkletNode>(null)
 
   useEffect(() => {
     if (!initialized) return
@@ -28,6 +29,7 @@ export default function useLFO(initialized: boolean, lfoParams: LFOParameters) {
       setDuty.current = lfoObj.setDuty
       setShape.current = lfoObj.setShape
       setPhase.current = lfoObj.setPhase
+      setNode(lfoObj.node)
     })()
 
     return () => {
@@ -37,5 +39,5 @@ export default function useLFO(initialized: boolean, lfoParams: LFOParameters) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized])
 
-  return { value, setFrequency, setDuty, setShape, phase, setPhase }
+  return { value, setFrequency, setDuty, setShape, phase, setPhase, node }
 }

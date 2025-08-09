@@ -1,4 +1,4 @@
-import getNativeContext from '@/util/getNativeContext'
+import * as Tone from 'tone'
 import { ensureLFOWorkletLoaded } from '@/util/workletLoader'
 
 export interface LFOParameters {
@@ -13,10 +13,15 @@ export async function createLFO({
   shape = 0, // 0=square, 1=triangle
 }: LFOParameters) {
   // Make sure the worklet module is loaded once
-  const ctx = getNativeContext()
-  await ensureLFOWorkletLoaded(ctx)
+  await ensureLFOWorkletLoaded()
 
-  const node = new AudioWorkletNode(ctx, 'custom-lfo', {
+  // const node = new AudioWorkletNode(ctx, 'custom-lfo', {
+  //   numberOfOutputs: 1,
+  //   outputChannelCount: [1],
+  //   parameterData: { frequency, dutyCycle, shape },
+  // })
+
+  const node = Tone.getContext().createAudioWorkletNode('custom-lfo', {
     numberOfOutputs: 1,
     outputChannelCount: [1],
     parameterData: { frequency, dutyCycle, shape },

@@ -42,13 +42,42 @@ export default function LAMBApp() {
   const [solo3, setSolo3] = useState(false)
   const bgGraphicRef = useRef<SVGLinearGradientElement>(null)
 
-  const [pitch1, setPitch1] = useState(12)
-  const [pitch2, setPitch2] = useState(24)
-  const [pitch3, setPitch3] = useState(36)
-  const [pitch4, setPitch4] = useState(48)
-
   const [transpose, setTranspose] = useState(0)
   const [scale, setScale] = useState(0)
+
+  const [pitch1, setPitch1] = useState(60)
+  const [pitch2, setPitch2] = useState(64)
+  const [pitch3, setPitch3] = useState(67)
+  const [pitch4, setPitch4] = useState(72)
+  const voiceARef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const voiceBRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const voiceCRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const voiceDRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+
+  const pitch1NoteName = useMemo(
+    () => midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch)),
+    [pitch1, transpose]
+  )
+  const pitch2NoteName = useMemo(
+    () => midiNoteNumberToNoteName(constrain(pitch2 + transpose, minPitch, maxPitch)),
+    [pitch2, transpose]
+  )
+  const pitch3NoteName = useMemo(
+    () => midiNoteNumberToNoteName(constrain(pitch3 + transpose, minPitch, maxPitch)),
+    [pitch3, transpose]
+  )
+  const pitch4NoteName = useMemo(
+    () => midiNoteNumberToNoteName(constrain(pitch4 + transpose, minPitch, maxPitch)),
+    [pitch4, transpose]
+  )
+
+  // update voice frequencies when pitches change
+  useEffect(() => {
+    if (voiceARef.current) voiceARef.current.frequency.value = pitch1NoteName
+    if (voiceBRef.current) voiceBRef.current.frequency.value = pitch2NoteName
+    if (voiceCRef.current) voiceCRef.current.frequency.value = pitch3NoteName
+    if (voiceDRef.current) voiceDRef.current.frequency.value = pitch4NoteName
+  }, [pitch1NoteName, pitch2NoteName, pitch3NoteName, pitch4NoteName])
 
   const {
     value: lfo1,
@@ -80,13 +109,13 @@ export default function LAMBApp() {
     if (!initialized || !lfo3Node || !lfo2Node || !lfo1Node) return
 
     const voiceAGain = new Tone.Gain(0)
-    const voiceA = new Tone.OmniOscillator({ volume: -8, frequency: 'C4', type: 'triangle' })
+    voiceARef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch1NoteName, type: 'triangle' })
       .connect(voiceAGain)
       .start()
     Tone.connect(lfo3Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceAGain.gain)))
 
     const voiceBGain = new Tone.Gain(0)
-    const voiceB = new Tone.OmniOscillator({ volume: -8, frequency: 'E4', type: 'triangle' })
+    voiceBRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch2NoteName, type: 'triangle' })
       .connect(voiceBGain)
       .start()
     Tone.connect(lfo3Node, new Tone.Pow(2).connect(voiceBGain.gain))
@@ -97,7 +126,7 @@ export default function LAMBApp() {
     Tone.connect(lfo2Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABGain.gain)))
 
     const voiceCGain = new Tone.Gain(0)
-    const voiceC = new Tone.OmniOscillator({ volume: -8, frequency: 'G4', type: 'triangle' })
+    voiceCRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch3NoteName, type: 'triangle' })
       .connect(voiceCGain)
       .start()
     Tone.connect(lfo2Node, new Tone.Pow(2).connect(voiceCGain.gain))
@@ -108,10 +137,12 @@ export default function LAMBApp() {
     Tone.connect(lfo1Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABCGain.gain)))
 
     const voiceDGain = new Tone.Gain(0).toDestination()
-    const voiceD = new Tone.OmniOscillator({ volume: -8, frequency: 'F4', type: 'triangle' })
+    voiceDRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch4NoteName, type: 'triangle' })
       .connect(voiceDGain)
       .start()
     Tone.connect(lfo1Node, new Tone.Pow(2).connect(voiceDGain.gain))
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized, lfo3Node, lfo2Node, lfo1Node])
 
   const playStop = useCallback(async () => {
@@ -415,16 +446,18 @@ export default function LAMBApp() {
               {/* voice controls */}
               <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
                 <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
-                  <p>{midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch))}</p>
+                  <p>{pitch1NoteName}</p>
                 </div>
                 <div className={styles.voiceAuxControl}>
-                  <p>{midiNoteNumberToNoteName(constrain(pitch2 + transpose, minPitch, maxPitch))}</p>
+                  <p>{pitch2NoteName}</p>
                 </div>
                 <div className={styles.voiceAuxControl}>
-                  <p>{midiNoteNumberToNoteName(constrain(pitch3 + transpose, minPitch, maxPitch))}</p>
+                  <p>{pitch3NoteName}</p>
                 </div>
                 <div className={styles.voiceAuxControl}>
-                  <p>{midiNoteNumberToNoteName(constrain(pitch4 + transpose, minPitch, maxPitch))}</p>
+                  <p>{pitch4NoteName}</p>
+
+                  {/* voice global controls */}
                   <div className={styles.voiceGlobalControls}>
                     <div className={styles.voiceGlobalControl}>
                       <LinearKnob
@@ -643,6 +676,10 @@ export default function LAMBApp() {
       bgGraphic,
       showLfo1Controls,
       showLfo2Controls,
+      pitch1NoteName,
+      pitch2NoteName,
+      pitch3NoteName,
+      pitch4NoteName,
     ]
   )
 

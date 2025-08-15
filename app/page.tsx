@@ -34,6 +34,8 @@ const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 const BG_WIDTH = 2048 / 2
 const BG_HEIGHT = 1328 / 2
 
+const DEFAULT_WAVE = 'sawtooth'
+
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -46,18 +48,18 @@ export default function LAMBApp() {
   const [transpose, setTranspose] = useState(0)
   const [scale, setScale] = useState(0)
 
-  const [pitch1, setPitch1] = useState(60)
-  const [pitch2, setPitch2] = useState(64)
-  const [pitch3, setPitch3] = useState(67)
-  const [pitch4, setPitch4] = useState(72)
+  const [pitch1, setPitch1] = useState(48)
+  const [pitch2, setPitch2] = useState(53)
+  const [pitch3, setPitch3] = useState(56)
+  const [pitch4, setPitch4] = useState(41)
   const voiceARef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceBRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceCRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceDRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
-  const [voiceAType, setVoiceAType] = useState<VoiceType>('triangle')
-  const [voiceBType, setVoiceBType] = useState<VoiceType>('triangle')
-  const [voiceCType, setVoiceCType] = useState<VoiceType>('triangle')
-  const [voiceDType, setVoiceDType] = useState<VoiceType>('triangle')
+  const [voiceAType, setVoiceAType] = useState<VoiceType>(DEFAULT_WAVE)
+  const [voiceBType, setVoiceBType] = useState<VoiceType>(DEFAULT_WAVE)
+  const [voiceCType, setVoiceCType] = useState<VoiceType>(DEFAULT_WAVE)
+  const [voiceDType, setVoiceDType] = useState<VoiceType>(DEFAULT_WAVE)
 
   const pitch1NoteName = useMemo(
     () => midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch)),
@@ -116,13 +118,13 @@ export default function LAMBApp() {
     if (!initialized || !lfo3Node || !lfo2Node || !lfo1Node) return
 
     const voiceAGain = new Tone.Gain(0)
-    voiceARef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch1NoteName, type: 'triangle' })
+    voiceARef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch1NoteName, type: DEFAULT_WAVE })
       .connect(voiceAGain)
       .start()
     Tone.connect(lfo3Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceAGain.gain)))
 
     const voiceBGain = new Tone.Gain(0)
-    voiceBRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch2NoteName, type: 'triangle' })
+    voiceBRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch2NoteName, type: DEFAULT_WAVE })
       .connect(voiceBGain)
       .start()
     Tone.connect(lfo3Node, new Tone.Pow(2).connect(voiceBGain.gain))
@@ -133,7 +135,7 @@ export default function LAMBApp() {
     Tone.connect(lfo2Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABGain.gain)))
 
     const voiceCGain = new Tone.Gain(0)
-    voiceCRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch3NoteName, type: 'triangle' })
+    voiceCRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch3NoteName, type: DEFAULT_WAVE })
       .connect(voiceCGain)
       .start()
     Tone.connect(lfo2Node, new Tone.Pow(2).connect(voiceCGain.gain))
@@ -144,7 +146,7 @@ export default function LAMBApp() {
     Tone.connect(lfo1Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABCGain.gain)))
 
     const voiceDGain = new Tone.Gain(0).toDestination()
-    voiceDRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch4NoteName, type: 'triangle' })
+    voiceDRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch4NoteName, type: DEFAULT_WAVE })
       .connect(voiceDGain)
       .start()
     Tone.connect(lfo1Node, new Tone.Pow(2).connect(voiceDGain.gain))

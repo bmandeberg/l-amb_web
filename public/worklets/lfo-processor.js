@@ -6,6 +6,7 @@ class CustomLFOProcessor extends AudioWorkletProcessor {
       { name: 'dutyCycle', defaultValue: 0.5, minValue: 0.0, maxValue: 1.0, automationRate: 'k-rate' },
       // 0 = square, 1 = triangle family (saw-tri-ramp)
       { name: 'shape', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' },
+      { name: 'latch', defaultValue: 0, minValue: 0, maxValue: 1, automationRate: 'k-rate' }, // 0 = false, 1 = true
     ]
   }
 
@@ -27,6 +28,7 @@ class CustomLFOProcessor extends AudioWorkletProcessor {
     const freq = parameters.frequency[0]
     const duty = parameters.dutyCycle[0]
     const shape = parameters.shape[0] | 0 // coerce to int 0/1
+    const latch = parameters.latch[0] | 0 // coerce to int 0/1
     const inc = freq / sampleRate
 
     for (let i = 0; i < output.length; i++) {
@@ -47,13 +49,15 @@ class CustomLFOProcessor extends AudioWorkletProcessor {
           v = 1 - (this.phase - duty) / Math.max(1 - duty, 1e-6)
         }
       }
-      output[i] = v // between 0 and 1
+
+      const value = latch ? 0 : v
+
+      output[i] = value // between 0 and 1
 
       // throttle visual updates to ~60 fps
       // 44100/60 ≈ 735
       if (++this.framesSincePost >= 735) {
-        // this.port.postMessage(v)
-        this.port.postMessage({ type: 'tick', value: v, phase: this.phase })
+        this.port.postMessage({ type: 'tick', value, phase: this.phase })
         this.framesSincePost = 0
       }
     }

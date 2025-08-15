@@ -84,6 +84,8 @@ export default function LAMBApp() {
     if (voiceDRef.current) voiceDRef.current.frequency.value = pitch4NoteName
   }, [pitch1NoteName, pitch2NoteName, pitch3NoteName, pitch4NoteName])
 
+  const lfo1Latch = useMemo(() => solo2 || solo3, [solo2, solo3])
+
   const {
     value: lfo1,
     setFrequency: setLfo1Frequency,
@@ -91,7 +93,7 @@ export default function LAMBApp() {
     setShape: setLfo1Shape,
     phase: lfo1Phase,
     node: lfo1Node,
-  } = useLFO(initialized, lfo1Default)
+  } = useLFO(initialized, lfo1Default, lfo1Latch)
   const {
     value: lfo2,
     setFrequency: setLfo2Frequency,
@@ -99,7 +101,7 @@ export default function LAMBApp() {
     setShape: setLfo2Shape,
     setPhase: setLfo2Phase,
     node: lfo2Node,
-  } = useLFO(initialized, lfo2Default)
+  } = useLFO(initialized, lfo2Default, solo3)
   const {
     value: lfo3,
     setFrequency: setLfo3Frequency,

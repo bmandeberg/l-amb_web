@@ -22,6 +22,7 @@ import ModMatrix from '@/components/ModMatrix'
 import TiltContainer from '@/components/TiltContainer'
 import Checkbox from '@/components/Checkbox'
 import VoiceTypeSelector, { VoiceType } from '@/components/VoiceTypeSelector'
+import Effects, { FILTER_MAX } from '@/components/Effects'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
@@ -113,6 +114,11 @@ export default function LAMBApp() {
     node: lfo3Node,
   } = useLFO(initialized, lfo3Default)
 
+  // fx
+  const delay = useRef<Tone.FeedbackDelay | null>(null)
+  const filter = useRef<Tone.Filter | null>(null)
+  const distortion = useRef<Tone.Distortion | null>(null)
+
   // init audio path
   useEffect(() => {
     if (!initialized || !lfo3Node || !lfo2Node || !lfo1Node) return
@@ -140,16 +146,27 @@ export default function LAMBApp() {
       .start()
     Tone.connect(lfo2Node, new Tone.Pow(2).connect(voiceCGain.gain))
 
-    const voiceABCGain = new Tone.Gain(0).toDestination()
+    const voiceABCGain = new Tone.Gain(0)
     voiceABGain.connect(voiceABCGain)
     voiceCGain.connect(voiceABCGain)
     Tone.connect(lfo1Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABCGain.gain)))
 
-    const voiceDGain = new Tone.Gain(0).toDestination()
+    const voiceDGain = new Tone.Gain(0)
     voiceDRef.current = new Tone.OmniOscillator({ volume: -8, frequency: pitch4NoteName, type: DEFAULT_WAVE })
       .connect(voiceDGain)
       .start()
     Tone.connect(lfo1Node, new Tone.Pow(2).connect(voiceDGain.gain))
+
+    // fx
+    delay.current = new Tone.FeedbackDelay(0.5, 0.5).toDestination()
+    delay.current.set({
+      wet: 0,
+    })
+    filter.current = new Tone.Filter(FILTER_MAX, 'lowpass').connect(delay.current)
+    distortion.current = new Tone.Distortion(0).connect(filter.current)
+
+    voiceABCGain.connect(distortion.current)
+    voiceDGain.connect(distortion.current)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized, lfo3Node, lfo2Node, lfo1Node])
@@ -355,6 +372,8 @@ export default function LAMBApp() {
                 <line x1="37.8" y1="642.9" x2="410.4" y2="642.9" />
                 <polyline points="1163.4 375.2 1412.1 375.2 1433.9 337.7 1433.9 301.8" />
                 <line x1="1394" y1="531.4" x2="1253.6" y2="531.4" />
+                <path d="M201.9,820.3l103-177.4" />
+                <path d="M132.5,805.9l94.6-163" />
               </g>
             </svg>
           </div>
@@ -590,6 +609,9 @@ export default function LAMBApp() {
                 <ModMatrix playing={playing} />
                 <p className={styles.modMatrixLabel}>MOD MATRIX</p>
               </div>
+
+              {/* effects */}
+              <Effects delay={delay} filter={filter} distortion={distortion} />
             </div>
           </TiltContainer>
         </div>

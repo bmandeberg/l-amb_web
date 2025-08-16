@@ -25,6 +25,7 @@ interface LinearKnobProps {
   onEnd?: () => void
   defaultValue?: number
   disableReset?: boolean
+  label?: string
 }
 
 const SIZE = 70
@@ -52,6 +53,7 @@ export default function LinearKnob({
   onEnd,
   defaultValue,
   disableReset,
+  label,
 }: LinearKnobProps) {
   // Always snap the incoming value for consistency
   const snappedValue = useMemo(() => snapToStep(value, step), [value, step])
@@ -194,9 +196,11 @@ export default function LinearKnob({
             />
           )}
         </svg>
+
+        {label && <div className={styles.knobLabel}>{label}</div>}
       </div>
     ),
-    [drag, filledArcD, strokeColor, glow, displayRatio, handleDoubleClick, glowAmount, svgFilterId]
+    [drag, filledArcD, strokeColor, glow, displayRatio, handleDoubleClick, glowAmount, svgFilterId, label]
   )
 
   return content

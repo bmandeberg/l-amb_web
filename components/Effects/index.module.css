@@ -16,7 +16,7 @@
 }
 
 .effectsRow:first-of-type {
-  margin-right: 40px;
+  margin-right: 43px;
 }
 
 .fxLabel {
@@ -30,5 +30,5 @@
 }
 
 .miniSpacer {
-  width: 8px;
+  width: 10px;
 }

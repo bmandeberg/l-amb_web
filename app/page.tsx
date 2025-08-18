@@ -379,7 +379,7 @@ export default function LAMBApp() {
               <image
                 href="/bg.jpg"
                 x="0"
-                y="0"
+                y="-20"
                 width="1728"
                 height="958"
                 preserveAspectRatio="xMidYMid slice"

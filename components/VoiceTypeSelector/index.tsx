@@ -27,9 +27,9 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
         voiceRef.current.type = type
 
         if (type === 'pulse') {
-          voiceRef.current.width.value = pulseWidth
+          voiceRef.current.set({ width: pulseWidth })
         } else if (type === 'fatsawtooth') {
-          voiceRef.current.spread = fatSpread
+          voiceRef.current.set({ spread: fatSpread })
         }
       }
     },
@@ -41,7 +41,7 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
       const newDetune = constrain(fatSpread + dx * 2, 0, MAX_DETUNE)
       setFatSpread(newDetune)
       if (voiceRef?.current) {
-        voiceRef.current.spread = newDetune
+        voiceRef.current.set({ spread: newDetune })
       }
     },
   })
@@ -51,7 +51,7 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
       const newWidth = constrain(pulseWidth + dx * 0.01, 0.1, 0.9)
       setPulseWidth(newWidth)
       if (voiceRef?.current && voiceType === 'pulse') {
-        voiceRef.current.width.value = newWidth
+        voiceRef.current.set({ width: newWidth })
       }
     },
   })

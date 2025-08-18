@@ -43,18 +43,14 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
 
   const updateDistortionAmount = useCallback(
     (value: number) => {
-      distortion.current?.set({
-        distortion: value,
-      })
+      distortion.current?.set({ distortion: value })
     },
     [distortion]
   )
 
   const updateFilterCutoff = useCallback(
     (value: number) => {
-      filter.current?.set({
-        frequency: value,
-      })
+      filter.current?.set({ frequency: value })
     },
     [filter]
   )
@@ -62,9 +58,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
   const updateFilterResonance = useCallback(
     (value: number) => {
       setFilterResonance(value)
-      filter.current?.set({
-        Q: value,
-      })
+      filter.current?.set({ Q: value })
     },
     [filter]
   )
@@ -72,18 +66,14 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
   const updateDelayAmount = useCallback(
     (value: number) => {
       setDelayAmount(value)
-      delay.current?.set({
-        wet: value,
-      })
+      delay.current?.set({ wet: value })
     },
     [delay]
   )
 
   const updateDelayTime = useCallback(
     (value: number) => {
-      delay.current?.set({
-        delayTime: value,
-      })
+      delay.current?.set({ delayTime: value })
     },
     [delay]
   )
@@ -91,9 +81,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
   const updateDelayFeedback = useCallback(
     (value: number) => {
       setDelayFeedback(value)
-      delay.current?.set({
-        feedback: value,
-      })
+      delay.current?.set({ feedback: value })
     },
     [delay]
   )

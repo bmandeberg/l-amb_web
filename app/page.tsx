@@ -336,6 +336,7 @@ export default function LAMBApp() {
             '--gray': gray,
             '--screen-width': screenWidth + 'px',
             '--screen-height': screenHeight + 'px',
+            '--transition-time': '0.25s',
             transform: `scale(${screenSizeRatio})`,
           } as CSS
         }>

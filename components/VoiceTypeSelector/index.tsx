@@ -13,10 +13,11 @@ interface VoiceTypeSelectorProps {
   voiceType: VoiceType
   setVoiceType: (type: VoiceType) => void
   voiceRef: React.RefObject<Tone.OmniOscillator<Tone.Oscillator> | null>
+  fatInit?: number
 }
 
-export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef }: VoiceTypeSelectorProps) {
-  const [fatSpread, setFatSpread] = useState(20)
+export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, fatInit }: VoiceTypeSelectorProps) {
+  const [fatSpread, setFatSpread] = useState(fatInit ?? MAX_DETUNE)
   const [pulseWidth, setPulseWidth] = useState(0.5)
 
   const updateVoiceType = useCallback(

@@ -25,9 +25,9 @@ import VoiceTypeSelector, { VoiceType } from '@/components/VoiceTypeSelector'
 import Effects, { FILTER_MAX } from '@/components/Effects'
 import styles from './page.module.css'
 
-const lfo1Default: LFOParameters = { frequency: 1, dutyCycle: 0.25, shape: 1 }
-const lfo2Default: LFOParameters = { frequency: 0.5, dutyCycle: 0.25, shape: 1 }
-const lfo3Default: LFOParameters = { frequency: 2, dutyCycle: 0.5, shape: 1 }
+const lfo1Default: LFOParameters = { frequency: 1.71, dutyCycle: 0.25, shape: 0 }
+const lfo2Default: LFOParameters = { frequency: 2.14, dutyCycle: 0.25, shape: 0 }
+const lfo3Default: LFOParameters = { frequency: 4.43, dutyCycle: 0.5, shape: 0 }
 
 const scaleOptions = Object.keys(scales)
 const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -35,7 +35,7 @@ const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 const BG_WIDTH = 2048 / 2
 const BG_HEIGHT = 1328 / 2
 
-const DEFAULT_WAVE = 'sawtooth'
+const DEFAULT_WAVE = 'fatsawtooth' as VoiceType
 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
@@ -47,12 +47,12 @@ export default function LAMBApp() {
   const bgGraphicRef = useRef<SVGLinearGradientElement>(null)
 
   const [transpose, setTranspose] = useState(0)
-  const [scale, setScale] = useState(0)
+  const [scale, setScale] = useState(3)
 
   const [pitch1, setPitch1] = useState(48)
   const [pitch2, setPitch2] = useState(53)
   const [pitch3, setPitch3] = useState(56)
-  const [pitch4, setPitch4] = useState(41)
+  const [pitch4, setPitch4] = useState(24)
   const voiceARef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceBRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceCRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
@@ -234,7 +234,7 @@ export default function LAMBApp() {
 
   // modulation
   const [sequencerValue, setSequencerValue] = useState(0)
-  const [auxLfoFreq, setAuxLfoFreq] = useState(1)
+  const [auxLfoFreq, setAuxLfoFreq] = useState(0.1)
   const [auxLfoShape, setLocalAuxLfoShape] = useState(true)
 
   const {
@@ -663,7 +663,12 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
-              <VoiceTypeSelector voiceType={voiceDType} setVoiceType={setVoiceDType} voiceRef={voiceDRef} />
+              <VoiceTypeSelector
+                voiceType={voiceDType}
+                setVoiceType={setVoiceDType}
+                voiceRef={voiceDRef}
+                fatInit={60}
+              />
               <Voice
                 pitch={pitch4}
                 setPitch={setPitch4}

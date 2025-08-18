@@ -19,12 +19,12 @@ const MAX_DELAY = 1
 const MAX_RESONANCE = 30
 
 export default function Effects({ delay, filter, distortion, distMod, lpfMod, dlyTimeMod }: EffectsProps) {
-  const [distortionAmount, setDistortionAmount] = useState(0)
-  const [filterCutoff, setFilterCutoff] = useState(FILTER_MAX)
-  const [filterResonance, setFilterResonance] = useState(0)
-  const [delayAmount, setDelayAmount] = useState(0)
-  const [delayTime, setDelayTime] = useState(0.5)
-  const [delayFeedback, setDelayFeedback] = useState(0.5)
+  const [distortionAmount, setDistortionAmount] = useState(0.3)
+  const [filterCutoff, setFilterCutoff] = useState(2000)
+  const [filterResonance, setFilterResonance] = useState(10)
+  const [delayAmount, setDelayAmount] = useState(0.2)
+  const [delayTime, setDelayTime] = useState(MIN_DELAY)
+  const [delayFeedback, setDelayFeedback] = useState(0.85)
 
   // sync ui and fx
 

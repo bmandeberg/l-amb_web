@@ -26,6 +26,7 @@ interface LinearKnobProps {
   defaultValue?: number
   disableReset?: boolean
   label?: string
+  coloredIndicator?: boolean
 }
 
 const SIZE = 70
@@ -54,6 +55,7 @@ export default function LinearKnob({
   defaultValue,
   disableReset,
   label,
+  coloredIndicator,
 }: LinearKnobProps) {
   // Always snap the incoming value for consistency
   const snappedValue = useMemo(() => snapToStep(value, step), [value, step])
@@ -179,7 +181,7 @@ export default function LinearKnob({
           <path
             d="M 17.32 52.68 L 35 35"
             fill="none"
-            stroke={gray}
+            stroke={coloredIndicator ? strokeColor ?? gray : gray}
             strokeWidth="3"
             transform={`rotate(${displayRatio * RANGE} ${CX} ${CY})`}
           />
@@ -200,7 +202,18 @@ export default function LinearKnob({
         {label && <div className={styles.knobLabel}>{label}</div>}
       </div>
     ),
-    [drag, filledArcD, strokeColor, glow, displayRatio, handleDoubleClick, glowAmount, svgFilterId, label]
+    [
+      drag,
+      filledArcD,
+      strokeColor,
+      glow,
+      displayRatio,
+      handleDoubleClick,
+      glowAmount,
+      svgFilterId,
+      label,
+      coloredIndicator,
+    ]
   )
 
   return content

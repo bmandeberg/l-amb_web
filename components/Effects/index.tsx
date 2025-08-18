@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react'
 import { useGesture } from '@use-gesture/react'
 import * as Tone from 'tone'
 import LinearKnob from '../LinearKnob'
+import { secondaryColor } from '@/app/globals'
 import { constrain } from '@/util/math'
 import styles from './index.module.css'
 
@@ -119,6 +120,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
             setModdedValue={updateDistortionAmount}
             label="Dist"
             modVal={distMod}
+            strokeColor={secondaryColor}
           />
           <div className={styles.effectSpacer}></div>
           <LinearKnob
@@ -130,9 +132,17 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
             label="LPF"
             taper="log"
             modVal={lpfMod}
+            strokeColor={secondaryColor}
           />
           <div className={styles.effectSpacer}></div>
-          <LinearKnob min={0} max={1} value={delayAmount} onChange={updateDelayAmount} label="Delay" />
+          <LinearKnob
+            min={0}
+            max={1}
+            value={delayAmount}
+            onChange={updateDelayAmount}
+            label="Delay"
+            strokeColor={secondaryColor}
+          />
         </div>
         <div className={styles.effectsRow}>
           <LinearKnob
@@ -141,6 +151,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
             value={filterResonance}
             onChange={updateFilterResonance}
             label="Reso"
+            strokeColor={secondaryColor}
           />
           <div className={styles.effectSpacer}></div>
           <LinearKnob
@@ -152,9 +163,17 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
             label="Time"
             taper="log"
             modVal={dlyTimeMod}
+            strokeColor={secondaryColor}
           />
           <div className={styles.miniSpacer}></div>
-          <LinearKnob min={0} max={1} value={delayFeedback} onChange={updateDelayFeedback} label="Feedback" />
+          <LinearKnob
+            min={0}
+            max={1}
+            value={delayFeedback}
+            onChange={updateDelayFeedback}
+            label="Feedback"
+            strokeColor={secondaryColor}
+          />
         </div>
         <div className={styles.reverbContainer}>
           <p>Verb</p>

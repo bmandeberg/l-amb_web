@@ -98,6 +98,7 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
           modVal={modVal}
           glowIndex={index}
           disableReset
+          coloredIndicator
         />
       </div>
     ),

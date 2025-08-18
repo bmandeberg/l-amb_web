@@ -12,6 +12,7 @@
 
 .backgroundImage {
   position: absolute;
+  top: -112.5px;
   width: 100vw;
   height: auto;
   bottom: -50px;

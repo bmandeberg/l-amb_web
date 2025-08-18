@@ -6,7 +6,7 @@ import * as Tone from 'tone'
 import cn from 'classnames'
 import ReactSwitch from 'react-switch'
 import getNativeContext from '@/util/getNativeContext'
-import { primaryColor, secondaryColor, gray } from './globals'
+import { primaryColor, secondaryColor, gray, screenWidth, screenHeight } from './globals'
 import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
@@ -48,6 +48,7 @@ const REVERB_DECAY = 3
 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
+  const [screenSizeRatio, setScreenSizeRatio] = useState(1)
   const [playing, setPlaying] = useState(false)
   const [modOff, setModOff] = useState(false)
   const [syncLfos, setSyncLfos] = useState(false)
@@ -200,6 +201,7 @@ export default function LAMBApp() {
     })
   }, [initialized])
 
+  // play/stop on spacebar
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
@@ -240,6 +242,21 @@ export default function LAMBApp() {
     window.addEventListener('mousemove', mouseMoveHandler)
     return () => {
       window.removeEventListener('mousemove', mouseMoveHandler)
+    }
+  }, [])
+
+  // resize window
+  useEffect(() => {
+    function handleResize() {
+      if (!window) return
+
+      console.log(window.innerWidth / screenWidth)
+      setScreenSizeRatio(window.innerWidth / screenWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
     }
   }, [])
 
@@ -307,7 +324,16 @@ export default function LAMBApp() {
     () => (
       <div
         className={styles.page}
-        style={{ '--primary-color': primaryColor, '--secondary-color': secondaryColor, '--gray': gray } as CSS}>
+        style={
+          {
+            '--primary-color': primaryColor,
+            '--secondary-color': secondaryColor,
+            '--gray': gray,
+            '--screen-width': screenWidth + 'px',
+            '--screen-height': screenHeight + 'px',
+            transform: `scale(${screenSizeRatio})`,
+          } as CSS
+        }>
         {/* background */}
         <Image
           className={styles.backgroundImage}
@@ -743,6 +769,7 @@ export default function LAMBApp() {
       voiceBType,
       voiceCType,
       voiceDType,
+      screenSizeRatio,
     ]
   )
 

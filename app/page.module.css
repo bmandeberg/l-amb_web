@@ -5,15 +5,16 @@
 .page {
   position: relative;
   color: var(--secondary-color);
-  width: 100vw;
-  height: 100vh;
+  width: var(--screen-width);
+  height: var(--screen-height);
   overflow: hidden;
+  transform-origin: top left;
 }
 
 .backgroundImage {
   position: absolute;
   top: -112.5px;
-  width: 100vw;
+  width: var(--screen-width);
   height: auto;
   bottom: -50px;
   pointer-events: none;
@@ -137,7 +138,7 @@
   display: flex;
   flex-direction: column;
   top: 170px;
-  left: 10.3vw;
+  left: 178px;
   gap: 57px;
   width: 424px;
 }

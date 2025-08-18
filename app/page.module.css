@@ -12,6 +12,7 @@
 
 .backgroundImage {
   position: absolute;
+  top: -112.5px;
   width: 100vw;
   height: auto;
   bottom: -50px;
@@ -305,4 +306,10 @@
 .active {
   pointer-events: all;
   opacity: 1;
+}
+
+.visualizer {
+  position: absolute;
+  top: 564px;
+  left: 598px;
 }

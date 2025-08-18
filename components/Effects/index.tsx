@@ -24,10 +24,10 @@ const MAX_RESONANCE = 30
 export const DEFAULT_DIST = 0.25
 export const DEFAULT_LPF = 2000
 export const DEFAULT_RESONANCE = 10
-export const DEFAULT_DLY = 0.2
+export const DEFAULT_DLY = 0.15
 export const DEFAULT_DLY_TIME = 0.0093
 export const DEFAULT_DLY_FDBK = 0.85
-export const DEFAULT_REVERB = 0.25
+export const DEFAULT_REVERB = 0.35
 
 export default function Effects({ delay, filter, distortion, reverb, distMod, lpfMod, dlyTimeMod }: EffectsProps) {
   const [distortionAmount, setDistortionAmount] = useState(DEFAULT_DIST)

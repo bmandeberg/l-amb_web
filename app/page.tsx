@@ -31,6 +31,7 @@ import Effects, {
   DEFAULT_DLY_FDBK,
   DEFAULT_REVERB,
 } from '@/components/Effects'
+import RadialScope from '@/components/RadialScope'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1.71, dutyCycle: 0.25, shape: 0 }
@@ -46,6 +47,8 @@ const BG_HEIGHT = 1328 / 2
 const DEFAULT_WAVE = 'fatsawtooth' as VoiceType
 const REVERB_DECAY = 3
 
+const VISUALIZER_RES = 256
+
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
   const [playing, setPlaying] = useState(false)
@@ -57,6 +60,9 @@ export default function LAMBApp() {
 
   const [transpose, setTranspose] = useState(0)
   const [scale, setScale] = useState(3)
+
+  const analyser = useRef<Tone.Analyser | null>(null)
+  const [audioInitialized, setAudioInitialized] = useState(false)
 
   const [pitch1, setPitch1] = useState(48)
   const [pitch2, setPitch2] = useState(53)
@@ -129,7 +135,7 @@ export default function LAMBApp() {
   const distortion = useRef<Tone.Distortion | null>(null)
   const reverb = useRef<Tone.Reverb | null>(null)
 
-  // init audio path and fx
+  // init audio path, fx, and analyser
   useEffect(() => {
     if (!initialized || !lfo3Node || !lfo2Node || !lfo1Node) return
 
@@ -178,6 +184,15 @@ export default function LAMBApp() {
 
     voiceABCGain.connect(distortion.current)
     voiceDGain.connect(distortion.current)
+
+    const a = new Tone.Analyser('waveform', VISUALIZER_RES)
+    reverb.current.connect(a)
+    setTimeout(() => {
+      console.log(a.getValue())
+    }, 2000)
+    analyser.current = a
+
+    setAudioInitialized(true)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized, lfo3Node, lfo2Node, lfo1Node])
@@ -385,6 +400,7 @@ export default function LAMBApp() {
                 <line x1="1394" y1="531.4" x2="1253.6" y2="531.4" />
                 <path d="M201.9,820.3l103-177.4" />
                 <path d="M132.5,805.9l94.6-163" />
+                <circle cx="673.3" cy="637.1" r="82.7" />
               </g>
             </svg>
           </div>
@@ -691,6 +707,10 @@ export default function LAMBApp() {
               />
             </div>
           </div>
+
+          <div className={styles.visualizer}>
+            {analyser && <RadialScope analyser={analyser} audioInitialized={audioInitialized} playing={playing} />}
+          </div>
         </TiltContainer>
       </div>
     ),
@@ -743,6 +763,8 @@ export default function LAMBApp() {
       voiceBType,
       voiceCType,
       voiceDType,
+      analyser,
+      audioInitialized,
     ]
   )
 

@@ -1,0 +1,8 @@
+.scope {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scope.playing {
+  opacity: 1;
+}

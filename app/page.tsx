@@ -48,6 +48,7 @@ const REVERB_DECAY = 3
 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
+  const [pageLoaded, setPageLoaded] = useState(false)
   const [screenSizeRatio, setScreenSizeRatio] = useState(1)
   const [playing, setPlaying] = useState(false)
   const [modOff, setModOff] = useState(false)
@@ -254,6 +255,10 @@ export default function LAMBApp() {
       setScreenSizeRatio(window.innerWidth / screenWidth)
     }
 
+    // run once on startup
+    handleResize()
+    setPageLoaded(true)
+
     window.addEventListener('resize', handleResize)
     return () => {
       window.removeEventListener('resize', handleResize)
@@ -323,7 +328,7 @@ export default function LAMBApp() {
   const content = useMemo(
     () => (
       <div
-        className={styles.page}
+        className={cn(styles.page, { [styles.loaded]: pageLoaded })}
         style={
           {
             '--primary-color': primaryColor,
@@ -770,6 +775,7 @@ export default function LAMBApp() {
       voiceCType,
       voiceDType,
       screenSizeRatio,
+      pageLoaded,
     ]
   )
 

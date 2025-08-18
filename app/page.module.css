@@ -9,6 +9,14 @@
   height: var(--screen-height);
   overflow: hidden;
   transform-origin: top left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-time) ease-in-out;
+}
+
+.page.loaded {
+  opacity: 1;
+  pointer-events: all;
 }
 
 .backgroundImage {

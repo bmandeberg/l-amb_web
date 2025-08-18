@@ -7,6 +7,9 @@ interface EffectsProps {
   delay: React.RefObject<Tone.FeedbackDelay | null>
   filter: React.RefObject<Tone.Filter | null>
   distortion: React.RefObject<Tone.Distortion | null>
+  distMod: number
+  lpfMod: number
+  dlyTimeMod: number
 }
 
 export const FILTER_MAX = 15000
@@ -15,7 +18,7 @@ const MIN_DELAY = 0.001
 const MAX_DELAY = 1
 const MAX_RESONANCE = 30
 
-export default function Effects({ delay, filter, distortion }: EffectsProps) {
+export default function Effects({ delay, filter, distortion, distMod, lpfMod, dlyTimeMod }: EffectsProps) {
   const [distortionAmount, setDistortionAmount] = useState(0)
   const [filterCutoff, setFilterCutoff] = useState(FILTER_MAX)
   const [filterResonance, setFilterResonance] = useState(0)
@@ -27,7 +30,6 @@ export default function Effects({ delay, filter, distortion }: EffectsProps) {
 
   const updateDistortionAmount = useCallback(
     (value: number) => {
-      setDistortionAmount(value)
       distortion.current?.set({
         distortion: value,
       })
@@ -37,7 +39,6 @@ export default function Effects({ delay, filter, distortion }: EffectsProps) {
 
   const updateFilterCutoff = useCallback(
     (value: number) => {
-      setFilterCutoff(value)
       filter.current?.set({
         frequency: value,
       })
@@ -67,7 +68,6 @@ export default function Effects({ delay, filter, distortion }: EffectsProps) {
 
   const updateDelayTime = useCallback(
     (value: number) => {
-      setDelayTime(value)
       delay.current?.set({
         delayTime: value,
       })
@@ -90,15 +90,25 @@ export default function Effects({ delay, filter, distortion }: EffectsProps) {
       <div className={styles.effectsContainer}>
         <p className={styles.fxLabel}>FX</p>
         <div className={styles.effectsRow}>
-          <LinearKnob min={0} max={1} value={distortionAmount} onChange={updateDistortionAmount} label="Dist" />
+          <LinearKnob
+            min={0}
+            max={1}
+            value={distortionAmount}
+            onChange={setDistortionAmount}
+            setModdedValue={updateDistortionAmount}
+            label="Dist"
+            modVal={distMod}
+          />
           <div className={styles.effectSpacer}></div>
           <LinearKnob
             min={FILTER_MIN}
             max={FILTER_MAX}
             value={filterCutoff}
-            onChange={updateFilterCutoff}
+            onChange={setFilterCutoff}
+            setModdedValue={updateFilterCutoff}
             label="LPF"
             taper="log"
+            modVal={lpfMod}
           />
           <div className={styles.effectSpacer}></div>
           <LinearKnob min={0} max={1} value={delayAmount} onChange={updateDelayAmount} label="Delay" />
@@ -116,9 +126,11 @@ export default function Effects({ delay, filter, distortion }: EffectsProps) {
             min={MIN_DELAY}
             max={MAX_DELAY}
             value={delayTime}
-            onChange={updateDelayTime}
+            onChange={setDelayTime}
+            setModdedValue={updateDelayTime}
             label="Time"
             taper="log"
+            modVal={dlyTimeMod}
           />
           <div className={styles.miniSpacer}></div>
           <LinearKnob min={0} max={1} value={delayFeedback} onChange={updateDelayFeedback} label="Feedback" />
@@ -138,6 +150,9 @@ export default function Effects({ delay, filter, distortion }: EffectsProps) {
       updateDistortionAmount,
       updateFilterCutoff,
       updateFilterResonance,
+      distMod,
+      lpfMod,
+      dlyTimeMod,
     ]
   )
 

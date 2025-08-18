@@ -263,12 +263,12 @@ export default function LAMBApp() {
   const modMatrix = useLambStore((state) => state.modMatrix)
 
   const modVal = useCallback(
-    (sourceIndex: number) => {
+    (destinationIndex: number) => {
       if (modOff) return 0
 
       const modSources = [lfo1, lfo2, lfo3, sequencerValue, auxLfo]
       return modSources.reduce(
-        (acc, source, destinationIndex) => acc + (source - 0.5) * modMatrix[sourceIndex][destinationIndex],
+        (acc, source, sourceIndex) => acc + (source - 0.5) * modMatrix[destinationIndex][sourceIndex],
         0
       )
     },
@@ -611,7 +611,14 @@ export default function LAMBApp() {
               </div>
 
               {/* effects */}
-              <Effects delay={delay} filter={filter} distortion={distortion} />
+              <Effects
+                delay={delay}
+                filter={filter}
+                distortion={distortion}
+                distMod={modVal(10)}
+                lpfMod={modVal(11)}
+                dlyTimeMod={modVal(12)}
+              />
             </div>
           </TiltContainer>
         </div>

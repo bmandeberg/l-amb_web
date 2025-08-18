@@ -17,6 +17,9 @@ export const modDestinations = [
   'VOICE2',
   'VOICE3',
   'VOICE4',
+  'DIST',
+  'LPF',
+  'DLY TIME',
 ]
 
 export default function ModMatrix({ playing }: { playing: boolean }) {
@@ -86,7 +89,7 @@ export default function ModMatrix({ playing }: { playing: boolean }) {
         </tbody>
       </table>
     ),
-    [dragModValue, modMatrix]
+    [dragModValue, modMatrix, playing]
   )
 
   return content

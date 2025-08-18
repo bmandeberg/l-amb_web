@@ -22,7 +22,14 @@ import ModMatrix from '@/components/ModMatrix'
 import TiltContainer from '@/components/TiltContainer'
 import Checkbox from '@/components/Checkbox'
 import VoiceTypeSelector, { VoiceType } from '@/components/VoiceTypeSelector'
-import Effects, { FILTER_MAX } from '@/components/Effects'
+import Effects, {
+  DEFAULT_DIST,
+  DEFAULT_LPF,
+  DEFAULT_RESONANCE,
+  DEFAULT_DLY,
+  DEFAULT_DLY_TIME,
+  DEFAULT_DLY_FDBK,
+} from '@/components/Effects'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = { frequency: 1.71, dutyCycle: 0.25, shape: 0 }
@@ -119,7 +126,7 @@ export default function LAMBApp() {
   const filter = useRef<Tone.Filter | null>(null)
   const distortion = useRef<Tone.Distortion | null>(null)
 
-  // init audio path
+  // init audio path and fx
   useEffect(() => {
     if (!initialized || !lfo3Node || !lfo2Node || !lfo1Node) return
 
@@ -158,12 +165,15 @@ export default function LAMBApp() {
     Tone.connect(lfo1Node, new Tone.Pow(2).connect(voiceDGain.gain))
 
     // fx
-    delay.current = new Tone.FeedbackDelay(0.5, 0.5).toDestination()
+    delay.current = new Tone.FeedbackDelay(DEFAULT_DLY_TIME, DEFAULT_DLY_FDBK).toDestination()
     delay.current.set({
-      wet: 0,
+      wet: DEFAULT_DLY,
     })
-    filter.current = new Tone.Filter(FILTER_MAX, 'lowpass').connect(delay.current)
-    distortion.current = new Tone.Distortion(0).connect(filter.current)
+    filter.current = new Tone.Filter(DEFAULT_LPF, 'lowpass').connect(delay.current)
+    filter.current.set({
+      Q: DEFAULT_RESONANCE,
+    })
+    distortion.current = new Tone.Distortion(DEFAULT_DIST).connect(filter.current)
 
     voiceABCGain.connect(distortion.current)
     voiceDGain.connect(distortion.current)

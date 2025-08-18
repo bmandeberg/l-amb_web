@@ -12,19 +12,26 @@ interface EffectsProps {
   dlyTimeMod: number
 }
 
-export const FILTER_MAX = 15000
+const FILTER_MAX = 15000
 const FILTER_MIN = 20
 const MIN_DELAY = 0.001
 const MAX_DELAY = 1
 const MAX_RESONANCE = 30
 
+export const DEFAULT_DIST = 0.25
+export const DEFAULT_LPF = 2000
+export const DEFAULT_RESONANCE = 10
+export const DEFAULT_DLY = 0.25
+export const DEFAULT_DLY_TIME = 0.0093
+export const DEFAULT_DLY_FDBK = 0.85
+
 export default function Effects({ delay, filter, distortion, distMod, lpfMod, dlyTimeMod }: EffectsProps) {
-  const [distortionAmount, setDistortionAmount] = useState(0.3)
-  const [filterCutoff, setFilterCutoff] = useState(2000)
-  const [filterResonance, setFilterResonance] = useState(10)
-  const [delayAmount, setDelayAmount] = useState(0.2)
-  const [delayTime, setDelayTime] = useState(MIN_DELAY)
-  const [delayFeedback, setDelayFeedback] = useState(0.85)
+  const [distortionAmount, setDistortionAmount] = useState(DEFAULT_DIST)
+  const [filterCutoff, setFilterCutoff] = useState(DEFAULT_LPF)
+  const [filterResonance, setFilterResonance] = useState(DEFAULT_RESONANCE)
+  const [delayAmount, setDelayAmount] = useState(DEFAULT_DLY)
+  const [delayTime, setDelayTime] = useState(DEFAULT_DLY_TIME)
+  const [delayFeedback, setDelayFeedback] = useState(DEFAULT_DLY_FDBK)
 
   // sync ui and fx
 

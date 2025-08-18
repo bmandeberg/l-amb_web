@@ -29,6 +29,7 @@ import Effects, {
   DEFAULT_DLY,
   DEFAULT_DLY_TIME,
   DEFAULT_DLY_FDBK,
+  DEFAULT_REVERB,
 } from '@/components/Effects'
 import styles from './page.module.css'
 
@@ -43,6 +44,7 @@ const BG_WIDTH = 2048 / 2
 const BG_HEIGHT = 1328 / 2
 
 const DEFAULT_WAVE = 'fatsawtooth' as VoiceType
+const REVERB_DECAY = 3
 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
@@ -125,6 +127,7 @@ export default function LAMBApp() {
   const delay = useRef<Tone.FeedbackDelay | null>(null)
   const filter = useRef<Tone.Filter | null>(null)
   const distortion = useRef<Tone.Distortion | null>(null)
+  const reverb = useRef<Tone.Reverb | null>(null)
 
   // init audio path and fx
   useEffect(() => {
@@ -165,14 +168,12 @@ export default function LAMBApp() {
     Tone.connect(lfo1Node, new Tone.Pow(2).connect(voiceDGain.gain))
 
     // fx
-    delay.current = new Tone.FeedbackDelay(DEFAULT_DLY_TIME, DEFAULT_DLY_FDBK).toDestination()
-    delay.current.set({
-      wet: DEFAULT_DLY,
-    })
+    reverb.current = new Tone.Reverb(REVERB_DECAY).toDestination()
+    reverb.current.set({ wet: DEFAULT_REVERB })
+    delay.current = new Tone.FeedbackDelay(DEFAULT_DLY_TIME, DEFAULT_DLY_FDBK).connect(reverb.current)
+    delay.current.set({ wet: DEFAULT_DLY })
     filter.current = new Tone.Filter(DEFAULT_LPF, 'lowpass').connect(delay.current)
-    filter.current.set({
-      Q: DEFAULT_RESONANCE,
-    })
+    filter.current.set({ Q: DEFAULT_RESONANCE })
     distortion.current = new Tone.Distortion(DEFAULT_DIST).connect(filter.current)
 
     voiceABCGain.connect(distortion.current)
@@ -625,6 +626,7 @@ export default function LAMBApp() {
                 delay={delay}
                 filter={filter}
                 distortion={distortion}
+                reverb={reverb}
                 distMod={modVal(10)}
                 lpfMod={modVal(11)}
                 dlyTimeMod={modVal(12)}

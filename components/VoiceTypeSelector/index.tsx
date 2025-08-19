@@ -37,8 +37,9 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
   )
 
   const dragDetune = useGesture({
-    onDrag: ({ delta: [dx] }) => {
-      const newDetune = constrain(fatSpread + dx * 2, 0, MAX_DETUNE)
+    onDrag: ({ delta: [dx, dy] }) => {
+      const delta = dx - dy
+      const newDetune = constrain(fatSpread + delta, 0, MAX_DETUNE)
       setFatSpread(newDetune)
       if (voiceRef?.current) {
         voiceRef.current.set({ spread: newDetune })
@@ -47,8 +48,9 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
   })
 
   const dragPulseWidth = useGesture({
-    onDrag: ({ delta: [dx] }) => {
-      const newWidth = constrain(pulseWidth + dx * 0.01, 0.1, 0.9)
+    onDrag: ({ delta: [dx, dy] }) => {
+      const delta = dx - dy
+      const newWidth = constrain(pulseWidth + delta * 0.01, 0.1, 0.9)
       setPulseWidth(newWidth)
       if (voiceRef?.current && voiceType === 'pulse') {
         voiceRef.current.set({ width: newWidth })

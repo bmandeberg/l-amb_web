@@ -87,9 +87,9 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
   )
 
   const reverbDrag = useGesture({
-    onDrag: ({ delta: [x] }) => {
-      console.log(x)
-      const wet = constrain(reverbAmount + x / 50, 0.001, 1)
+    onDrag: ({ delta: [dx, dy] }) => {
+      const delta = (dx - dy) / 75
+      const wet = constrain(reverbAmount + delta, 0.001, 1)
       setReverbAmount(wet)
       reverb.current?.set({ wet })
     },

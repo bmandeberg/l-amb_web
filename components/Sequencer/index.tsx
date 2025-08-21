@@ -11,7 +11,11 @@ import { initState, updateLocalStorage } from '@/util/presets'
 import { random } from '@/util/math'
 import styles from './index.module.css'
 
-const defaultSeqLfo: LFOParameters = { frequency: 1, dutyCycle: 0.5, shape: 0 }
+const defaultSeqLfo: LFOParameters = {
+  frequency: initState('internalFreq', 1, 'sequencer') as number,
+  dutyCycle: 0.5,
+  shape: 0,
+}
 const NUM_STEPS = 8
 
 export const sequences = {
@@ -42,7 +46,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
   const [freeSeq, setFreeSeq] = useState<boolean>(() => initState('freeSeq', false, 'sequencer') as boolean)
   const [internalFreq, setInternalFreq] = useState<number>(() => initState('internalFreq', 1, 'sequencer') as number)
   const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(
-    () => initState('clockDivMultIndex', Math.floor(numClockOptions / 2), 'sequencer') as number
+    () => initState('clockDivMultIndex', Math.floor(numClockOptions / 2) + 1, 'sequencer') as number
   )
   const [sequenceIndex, setSequenceIndex] = useState<number>(() => initState('sequenceIndex', 0, 'sequencer') as number)
 

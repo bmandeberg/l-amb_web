@@ -200,12 +200,19 @@ export default function LAMBApp() {
 
     // fx
     reverb.current = new Tone.Reverb(REVERB_DECAY).toDestination()
-    reverb.current.set({ wet: DEFAULT_REVERB })
-    delay.current = new Tone.FeedbackDelay(DEFAULT_DLY_TIME, DEFAULT_DLY_FDBK).connect(reverb.current)
-    delay.current.set({ wet: DEFAULT_DLY })
-    filter.current = new Tone.Filter(DEFAULT_LPF, 'lowpass').connect(delay.current)
-    filter.current.set({ Q: DEFAULT_RESONANCE })
-    distortion.current = new Tone.Distortion(DEFAULT_DIST).connect(filter.current)
+    reverb.current.set({ wet: initState('reverbAmount', DEFAULT_REVERB, 'fx') as number })
+    delay.current = new Tone.FeedbackDelay(
+      initState('delayAmount', DEFAULT_DLY, 'fx') as number,
+      initState('delayFeedback', DEFAULT_DLY_FDBK, 'fx') as number
+    ).connect(reverb.current)
+    delay.current.set({ wet: initState('delayAmount', DEFAULT_DLY, 'fx') as number })
+    filter.current = new Tone.Filter(initState('lpfCutoff', DEFAULT_LPF, 'fx') as number, 'lowpass').connect(
+      delay.current
+    )
+    filter.current.set({ Q: initState('filterResonance', DEFAULT_RESONANCE, 'fx') as number })
+    distortion.current = new Tone.Distortion(initState('distortionAmount', DEFAULT_DIST, 'fx') as number).connect(
+      filter.current
+    )
 
     voiceABCGain.connect(distortion.current)
     voiceDGain.connect(distortion.current)

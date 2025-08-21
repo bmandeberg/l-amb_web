@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { expoMap } from '@/util/math'
 import cn from 'classnames'
 import styles from './index.module.css'
@@ -15,24 +15,11 @@ interface MixersProps {
 }
 
 export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: MixersProps) {
-  // Optional: use a lighter glow on iOS/mobile. Computed client-side to avoid hydration mismatch.
-  const [liteGlow, setLiteGlow] = useState(false)
-  useEffect(() => {
-    try {
-      const ua = navigator.userAgent || ''
-      const isTouch = 'ontouchend' in document
-      const isApple = /iP(hone|ad|od)|Macintosh/.test(ua)
-      setLiteGlow(isTouch && isApple)
-    } catch {
-      setLiteGlow(false)
-    }
-  }, [])
-
   const content = useMemo(
     () => (
       <svg
         id="Layer_1"
-        className={cn(styles.binaryTree, { [styles.liteGlow]: liteGlow })}
+        className={styles.binaryTree}
         xmlns="http://www.w3.org/2000/svg"
         version="1.1"
         width="1202"
@@ -344,7 +331,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
         </g>
       </svg>
     ),
-    [allOn, lfo1, lfo2, lfo3, solo2, solo3, liteGlow]
+    [allOn, lfo1, lfo2, lfo3, solo2, solo3]
   )
 
   return content

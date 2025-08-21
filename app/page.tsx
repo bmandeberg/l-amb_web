@@ -202,7 +202,7 @@ export default function LAMBApp() {
     reverb.current = new Tone.Reverb(REVERB_DECAY).toDestination()
     reverb.current.set({ wet: initState('reverbAmount', DEFAULT_REVERB, 'fx') as number })
     delay.current = new Tone.FeedbackDelay(
-      initState('delayAmount', DEFAULT_DLY, 'fx') as number,
+      initState('delayTime', DEFAULT_DLY_TIME, 'fx') as number,
       initState('delayFeedback', DEFAULT_DLY_FDBK, 'fx') as number
     ).connect(reverb.current)
     delay.current.set({ wet: initState('delayAmount', DEFAULT_DLY, 'fx') as number })

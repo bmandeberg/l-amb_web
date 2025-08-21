@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { expoMap } from '@/util/math'
 import cn from 'classnames'
 import styles from './index.module.css'
@@ -15,25 +15,40 @@ interface MixersProps {
 }
 
 export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: MixersProps) {
+  // Optional: use a lighter glow on iOS/mobile. Computed client-side to avoid hydration mismatch.
+  const [liteGlow, setLiteGlow] = useState(false)
+  useEffect(() => {
+    try {
+      const ua = navigator.userAgent || ''
+      const isTouch = 'ontouchend' in document
+      const isApple = /iP(hone|ad|od)|Macintosh/.test(ua)
+      setLiteGlow(isTouch && isApple)
+    } catch {
+      setLiteGlow(false)
+    }
+  }, [])
+
   const content = useMemo(
     () => (
       <svg
         id="Layer_1"
-        className={styles.binaryTree}
+        className={cn(styles.binaryTree, { [styles.liteGlow]: liteGlow })}
         xmlns="http://www.w3.org/2000/svg"
         version="1.1"
         width="1202"
         height="685"
         viewBox="0 0 1202 685">
         <defs>
+          {/* Portable, bounded glow (objectBoundingBox + fractional region/blur) */}
           <filter
             id="mixersGlow"
-            x="-50%"
-            y="-50%"
-            width="200%"
-            height="200%" // room for the halo
-            filterUnits="userSpaceOnUse">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
+            x="-0.5"
+            y="-0.5"
+            width="2"
+            height="2"
+            filterUnits="objectBoundingBox"
+            primitiveUnits="objectBoundingBox">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.03" result="blur" />
             <feFlood floodColor="white" floodOpacity="0.72" result="tint" />
             <feComposite in="tint" in2="blur" operator="in" result="glow" />
             <feMerge>
@@ -42,112 +57,71 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
             </feMerge>
           </filter>
 
-          <filter
-            id="luminosity-noclip"
+          {/* Simplified masks — no filters inside masks; use href (not xlinkHref) */}
+          <mask
+            id="mask"
             x="584"
             y="11"
             width="602"
             height="663"
-            colorInterpolationFilters="sRGB"
-            filterUnits="userSpaceOnUse">
-            <feFlood floodColor="#fff" result="bg" />
-            <feBlend in="SourceGraphic" in2="bg" />
-          </filter>
-
-          <mask id="mask" x="584" y="11" width="602" height="663" maskUnits="userSpaceOnUse">
-            <g filter="url(#luminosity-noclip)">
-              <image width="602" height="663" transform="translate(584 11)" xlinkHref="mixer-inner-glow-1.png" />
-            </g>
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse">
+            <image href="mixer-inner-glow-1.png" x="584" y="11" width="602" height="663" />
           </mask>
 
-          <filter
-            id="luminosity-noclip1"
+          <mask
+            id="mask-1"
             x="244"
             y="11"
             width="359"
             height="266"
-            colorInterpolationFilters="sRGB"
-            filterUnits="userSpaceOnUse">
-            <feFlood floodColor="#fff" result="bg" />
-            <feBlend in="SourceGraphic" in2="bg" />
-          </filter>
-
-          <mask id="mask-1" x="244" y="11" width="359" height="266" maskUnits="userSpaceOnUse">
-            <g filter="url(#luminosity-noclip1)">
-              <image width="359" height="266" transform="translate(244 11)" xlinkHref="mixer-inner-glow-2.png" />
-            </g>
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse">
+            <image href="mixer-inner-glow-2.png" x="244" y="11" width="359" height="266" />
           </mask>
 
-          <filter
-            id="luminosity-noclip2"
+          <mask
+            id="mask-2"
             x="125"
             y="217"
             width="360"
             height="266"
-            colorInterpolationFilters="sRGB"
-            filterUnits="userSpaceOnUse">
-            <feFlood floodColor="#fff" result="bg" />
-            <feBlend in="SourceGraphic" in2="bg" />
-          </filter>
-
-          <mask id="mask-2" x="125" y="217" width="360" height="266" maskUnits="userSpaceOnUse">
-            <g filter="url(#luminosity-noclip2)">
-              <image width="360" height="266" transform="translate(125 217)" xlinkHref="mixer-inner-glow-3.png" />
-            </g>
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse">
+            <image href="mixer-inner-glow-3.png" x="125" y="217" width="360" height="266" />
           </mask>
 
-          <filter
-            id="luminosity-noclip3"
+          <mask
+            id="mask-3"
             x="466"
             y="217"
             width="482"
             height="457"
-            colorInterpolationFilters="sRGB"
-            filterUnits="userSpaceOnUse">
-            <feFlood floodColor="#fff" result="bg" />
-            <feBlend in="SourceGraphic" in2="bg" />
-          </filter>
-
-          <mask id="mask-3" x="466" y="217" width="482" height="457" maskUnits="userSpaceOnUse">
-            <g filter="url(#luminosity-noclip3)">
-              <image width="482" height="457" transform="translate(466 217)" xlinkHref="mixer-inner-glow-4.png" />
-            </g>
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse">
+            <image href="mixer-inner-glow-4.png" x="466" y="217" width="482" height="457" />
           </mask>
 
-          <filter
-            id="luminosity-noclip4"
+          <mask
+            id="mask-4"
             x="347"
             y="423"
             width="362"
             height="251"
-            colorInterpolationFilters="sRGB"
-            filterUnits="userSpaceOnUse">
-            <feFlood floodColor="#fff" result="bg" />
-            <feBlend in="SourceGraphic" in2="bg" />
-          </filter>
-
-          <mask id="mask-4" x="347" y="423" width="362" height="251" maskUnits="userSpaceOnUse">
-            <g filter="url(#luminosity-noclip4)">
-              <image width="362" height="251" transform="translate(347 423)" xlinkHref="mixer-inner-glow-5.png" />
-            </g>
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse">
+            <image href="mixer-inner-glow-5.png" x="347" y="423" width="362" height="251" />
           </mask>
 
-          <filter
-            id="luminosity-noclip5"
+          <mask
+            id="mask-5"
             x="16"
             y="423"
             width="350"
             height="251"
-            colorInterpolationFilters="sRGB"
-            filterUnits="userSpaceOnUse">
-            <feFlood floodColor="#fff" result="bg" />
-            <feBlend in="SourceGraphic" in2="bg" />
-          </filter>
-
-          <mask id="mask-5" x="16" y="423" width="350" height="251" maskUnits="userSpaceOnUse">
-            <g filter="url(#luminosity-noclip5)">
-              <image width="350" height="251" transform="translate(16 423)" xlinkHref="mixer-inner-glow-6.png" />
-            </g>
+            maskUnits="userSpaceOnUse"
+            maskContentUnits="userSpaceOnUse">
+            <image href="mixer-inner-glow-6.png" x="16" y="423" width="350" height="251" />
           </mask>
         </defs>
 
@@ -370,7 +344,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
         </g>
       </svg>
     ),
-    [allOn, lfo1, lfo2, lfo3, solo2, solo3]
+    [allOn, lfo1, lfo2, lfo3, solo2, solo3, liteGlow]
   )
 
   return content

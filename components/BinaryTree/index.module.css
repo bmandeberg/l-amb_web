@@ -45,3 +45,8 @@
 .opacityTransition {
   transition: opacity 0.2s ease-in-out;
 }
+
+.liteGlow {
+  /* Fast, broadly compatible stand-in for the SVG glow on iOS */
+  filter: drop-shadow(0 0 9px rgba(255, 255, 255, 0.72));
+}

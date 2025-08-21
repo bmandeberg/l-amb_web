@@ -38,11 +38,13 @@ const lfo1Default: LFOParameters = {
   frequency: initState('freq', 0.39, 'lfo1') as number,
   dutyCycle: initState('dutyCycle', 0, 'lfo1') as number,
   shape: initState('shape', true, 'lfo1') ? 1 : 0,
+  latch: initState('solo2', false) || initState('solo3', false) ? 1 : 0,
 }
 const lfo2Default: LFOParameters = {
   frequency: initState('freq', 0.39, 'lfo2') as number,
   dutyCycle: initState('dutyCycle', 0.5, 'lfo2') as number,
   shape: initState('shape', true, 'lfo2') ? 1 : 0,
+  latch: initState('solo3', false) ? 1 : 0,
 }
 const lfo3Default: LFOParameters = {
   frequency: initState('freq', 0.19, 'lfo3') as number,

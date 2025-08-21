@@ -54,3 +54,7 @@ function rgbToHex(r: number, g: number, b: number): string {
 export function snapToStep(value: number, step: number): number {
   return step > 0 ? Math.round(value / step) * step : value
 }
+
+export function random(min: number, max: number): number {
+  return Math.random() * (max - min) + min
+}

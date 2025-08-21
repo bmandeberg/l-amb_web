@@ -26,7 +26,10 @@ export default useLambStore
 function defaultModMatrix(): number[][] {
   const modMatrix = Array.from({ length: NUM_MOD_DESTINATIONS }, () => Array(NUM_MOD_SOURCES).fill(0))
   // init patch mod matrix
-  modMatrix[9][4] = 0.35
+  modMatrix[6][3] = 0.64
+  modMatrix[7][3] = 0.57
+  modMatrix[8][3] = 0.58
+  modMatrix[9][3] = 1
   modMatrix[11][4] = 0.39
 
   return initState('modMatrix', modMatrix) as number[][]

@@ -8,6 +8,7 @@ import useLFO from '@/hooks/useLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { secondaryColor, gray } from '@/app/globals'
 import { initState, updateLocalStorage } from '@/util/presets'
+import { random } from '@/util/math'
 import styles from './index.module.css'
 
 const defaultSeqLfo: LFOParameters = { frequency: 1, dutyCycle: 0.5, shape: 0 }
@@ -31,7 +32,12 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
     () => initState('skip', Array(NUM_STEPS).fill(false), 'sequencer') as boolean[]
   )
   const [values, setValues] = useState<number[]>(
-    () => initState('values', Array(NUM_STEPS).fill(0.5), 'sequencer') as number[]
+    () =>
+      initState(
+        'values',
+        Array.from({ length: NUM_STEPS }, () => random(0.25, 0.75)),
+        'sequencer'
+      ) as number[]
   )
   const [freeSeq, setFreeSeq] = useState<boolean>(() => initState('freeSeq', false, 'sequencer') as boolean)
   const [internalFreq, setInternalFreq] = useState<number>(() => initState('internalFreq', 1, 'sequencer') as number)

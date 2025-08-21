@@ -21,7 +21,7 @@ import Sequencer from '@/components/Sequencer'
 import ModMatrix from '@/components/ModMatrix'
 import TiltContainer from '@/components/TiltContainer'
 import Checkbox from '@/components/Checkbox'
-import VoiceTypeSelector, { VoiceType } from '@/components/VoiceTypeSelector'
+import VoiceTypeSelector, { VoiceType, MAX_DETUNE } from '@/components/VoiceTypeSelector'
 import Effects, {
   DEFAULT_DIST,
   DEFAULT_LPF,
@@ -79,14 +79,14 @@ export default function LAMBApp() {
   const [pitch2, setPitch2] = useState<number>(() => initState('pitch', 72, 'voice2') as number)
   const [pitch3, setPitch3] = useState<number>(() => initState('pitch', 65, 'voice3') as number)
   const [pitch4, setPitch4] = useState<number>(() => initState('pitch', 56, 'voice4') as number)
-  const voiceARef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
-  const voiceBRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
-  const voiceCRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
-  const voiceDRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
-  const [voiceAType, setVoiceAType] = useState<VoiceType>(() => initState('type', 'fatsawtooth', 'voice1') as VoiceType)
-  const [voiceBType, setVoiceBType] = useState<VoiceType>(() => initState('type', 'fatsawtooth', 'voice2') as VoiceType)
-  const [voiceCType, setVoiceCType] = useState<VoiceType>(() => initState('type', 'fatsawtooth', 'voice3') as VoiceType)
-  const [voiceDType, setVoiceDType] = useState<VoiceType>(() => initState('type', 'fatsawtooth', 'voice4') as VoiceType)
+  const voice1Ref = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const voice2Ref = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const voice3Ref = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const voice4Ref = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
+  const [voice1Type, setVoice1Type] = useState<VoiceType>(() => initState('type', 'fatsawtooth', 'voice1') as VoiceType)
+  const [voice2Type, setVoice2Type] = useState<VoiceType>(() => initState('type', 'fatsawtooth', 'voice2') as VoiceType)
+  const [voice3Type, setVoice3Type] = useState<VoiceType>(() => initState('type', 'pulse', 'voice3') as VoiceType)
+  const [voice4Type, setVoice4Type] = useState<VoiceType>(() => initState('type', 'fatsawtooth', 'voice4') as VoiceType)
 
   const pitch1NoteName = useMemo(
     () => midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch)),
@@ -107,10 +107,10 @@ export default function LAMBApp() {
 
   // update voice frequencies when pitches change
   useEffect(() => {
-    if (voiceARef.current) voiceARef.current.frequency.value = pitch1NoteName
-    if (voiceBRef.current) voiceBRef.current.frequency.value = pitch2NoteName
-    if (voiceCRef.current) voiceCRef.current.frequency.value = pitch3NoteName
-    if (voiceDRef.current) voiceDRef.current.frequency.value = pitch4NoteName
+    if (voice1Ref.current) voice1Ref.current.frequency.value = pitch1NoteName
+    if (voice2Ref.current) voice2Ref.current.frequency.value = pitch2NoteName
+    if (voice3Ref.current) voice3Ref.current.frequency.value = pitch3NoteName
+    if (voice4Ref.current) voice4Ref.current.frequency.value = pitch4NoteName
   }, [pitch1NoteName, pitch2NoteName, pitch3NoteName, pitch4NoteName])
 
   const lfo1Latch = useMemo(() => solo2 || solo3, [solo2, solo3])
@@ -150,55 +150,63 @@ export default function LAMBApp() {
   useEffect(() => {
     if (!initialized || !lfo3Node || !lfo2Node || !lfo1Node) return
 
-    const voiceAGain = new Tone.Gain(0)
-    voiceARef.current = new Tone.OmniOscillator({
+    const voice1Gain = new Tone.Gain(0)
+    voice1Ref.current = new Tone.OmniOscillator({
       volume: -8,
       frequency: pitch1NoteName,
-      type: initState('type', 'triangle', 'voice1') as VoiceType,
+      type: initState('type', 'fatsawtooth', 'voice1') as VoiceType,
+      spread: initState('fatSpread', MAX_DETUNE, 'voice1') as number,
+      width: initState('pulseWidth', 0.5, 'voice1') as number,
     })
-      .connect(voiceAGain)
+      .connect(voice1Gain)
       .start()
-    Tone.connect(lfo3Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceAGain.gain)))
+    Tone.connect(lfo3Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voice1Gain.gain)))
 
-    const voiceBGain = new Tone.Gain(0)
-    voiceBRef.current = new Tone.OmniOscillator({
+    const voice2Gain = new Tone.Gain(0)
+    voice2Ref.current = new Tone.OmniOscillator({
       volume: -8,
       frequency: pitch2NoteName,
-      type: initState('type', 'triangle', 'voice2') as VoiceType,
+      type: initState('type', 'fatsawtooth', 'voice2') as VoiceType,
+      spread: initState('fatSpread', MAX_DETUNE, 'voice2') as number,
+      width: initState('pulseWidth', 0.5, 'voice2') as number,
     })
-      .connect(voiceBGain)
+      .connect(voice2Gain)
       .start()
-    Tone.connect(lfo3Node, new Tone.Pow(2).connect(voiceBGain.gain))
+    Tone.connect(lfo3Node, new Tone.Pow(2).connect(voice2Gain.gain))
 
-    const voiceABGain = new Tone.Gain(0)
-    voiceAGain.connect(voiceABGain)
-    voiceBGain.connect(voiceABGain)
-    Tone.connect(lfo2Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABGain.gain)))
+    const voice12Gain = new Tone.Gain(0)
+    voice1Gain.connect(voice12Gain)
+    voice2Gain.connect(voice12Gain)
+    Tone.connect(lfo2Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voice12Gain.gain)))
 
-    const voiceCGain = new Tone.Gain(0)
-    voiceCRef.current = new Tone.OmniOscillator({
+    const voice3Gain = new Tone.Gain(0)
+    voice3Ref.current = new Tone.OmniOscillator({
       volume: -8,
       frequency: pitch3NoteName,
-      type: initState('type', 'triangle', 'voice3') as VoiceType,
+      type: initState('type', 'pulse', 'voice3') as VoiceType,
+      spread: initState('fatSpread', MAX_DETUNE, 'voice3') as number,
+      width: initState('pulseWidth', 0.818, 'voice3') as number,
     })
-      .connect(voiceCGain)
+      .connect(voice3Gain)
       .start()
-    Tone.connect(lfo2Node, new Tone.Pow(2).connect(voiceCGain.gain))
+    Tone.connect(lfo2Node, new Tone.Pow(2).connect(voice3Gain.gain))
 
-    const voiceABCGain = new Tone.Gain(0)
-    voiceABGain.connect(voiceABCGain)
-    voiceCGain.connect(voiceABCGain)
-    Tone.connect(lfo1Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voiceABCGain.gain)))
+    const voice123Gain = new Tone.Gain(0)
+    voice12Gain.connect(voice123Gain)
+    voice3Gain.connect(voice123Gain)
+    Tone.connect(lfo1Node, new Tone.Subtract(1).connect(new Tone.Pow(2).connect(voice123Gain.gain)))
 
-    const voiceDGain = new Tone.Gain(0)
-    voiceDRef.current = new Tone.OmniOscillator({
+    const voice4Gain = new Tone.Gain(0)
+    voice4Ref.current = new Tone.OmniOscillator({
       volume: -8,
       frequency: pitch4NoteName,
       type: initState('type', 'fatsawtooth', 'voice4') as VoiceType,
+      spread: initState('fatSpread', 60, 'voice4') as number,
+      width: initState('pulseWidth', 0.5, 'voice4') as number,
     })
-      .connect(voiceDGain)
+      .connect(voice4Gain)
       .start()
-    Tone.connect(lfo1Node, new Tone.Pow(2).connect(voiceDGain.gain))
+    Tone.connect(lfo1Node, new Tone.Pow(2).connect(voice4Gain.gain))
 
     // fx
     reverb.current = new Tone.Reverb(REVERB_DECAY).toDestination()
@@ -216,8 +224,8 @@ export default function LAMBApp() {
       filter.current
     )
 
-    voiceABCGain.connect(distortion.current)
-    voiceDGain.connect(distortion.current)
+    voice123Gain.connect(distortion.current)
+    voice4Gain.connect(distortion.current)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialized, lfo3Node, lfo2Node, lfo1Node])
@@ -762,7 +770,7 @@ export default function LAMBApp() {
           {/* voices */}
           <div className={cn(styles.voices, { [styles.active]: playing })}>
             <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-              <VoiceTypeSelector voiceType={voiceAType} setVoiceType={setVoiceAType} voiceRef={voiceARef} index={1} />
+              <VoiceTypeSelector voiceType={voice1Type} setVoiceType={setVoice1Type} voiceRef={voice1Ref} index={1} />
               <Voice
                 pitch={pitch1}
                 setPitch={setPitch1}
@@ -773,7 +781,7 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
-              <VoiceTypeSelector voiceType={voiceBType} setVoiceType={setVoiceBType} voiceRef={voiceBRef} index={2} />
+              <VoiceTypeSelector voiceType={voice2Type} setVoiceType={setVoice2Type} voiceRef={voice2Ref} index={2} />
               <Voice
                 pitch={pitch2}
                 setPitch={setPitch2}
@@ -784,7 +792,13 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
-              <VoiceTypeSelector voiceType={voiceCType} setVoiceType={setVoiceCType} voiceRef={voiceCRef} index={3} />
+              <VoiceTypeSelector
+                voiceType={voice3Type}
+                setVoiceType={setVoice3Type}
+                voiceRef={voice3Ref}
+                pulseInit={0.818}
+                index={3}
+              />
               <Voice
                 pitch={pitch3}
                 setPitch={setPitch3}
@@ -796,9 +810,9 @@ export default function LAMBApp() {
             </div>
             <div className={styles.voiceContainer}>
               <VoiceTypeSelector
-                voiceType={voiceDType}
-                setVoiceType={setVoiceDType}
-                voiceRef={voiceDRef}
+                voiceType={voice4Type}
+                setVoiceType={setVoice4Type}
+                voiceRef={voice4Ref}
                 fatInit={60}
                 index={4}
               />
@@ -860,10 +874,10 @@ export default function LAMBApp() {
       pitch2NoteName,
       pitch3NoteName,
       pitch4NoteName,
-      voiceAType,
-      voiceBType,
-      voiceCType,
-      voiceDType,
+      voice1Type,
+      voice2Type,
+      voice3Type,
+      voice4Type,
       screenSizeRatio,
       mounted,
       linkCopied,

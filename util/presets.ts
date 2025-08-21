@@ -71,9 +71,8 @@ export function getUrlPresetParam(stateName: string, parentObj?: string) {
   // base64 decode ?preset=<encoded>
   const encoded = getParamFromQueryString('preset')
   if (encoded) {
-    const decoded = atob(encoded)
-    const parsed = JSON.parse(decoded)
-    return (parentObj ? parsed[parentObj]?.[stateName] : parsed[stateName]) ?? null
+    const decoded = decodePreset(encoded)
+    return (parentObj ? decoded[parentObj]?.[stateName] : decoded[stateName]) ?? null
   }
   return null
 }
@@ -87,4 +86,9 @@ export function copyPresetUrl() {
     const url = `${window.location.origin}${window.location.pathname}?preset=${encoded}`
     navigator.clipboard.writeText(url)
   }
+}
+
+export function decodePreset(encoded: string) {
+  const decoded = atob(encoded)
+  return JSON.parse(decoded)
 }

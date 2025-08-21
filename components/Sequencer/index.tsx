@@ -17,6 +17,11 @@ const defaultSeqLfo: LFOParameters = {
   shape: 0,
 }
 const NUM_STEPS = 8
+// const DEFAULT_SEQUENCE = Array.from({ length: NUM_STEPS }, () => random(0.25, 0.75))
+const DEFAULT_SEQUENCE = [
+  0.2814747489200519, 0.6420057152904179, 0.5295824612372204, 0.6034829587242845, 0.7158421774766777,
+  0.26268067118446914, 0.6603350180483399, 0.5520729605926757,
+]
 
 export const sequences = {
   up: (currentStep: number) => (currentStep + 1) % NUM_STEPS,
@@ -35,14 +40,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
   const [skip, setSkip] = useState<boolean[]>(
     () => initState('skip', Array(NUM_STEPS).fill(false), 'sequencer') as boolean[]
   )
-  const [values, setValues] = useState<number[]>(
-    () =>
-      initState(
-        'values',
-        Array.from({ length: NUM_STEPS }, () => random(0.25, 0.75)),
-        'sequencer'
-      ) as number[]
-  )
+  const [values, setValues] = useState<number[]>(() => initState('values', DEFAULT_SEQUENCE, 'sequencer') as number[])
   const [freeSeq, setFreeSeq] = useState<boolean>(() => initState('freeSeq', false, 'sequencer') as boolean)
   const [internalFreq, setInternalFreq] = useState<number>(() => initState('internalFreq', 1, 'sequencer') as number)
   const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(

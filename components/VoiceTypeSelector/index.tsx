@@ -6,7 +6,7 @@ import styles from './index.module.css'
 import { constrain, scaleToRange } from '@/util/math'
 import { initState, updateLocalStorage } from '@/util/presets'
 
-const MAX_DETUNE = 100
+export const MAX_DETUNE = 100
 
 export type VoiceType = 'triangle' | 'sawtooth' | 'pulse' | 'fatsawtooth'
 
@@ -16,6 +16,7 @@ interface VoiceTypeSelectorProps {
   voiceRef: React.RefObject<Tone.OmniOscillator<Tone.Oscillator> | null>
   index: number
   fatInit?: number
+  pulseInit?: number
 }
 
 export default function VoiceTypeSelector({
@@ -23,12 +24,15 @@ export default function VoiceTypeSelector({
   setVoiceType,
   voiceRef,
   fatInit,
+  pulseInit,
   index,
 }: VoiceTypeSelectorProps) {
   const [fatSpread, setFatSpread] = useState<number>(
     () => initState('fatSpread', fatInit ?? MAX_DETUNE, 'voice' + index) as number
   )
-  const [pulseWidth, setPulseWidth] = useState<number>(() => initState('pulseWidth', 0.5, 'voice' + index) as number)
+  const [pulseWidth, setPulseWidth] = useState<number>(
+    () => initState('pulseWidth', pulseInit ?? 0.5, 'voice' + index) as number
+  )
 
   const updateVoiceType = useCallback(
     (type: VoiceType) => {

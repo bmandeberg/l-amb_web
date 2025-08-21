@@ -54,7 +54,7 @@ export default function TiltContainer({ children, maxTilt, perspective }: TiltCo
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseleave', reset)
     }
-  }, [])
+  }, [maxTilt, perspective])
 
   return (
     <div ref={ref} className={styles.tiltContainer}>

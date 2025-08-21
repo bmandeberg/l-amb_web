@@ -222,6 +222,7 @@ export default function Effects({
       dlyTimeMod,
       reverbAmount,
       reverbDrag,
+      playing,
     ]
   )
 

@@ -8,7 +8,7 @@ import useLFO from '@/hooks/useLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { secondaryColor, gray } from '@/app/globals'
 import { initState, updateLocalStorage } from '@/util/presets'
-import { random } from '@/util/math'
+// import { random } from '@/util/math'
 import styles from './index.module.css'
 
 const defaultSeqLfo: LFOParameters = {

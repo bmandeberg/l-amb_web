@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
+import cn from 'classnames'
 import { useGesture } from '@use-gesture/react'
 import * as Tone from 'tone'
 import LinearKnob from '../LinearKnob'
@@ -15,6 +16,7 @@ interface EffectsProps {
   distMod: number
   lpfMod: number
   dlyTimeMod: number
+  playing: boolean
 }
 
 const FILTER_MAX = 15000
@@ -31,7 +33,16 @@ export const DEFAULT_DLY_TIME = 0.0093
 export const DEFAULT_DLY_FDBK = 0.85
 export const DEFAULT_REVERB = 0.5
 
-export default function Effects({ delay, filter, distortion, reverb, distMod, lpfMod, dlyTimeMod }: EffectsProps) {
+export default function Effects({
+  delay,
+  filter,
+  distortion,
+  reverb,
+  distMod,
+  lpfMod,
+  dlyTimeMod,
+  playing,
+}: EffectsProps) {
   const [distortionAmount, setDistortionAmount] = useState<number>(
     () => initState('distortionAmount', DEFAULT_DIST, 'fx') as number
   )
@@ -110,7 +121,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
 
   const content = useMemo(
     () => (
-      <div className={styles.effectsContainer}>
+      <div className={cn(styles.effectsContainer, { [styles.active]: playing })}>
         <p className={styles.fxLabel}>FX</p>
         <div className={styles.effectsRow}>
           <LinearKnob

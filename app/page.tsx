@@ -747,6 +747,7 @@ export default function LAMBApp() {
                 distMod={modVal(10)}
                 lpfMod={modVal(11)}
                 dlyTimeMod={modVal(12)}
+                playing={playing}
               />
             </div>
           </TiltContainer>

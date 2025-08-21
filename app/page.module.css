@@ -88,10 +88,56 @@
   gap: 20px;
 }
 
-.headerLeft {
+.headerLeft,
+.headerRight {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.headerRight {
+  gap: 16px;
+  position: relative;
+}
+
+.copySnackbar {
+  position: absolute;
+  padding: 8px;
+  background-color: var(--secondary-color);
+  color: #fff;
+  font-size: 16px;
+  border-radius: 4px;
+  z-index: 1000;
+  white-space: nowrap;
+  opacity: 0;
+  right: 100%;
+  top: calc(50% - 2px);
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: opacity var(--transition-time) ease-in-out, right var(--transition-time) ease-in-out;
+}
+
+.copySnackbar::after {
+  content: '';
+  position: absolute;
+  left: 97%;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background-color: var(--secondary-color);
+  z-index: -1;
+}
+
+.copySnackbar.active {
+  opacity: 1;
+  right: 110%;
+}
+
+.linkIcon {
+  margin-top: -4px;
+  cursor: pointer;
+  pointer-events: all;
 }
 
 .playStopButton {

@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import LinearKnob from '@/components/LinearKnob'
 import { lerpHex } from '@/util/math'
 import { primaryColor, gray } from '@/app/globals'
+import { updateLocalStorage } from '@/util/presets'
 import styles from './index.module.css'
 
 // MIDI note 24 - 84 (C1 - C6, 32.7Hz - 8372Hz)
@@ -66,6 +67,14 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
     [availablePitches, setPitch]
   )
 
+  const updateLocalPitch = useCallback(
+    (localPitch: number) => {
+      setLocalPitch(localPitch)
+      updateLocalStorage('pitch', availablePitches[localPitch - 1] || minPitch, 'voice' + (index + 1))
+    },
+    [index, availablePitches]
+  )
+
   // update pitch to be diatonic when scale or transpose changes
   useEffect(() => {
     // find closest pitch in availablePitches
@@ -78,9 +87,9 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
       }
     }
 
-    setLocalPitch(closestIndex + 1)
+    updateLocalPitch(closestIndex + 1)
     updatePitch(closestIndex + 1)
-  }, [availablePitches, updatePitch])
+  }, [availablePitches, updatePitch, updateLocalPitch])
 
   const content = useMemo(
     () => (
@@ -90,7 +99,7 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
           max={availablePitches.length}
           step={1}
           value={localPitch}
-          onChange={setLocalPitch}
+          onChange={updateLocalPitch}
           setModdedValue={updatePitch}
           strokeColor={lerpHex(gray, primaryColor, level)}
           glow
@@ -102,7 +111,7 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
         />
       </div>
     ),
-    [availablePitches, localPitch, updatePitch, modVal, level, index]
+    [availablePitches, localPitch, updatePitch, modVal, level, index, updateLocalPitch]
   )
 
   return content

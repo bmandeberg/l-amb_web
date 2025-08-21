@@ -7,6 +7,7 @@ import { LFOParameters } from '@/tone/createLFO'
 import useLFO from '@/hooks/useLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { secondaryColor, gray } from '@/app/globals'
+import { initState, updateLocalStorage } from '@/util/presets'
 import styles from './index.module.css'
 
 const defaultSeqLfo: LFOParameters = { frequency: 1, dutyCycle: 0.5, shape: 0 }
@@ -26,12 +27,18 @@ interface SequencerProps {
 
 export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, playing }: SequencerProps) {
   const [step, setStep] = useState<number>(0)
-  const [skip, setSkip] = useState<boolean[]>(Array(NUM_STEPS).fill(false))
-  const [values, setValues] = useState<number[]>(Array(NUM_STEPS).fill(0.5))
-  const [freeSeq, setFreeSeq] = useState<boolean>(false)
-  const [internalFreq, setInternalFreq] = useState<number>(1)
-  const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(Math.floor(numClockOptions / 2))
-  const [sequenceIndex, setSequenceIndex] = useState<number>(0)
+  const [skip, setSkip] = useState<boolean[]>(
+    () => initState('skip', Array(NUM_STEPS).fill(false), 'sequencer') as boolean[]
+  )
+  const [values, setValues] = useState<number[]>(
+    () => initState('values', Array(NUM_STEPS).fill(0.5), 'sequencer') as number[]
+  )
+  const [freeSeq, setFreeSeq] = useState<boolean>(() => initState('freeSeq', false, 'sequencer') as boolean)
+  const [internalFreq, setInternalFreq] = useState<number>(() => initState('internalFreq', 1, 'sequencer') as number)
+  const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(
+    () => initState('clockDivMultIndex', Math.floor(numClockOptions / 2), 'sequencer') as number
+  )
+  const [sequenceIndex, setSequenceIndex] = useState<number>(() => initState('sequenceIndex', 0, 'sequencer') as number)
 
   const lfo1Freq = useLambStore((state) => state.lfo1Freq)
 
@@ -145,8 +152,10 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
                   const newValues = [...values]
                   newValues[i] = value
                   setValues(newValues)
+                  updateLocalStorage('values', newValues, 'sequencer')
                 }}
                 strokeColor={step === i ? secondaryColor : undefined}
+                defaultValue={0.5}
               />
               <p className={styles.stepNum} style={{ color: step === i ? secondaryColor : gray }}>
                 {i + 1}
@@ -161,6 +170,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
                   const newSkip = [...skip]
                   newSkip[i] = !newSkip[i]
                   setSkip(newSkip)
+                  updateLocalStorage('skip', newSkip, 'sequencer')
                 }}>
                 <line x1="0" y1="0" x2="20" y2="20" stroke={skip[i] ? secondaryColor : gray} strokeWidth="2" />
                 <line x1="20" y1="0" x2="0" y2="20" stroke={skip[i] ? secondaryColor : gray} strokeWidth="2" />
@@ -181,7 +191,10 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
               max={numClockOptions - 1}
               step={1}
               value={clockDivMultIndex}
-              onChange={setClockDivMultIndex}
+              onChange={(clockDivMultIndex) => {
+                setClockDivMultIndex(clockDivMultIndex)
+                updateLocalStorage('clockDivMultIndex', clockDivMultIndex, 'sequencer')
+              }}
               strokeColor={freeSeq ? undefined : secondaryColor}
             />
             <p style={{ color: freeSeq ? gray : secondaryColor, marginTop: -7 }}>
@@ -191,7 +204,10 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
           </div>
           <div className={styles.syncSwitch}>
             <ReactSwitch
-              onChange={setFreeSeq}
+              onChange={(freeSeq) => {
+                setFreeSeq(freeSeq)
+                updateLocalStorage('freeSeq', freeSeq, 'sequencer')
+              }}
               checked={freeSeq}
               uncheckedIcon={false}
               checkedIcon={false}
@@ -205,7 +221,10 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
               min={0.1}
               max={10}
               value={internalFreq}
-              onChange={setInternalFreq}
+              onChange={(internalFreq) => {
+                setInternalFreq(internalFreq)
+                updateLocalStorage('internalFreq', internalFreq, 'sequencer')
+              }}
               strokeColor={freeSeq ? secondaryColor : undefined}
               taper="log"
             />
@@ -222,7 +241,10 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
                 max={Object.keys(sequences.current).length - 1}
                 step={1}
                 value={sequenceIndex}
-                onChange={setSequenceIndex}
+                onChange={(sequenceIndex) => {
+                  setSequenceIndex(sequenceIndex)
+                  updateLocalStorage('sequenceIndex', sequenceIndex, 'sequencer')
+                }}
                 strokeColor={secondaryColor}
               />
             </div>

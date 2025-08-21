@@ -31,11 +31,24 @@ import Effects, {
   DEFAULT_DLY_FDBK,
   DEFAULT_REVERB,
 } from '@/components/Effects'
+import { initState, updateLocalStorage, copyPresetUrl } from '@/util/presets'
 import styles from './page.module.css'
 
-const lfo1Default: LFOParameters = { frequency: 1.71, dutyCycle: 0.25, shape: 0 }
-const lfo2Default: LFOParameters = { frequency: 2.14, dutyCycle: 0.25, shape: 0 }
-const lfo3Default: LFOParameters = { frequency: 4.43, dutyCycle: 0.5, shape: 0 }
+const lfo1Default: LFOParameters = {
+  frequency: initState('freq', 1.71, 'lfo1') as number,
+  dutyCycle: initState('dutyCycle', 0.25, 'lfo1') as number,
+  shape: initState('shape', false, 'lfo1') ? 1 : 0,
+}
+const lfo2Default: LFOParameters = {
+  frequency: initState('freq', 2.14, 'lfo2') as number,
+  dutyCycle: initState('dutyCycle', 0.25, 'lfo2') as number,
+  shape: initState('shape', false, 'lfo2') ? 1 : 0,
+}
+const lfo3Default: LFOParameters = {
+  frequency: initState('freq', 4.43, 'lfo3') as number,
+  dutyCycle: initState('dutyCycle', 0.5, 'lfo3') as number,
+  shape: initState('shape', false, 'lfo3') ? 1 : 0,
+}
 
 const scaleOptions = Object.keys(scales)
 const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -48,30 +61,31 @@ const REVERB_DECAY = 3
 
 export default function LAMBApp() {
   const [initialized, setInitialized] = useState(false)
-  const [pageLoaded, setPageLoaded] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
   const [screenSizeRatio, setScreenSizeRatio] = useState(1)
   const [playing, setPlaying] = useState(false)
-  const [modOff, setModOff] = useState(false)
-  const [syncLfos, setSyncLfos] = useState(false)
-  const [solo2, setSolo2] = useState(false)
-  const [solo3, setSolo3] = useState(false)
+  const [modOff, setModOff] = useState<boolean>(() => initState('modOff', false) as boolean)
+  const [syncLfos, setSyncLfos] = useState<boolean>(() => initState('syncLfos', false) as boolean)
+  const [solo2, setSolo2] = useState<boolean>(() => initState('solo2', false) as boolean)
+  const [solo3, setSolo3] = useState<boolean>(() => initState('solo3', false) as boolean)
   const bgGraphicRef = useRef<SVGLinearGradientElement>(null)
 
-  const [transpose, setTranspose] = useState(0)
-  const [scale, setScale] = useState(3)
+  const [transpose, setTranspose] = useState<number>(() => initState('transpose', 0) as number)
+  const [scale, setScale] = useState<number>(() => initState('scale', 3) as number)
 
-  const [pitch1, setPitch1] = useState(48)
-  const [pitch2, setPitch2] = useState(53)
-  const [pitch3, setPitch3] = useState(56)
-  const [pitch4, setPitch4] = useState(24)
+  const [pitch1, setPitch1] = useState<number>(() => initState('pitch', 48, 'voice1') as number)
+  const [pitch2, setPitch2] = useState<number>(() => initState('pitch', 53, 'voice2') as number)
+  const [pitch3, setPitch3] = useState<number>(() => initState('pitch', 56, 'voice3') as number)
+  const [pitch4, setPitch4] = useState<number>(() => initState('pitch', 24, 'voice4') as number)
   const voiceARef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceBRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceCRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
   const voiceDRef = useRef<Tone.OmniOscillator<Tone.Oscillator> | null>(null)
-  const [voiceAType, setVoiceAType] = useState<VoiceType>(DEFAULT_WAVE)
-  const [voiceBType, setVoiceBType] = useState<VoiceType>(DEFAULT_WAVE)
-  const [voiceCType, setVoiceCType] = useState<VoiceType>(DEFAULT_WAVE)
-  const [voiceDType, setVoiceDType] = useState<VoiceType>(DEFAULT_WAVE)
+  const [voiceAType, setVoiceAType] = useState<VoiceType>(() => initState('type', DEFAULT_WAVE, 'voice1') as VoiceType)
+  const [voiceBType, setVoiceBType] = useState<VoiceType>(() => initState('type', DEFAULT_WAVE, 'voice2') as VoiceType)
+  const [voiceCType, setVoiceCType] = useState<VoiceType>(() => initState('type', DEFAULT_WAVE, 'voice3') as VoiceType)
+  const [voiceDType, setVoiceDType] = useState<VoiceType>(() => initState('type', DEFAULT_WAVE, 'voice4') as VoiceType)
 
   const pitch1NoteName = useMemo(
     () => midiNoteNumberToNoteName(constrain(pitch1 + transpose, minPitch, maxPitch)),
@@ -251,13 +265,12 @@ export default function LAMBApp() {
     function handleResize() {
       if (!window) return
 
-      console.log(window.innerWidth / screenWidth)
       setScreenSizeRatio(window.innerWidth / screenWidth)
     }
 
     // run once on startup
     handleResize()
-    setPageLoaded(true)
+    setMounted(true)
 
     window.addEventListener('resize', handleResize)
     return () => {
@@ -267,8 +280,8 @@ export default function LAMBApp() {
 
   // modulation
   const [sequencerValue, setSequencerValue] = useState(0)
-  const [auxLfoFreq, setAuxLfoFreq] = useState(0.1)
-  const [auxLfoShape, setLocalAuxLfoShape] = useState(true)
+  const [auxLfoFreq, setAuxLfoFreq] = useState<number>(() => initState('freq', 0.1, 'auxLfo') as number)
+  const [auxLfoShape, setLocalAuxLfoShape] = useState<boolean>(() => initState('shape', true, 'auxLfo') as boolean)
 
   const {
     value: auxLfo,
@@ -280,6 +293,7 @@ export default function LAMBApp() {
     (newShape: boolean) => {
       setLocalAuxLfoShape(newShape)
       setAuxLfoShape?.current?.(newShape ? 1 : 0)
+      updateLocalStorage('shape', newShape, 'auxLfo')
     },
     [setAuxLfoShape]
   )
@@ -288,6 +302,7 @@ export default function LAMBApp() {
     (hz: number) => {
       setAuxLfoFreq(hz)
       setAuxLfoFrequency?.current?.(hz)
+      updateLocalStorage('freq', hz, 'auxLfo')
     },
     [setAuxLfoFrequency]
   )
@@ -328,7 +343,7 @@ export default function LAMBApp() {
   const content = useMemo(
     () => (
       <div
-        className={cn(styles.page, { [styles.loaded]: pageLoaded })}
+        className={cn(styles.page, { [styles.loaded]: mounted })}
         style={
           {
             '--primary-color': primaryColor,
@@ -437,7 +452,22 @@ export default function LAMBApp() {
                 onClick={playStop}
               />
             </div>
-            <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
+            <div className={styles.headerRight}>
+              <div className={cn(styles.copySnackbar, { [styles.active]: linkCopied })}>link copied to clipboard!</div>
+              <Image
+                className={styles.linkIcon}
+                src="/link.png"
+                alt="Link Icon"
+                width={21}
+                height={21}
+                onClick={() => {
+                  copyPresetUrl()
+                  setLinkCopied(true)
+                  setTimeout(() => setLinkCopied(false), 2000)
+                }}
+              />
+              <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
+            </div>
           </div>
 
           <TiltContainer maxTilt={0.5} perspective={900}>
@@ -448,7 +478,14 @@ export default function LAMBApp() {
                   <div className={styles.lfoControlHeader}>
                     <p>LFO1</p>
                     <div>
-                      <Checkbox checked={syncLfos} onChange={setSyncLfos} label="SYNC" />
+                      <Checkbox
+                        checked={syncLfos}
+                        onChange={(syncLfos) => {
+                          setSyncLfos(syncLfos)
+                          updateLocalStorage('syncLfos', syncLfos)
+                        }}
+                        label="SYNC"
+                      />
                     </div>
                   </div>
                   <div className={styles.lfoControl}>
@@ -461,6 +498,7 @@ export default function LAMBApp() {
                       lfo1
                       freqMod={modVal(0)}
                       dutyMod={modVal(1)}
+                      index={1}
                     />
                   </div>
                 </div>
@@ -470,7 +508,14 @@ export default function LAMBApp() {
                   <div className={styles.lfoControlHeader}>
                     <p>LFO2</p>
                     <div>
-                      <Checkbox checked={solo2} onChange={setSolo2} label="SOLO" />
+                      <Checkbox
+                        checked={solo2}
+                        onChange={(solo2) => {
+                          setSolo2(solo2)
+                          updateLocalStorage('solo2', solo2)
+                        }}
+                        label="SOLO"
+                      />
                     </div>
                   </div>
                   <div className={styles.lfoControl}>
@@ -485,6 +530,7 @@ export default function LAMBApp() {
                       syncLfos={syncLfos}
                       lfo1Phase={lfo1Phase}
                       setPhase={setLfo2Phase}
+                      index={2}
                     />
                   </div>
                 </div>
@@ -494,7 +540,14 @@ export default function LAMBApp() {
                   <div className={styles.lfoControlHeader}>
                     <p>LFO3</p>
                     <div>
-                      <Checkbox checked={solo3} onChange={setSolo3} label="SOLO" />
+                      <Checkbox
+                        checked={solo3}
+                        onChange={(solo3) => {
+                          setSolo3(solo3)
+                          updateLocalStorage('solo3', solo3)
+                        }}
+                        label="SOLO"
+                      />
                     </div>
                   </div>
                   <div className={styles.lfoControl}>
@@ -509,6 +562,7 @@ export default function LAMBApp() {
                       syncLfos={syncLfos}
                       lfo1Phase={lfo1Phase}
                       setPhase={setLfo3Phase}
+                      index={3}
                     />
                   </div>
                 </div>
@@ -517,16 +571,16 @@ export default function LAMBApp() {
               {/* voice controls */}
               <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
                 <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
-                  <p>{pitch1NoteName}</p>
+                  <p suppressHydrationWarning>{pitch1NoteName}</p>
                 </div>
                 <div className={styles.voiceAuxControl}>
-                  <p>{pitch2NoteName}</p>
+                  <p suppressHydrationWarning>{pitch2NoteName}</p>
                 </div>
                 <div className={styles.voiceAuxControl}>
-                  <p>{pitch3NoteName}</p>
+                  <p suppressHydrationWarning>{pitch3NoteName}</p>
                 </div>
                 <div className={styles.voiceAuxControl}>
-                  <p>{pitch4NoteName}</p>
+                  <p suppressHydrationWarning>{pitch4NoteName}</p>
 
                   {/* voice global controls */}
                   <div className={styles.voiceGlobalControls}>
@@ -536,7 +590,10 @@ export default function LAMBApp() {
                         max={11}
                         step={1}
                         value={transpose}
-                        onChange={setTranspose}
+                        onChange={(transpose) => {
+                          setTranspose(transpose)
+                          updateLocalStorage('transpose', transpose)
+                        }}
                         strokeColor={secondaryColor}
                       />
                       <p>
@@ -551,7 +608,10 @@ export default function LAMBApp() {
                         max={scaleOptions.length - 1}
                         step={1}
                         value={scale}
-                        onChange={setScale}
+                        onChange={(scale) => {
+                          setScale(scale)
+                          updateLocalStorage('scale', scale)
+                        }}
                         strokeColor={secondaryColor}
                       />
                       <p>
@@ -641,7 +701,10 @@ export default function LAMBApp() {
                     height="13"
                     viewBox="0 0 13 13"
                     onClick={() => {
-                      setModOff((modOff) => !modOff)
+                      setModOff((modOff) => {
+                        updateLocalStorage('modOff', !modOff)
+                        return !modOff
+                      })
                     }}>
                     <line x1="0" y1="0" x2="13" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
                     <line x1="13" y1="0" x2="0" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
@@ -674,7 +737,7 @@ export default function LAMBApp() {
           {/* voices */}
           <div className={cn(styles.voices, { [styles.active]: playing })}>
             <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-              <VoiceTypeSelector voiceType={voiceAType} setVoiceType={setVoiceAType} voiceRef={voiceARef} />
+              <VoiceTypeSelector voiceType={voiceAType} setVoiceType={setVoiceAType} voiceRef={voiceARef} index={1} />
               <Voice
                 pitch={pitch1}
                 setPitch={setPitch1}
@@ -685,7 +748,7 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
-              <VoiceTypeSelector voiceType={voiceBType} setVoiceType={setVoiceBType} voiceRef={voiceBRef} />
+              <VoiceTypeSelector voiceType={voiceBType} setVoiceType={setVoiceBType} voiceRef={voiceBRef} index={2} />
               <Voice
                 pitch={pitch2}
                 setPitch={setPitch2}
@@ -696,7 +759,7 @@ export default function LAMBApp() {
               />
             </div>
             <div className={styles.voiceContainer}>
-              <VoiceTypeSelector voiceType={voiceCType} setVoiceType={setVoiceCType} voiceRef={voiceCRef} />
+              <VoiceTypeSelector voiceType={voiceCType} setVoiceType={setVoiceCType} voiceRef={voiceCRef} index={3} />
               <Voice
                 pitch={pitch3}
                 setPitch={setPitch3}
@@ -712,6 +775,7 @@ export default function LAMBApp() {
                 setVoiceType={setVoiceDType}
                 voiceRef={voiceDRef}
                 fatInit={60}
+                index={4}
               />
               <Voice
                 pitch={pitch4}
@@ -776,9 +840,10 @@ export default function LAMBApp() {
       voiceCType,
       voiceDType,
       screenSizeRatio,
-      pageLoaded,
+      mounted,
+      linkCopied,
     ]
   )
 
-  return content
+  return mounted ? content : null
 }

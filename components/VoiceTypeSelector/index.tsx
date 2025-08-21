@@ -4,6 +4,7 @@ import { useGesture } from '@use-gesture/react'
 import { secondaryColor, gray } from '@/app/globals'
 import styles from './index.module.css'
 import { constrain, scaleToRange } from '@/util/math'
+import { initState, updateLocalStorage } from '@/util/presets'
 
 const MAX_DETUNE = 100
 
@@ -13,16 +14,26 @@ interface VoiceTypeSelectorProps {
   voiceType: VoiceType
   setVoiceType: (type: VoiceType) => void
   voiceRef: React.RefObject<Tone.OmniOscillator<Tone.Oscillator> | null>
+  index: number
   fatInit?: number
 }
 
-export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, fatInit }: VoiceTypeSelectorProps) {
-  const [fatSpread, setFatSpread] = useState(fatInit ?? MAX_DETUNE)
-  const [pulseWidth, setPulseWidth] = useState(0.5)
+export default function VoiceTypeSelector({
+  voiceType,
+  setVoiceType,
+  voiceRef,
+  fatInit,
+  index,
+}: VoiceTypeSelectorProps) {
+  const [fatSpread, setFatSpread] = useState<number>(
+    () => initState('fatSpread', fatInit ?? MAX_DETUNE, 'voice' + index) as number
+  )
+  const [pulseWidth, setPulseWidth] = useState<number>(() => initState('pulseWidth', 0.5, 'voice' + index) as number)
 
   const updateVoiceType = useCallback(
     (type: VoiceType) => {
       setVoiceType(type)
+      updateLocalStorage('type', type, 'voice' + index)
       if (voiceRef?.current) {
         voiceRef.current.type = type
 
@@ -33,7 +44,7 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
         }
       }
     },
-    [setVoiceType, voiceRef, pulseWidth, fatSpread]
+    [setVoiceType, voiceRef, pulseWidth, fatSpread, index]
   )
 
   const dragDetune = useGesture({
@@ -41,6 +52,7 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
       const delta = dx - dy
       const newDetune = constrain(fatSpread + delta, 0, MAX_DETUNE)
       setFatSpread(newDetune)
+      updateLocalStorage('fatSpread', newDetune, 'voice' + index)
       if (voiceRef?.current) {
         voiceRef.current.set({ spread: newDetune })
       }
@@ -52,6 +64,7 @@ export default function VoiceTypeSelector({ voiceType, setVoiceType, voiceRef, f
       const delta = dx - dy
       const newWidth = constrain(pulseWidth + delta * 0.01, 0.1, 0.9)
       setPulseWidth(newWidth)
+      updateLocalStorage('pulseWidth', newWidth, 'voice' + index)
       if (voiceRef?.current && voiceType === 'pulse') {
         voiceRef.current.set({ width: newWidth })
       }

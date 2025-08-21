@@ -4,6 +4,7 @@ import * as Tone from 'tone'
 import LinearKnob from '../LinearKnob'
 import { secondaryColor } from '@/app/globals'
 import { constrain } from '@/util/math'
+import { initState, updateLocalStorage } from '@/util/presets'
 import styles from './index.module.css'
 
 interface EffectsProps {
@@ -31,13 +32,21 @@ export const DEFAULT_DLY_FDBK = 0.85
 export const DEFAULT_REVERB = 0.35
 
 export default function Effects({ delay, filter, distortion, reverb, distMod, lpfMod, dlyTimeMod }: EffectsProps) {
-  const [distortionAmount, setDistortionAmount] = useState(DEFAULT_DIST)
-  const [filterCutoff, setFilterCutoff] = useState(DEFAULT_LPF)
-  const [filterResonance, setFilterResonance] = useState(DEFAULT_RESONANCE)
-  const [delayAmount, setDelayAmount] = useState(DEFAULT_DLY)
-  const [delayTime, setDelayTime] = useState(DEFAULT_DLY_TIME)
-  const [delayFeedback, setDelayFeedback] = useState(DEFAULT_DLY_FDBK)
-  const [reverbAmount, setReverbAmount] = useState(DEFAULT_REVERB)
+  const [distortionAmount, setDistortionAmount] = useState<number>(
+    () => initState('distortionAmount', DEFAULT_DIST, 'fx') as number
+  )
+  const [filterCutoff, setFilterCutoff] = useState<number>(() => initState('lpfCutoff', DEFAULT_LPF, 'fx') as number)
+  const [filterResonance, setFilterResonance] = useState<number>(
+    () => initState('lpfResonance', DEFAULT_RESONANCE, 'fx') as number
+  )
+  const [delayAmount, setDelayAmount] = useState<number>(() => initState('delayAmount', DEFAULT_DLY, 'fx') as number)
+  const [delayTime, setDelayTime] = useState<number>(() => initState('delayTime', DEFAULT_DLY_TIME, 'fx') as number)
+  const [delayFeedback, setDelayFeedback] = useState<number>(
+    () => initState('delayFeedback', DEFAULT_DLY_FDBK, 'fx') as number
+  )
+  const [reverbAmount, setReverbAmount] = useState<number>(
+    () => initState('reverbAmount', DEFAULT_REVERB, 'fx') as number
+  )
 
   // sync ui and fx
 
@@ -59,6 +68,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
     (value: number) => {
       setFilterResonance(value)
       filter.current?.set({ Q: value })
+      updateLocalStorage('lpfResonance', value, 'fx')
     },
     [filter]
   )
@@ -67,6 +77,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
     (value: number) => {
       setDelayAmount(value)
       delay.current?.set({ wet: value })
+      updateLocalStorage('delayAmount', value, 'fx')
     },
     [delay]
   )
@@ -82,6 +93,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
     (value: number) => {
       setDelayFeedback(value)
       delay.current?.set({ feedback: value })
+      updateLocalStorage('delayFeedback', value, 'fx')
     },
     [delay]
   )
@@ -92,6 +104,7 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
       const wet = constrain(reverbAmount + delta, 0.001, 1)
       setReverbAmount(wet)
       reverb.current?.set({ wet })
+      updateLocalStorage('reverbAmount', wet, 'fx')
     },
   })
 
@@ -104,7 +117,10 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
             min={0}
             max={1}
             value={distortionAmount}
-            onChange={setDistortionAmount}
+            onChange={(distortionAmount) => {
+              setDistortionAmount(distortionAmount)
+              updateLocalStorage('distortionAmount', distortionAmount, 'fx')
+            }}
             setModdedValue={updateDistortionAmount}
             label="Dist"
             modVal={distMod}
@@ -115,7 +131,10 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
             min={FILTER_MIN}
             max={FILTER_MAX}
             value={filterCutoff}
-            onChange={setFilterCutoff}
+            onChange={(filterCutoff) => {
+              setFilterCutoff(filterCutoff)
+              updateLocalStorage('lpfCutoff', filterCutoff, 'fx')
+            }}
             setModdedValue={updateFilterCutoff}
             label="LPF"
             taper="log"
@@ -146,7 +165,10 @@ export default function Effects({ delay, filter, distortion, reverb, distMod, lp
             min={MIN_DELAY}
             max={MAX_DELAY}
             value={delayTime}
-            onChange={setDelayTime}
+            onChange={(delayTime) => {
+              setDelayTime(delayTime)
+              updateLocalStorage('delayTime', delayTime, 'fx')
+            }}
             setModdedValue={updateDelayTime}
             label="Time"
             taper="log"

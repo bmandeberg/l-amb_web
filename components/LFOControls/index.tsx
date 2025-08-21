@@ -5,6 +5,7 @@ import { LFOParameters } from '@/tone/createLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { gray, secondaryColor } from '@/app/globals'
 import { clockDivMultOptions, numClockOptions } from '@/util/clock'
+import { initState, updateLocalStorage } from '@/util/presets'
 import styles from './index.module.css'
 
 interface LFOControlsProps {
@@ -18,6 +19,7 @@ interface LFOControlsProps {
   lfo1Phase?: React.RefObject<null | number>
   setPhase?: React.RefObject<null | ((phase: number) => void)>
   syncLfos?: boolean
+  index: number
 }
 
 export default function LFOControls({
@@ -31,13 +33,16 @@ export default function LFOControls({
   lfo1Phase,
   setPhase,
   syncLfos,
+  index,
 }: LFOControlsProps) {
-  const [frequency, setLocalFrequency] = useState<number>(init.frequency)
+  const [frequency, setLocalFrequency] = useState<number>(() => initState('freq', init.frequency, 'lfo' + index) as number)
   const frequencyRef = useRef<number>(frequency)
-  const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(Math.floor(numClockOptions / 2))
+  const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(
+    () => initState('clockDivMultIndex', Math.floor(numClockOptions / 2), 'lfo' + index) as number
+  )
   const clockDivMultRef = useRef<number>(clockDivMultIndex)
-  const [dutyCycle, setLocalDutyCycle] = useState<number>(init.dutyCycle)
-  const [shape, setLocalShape] = useState<boolean>(!!init.shape)
+  const [dutyCycle, setLocalDutyCycle] = useState<number>(() => initState('duty', init.dutyCycle, 'lfo' + index) as number)
+  const [shape, setLocalShape] = useState<boolean>(() => initState('shape', !!init.shape, 'lfo' + index) as boolean)
 
   const lfo1Freq = useLambStore((state) => state.lfo1Freq)
   const setLfo1Freq = useLambStore((state) => state.setLfo1Freq)
@@ -93,8 +98,9 @@ export default function LFOControls({
     (s: boolean) => {
       setLocalShape(s)
       setShape?.current?.(s ? 1 : 0)
+      updateLocalStorage('shape', s, 'lfo' + index)
     },
-    [setShape]
+    [setShape, index]
   )
 
   const content = useMemo(
@@ -106,7 +112,17 @@ export default function LFOControls({
             max={syncLfos ? numClockOptions - 1 : 10}
             step={syncLfos ? 1 : undefined}
             value={syncLfos ? clockDivMultIndex : frequency}
-            onChange={syncLfos ? setClockDivMultIndex : setLocalFrequency}
+            onChange={
+              syncLfos
+                ? (clockDivMultIndex) => {
+                    setClockDivMultIndex(clockDivMultIndex)
+                    updateLocalStorage('clockDivMultIndex', clockDivMultIndex, 'lfo' + index)
+                  }
+                : (localFrequency) => {
+                    setLocalFrequency(localFrequency)
+                    updateLocalStorage('freq', localFrequency, 'lfo' + index)
+                  }
+            }
             setModdedValue={updateFrequency}
             strokeColor={secondaryColor}
             taper={syncLfos ? undefined : 'log'}
@@ -124,7 +140,10 @@ export default function LFOControls({
             min={0}
             max={1}
             value={dutyCycle}
-            onChange={setLocalDutyCycle}
+            onChange={(localDutyCycle) => {
+              setLocalDutyCycle(localDutyCycle)
+              updateLocalStorage('duty', localDutyCycle, 'lfo' + index)
+            }}
             setModdedValue={updateDutyCycle}
             strokeColor={secondaryColor}
             modVal={dutyMod}
@@ -170,6 +189,7 @@ export default function LFOControls({
       dutyMod,
       syncLfos,
       clockDivMultIndex,
+      index,
     ]
   )
 

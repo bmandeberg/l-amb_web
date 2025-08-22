@@ -110,9 +110,8 @@ export default function Effects({
   )
 
   const reverbDrag = useGesture({
-    onDrag: ({ delta: [dx, dy] }) => {
-      const delta = (dx - dy) / 75
-      const wet = constrain(reverbAmount + delta, 0.001, 1)
+    onDrag: ({ delta: [dx] }) => {
+      const wet = constrain(reverbAmount + dx / 48, 0.001, 1)
       setReverbAmount(wet)
       reverb.current?.set({ wet })
       updateLocalStorage('reverbAmount', wet, 'fx')
@@ -200,6 +199,7 @@ export default function Effects({
           <p>Verb</p>
           <div className={styles.reverbControlContainer} {...reverbDrag()}>
             <div className={styles.reverbControl} style={{ width: reverbAmount * 100 + '%' }}></div>
+            <div className={styles.reverbControlHandle} style={{ left: reverbAmount * 100 + '%' }}></div>
           </div>
         </div>
       </div>

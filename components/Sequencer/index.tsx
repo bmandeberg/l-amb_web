@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import ReactSwitch from 'react-switch'
 import cn from 'classnames'
-import useLambStore from '@/app/state'
 import { clockDivMultOptions, numClockOptions } from '@/util/clock'
 import { LFOParameters } from '@/tone/createLFO'
 import useLFO from '@/hooks/useLFO'
@@ -33,9 +32,10 @@ interface SequencerProps {
   initialized: boolean
   lfo1Phase?: React.RefObject<null | number>
   playing: boolean
+  lfo1Freq: number
 }
 
-export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, playing }: SequencerProps) {
+export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, playing, lfo1Freq }: SequencerProps) {
   const [step, setStep] = useState<number>(0)
   const [skip, setSkip] = useState<boolean[]>(
     () => initState('skip', Array(NUM_STEPS).fill(false), 'sequencer') as boolean[]
@@ -47,8 +47,6 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
     () => initState('clockDivMultIndex', Math.floor(numClockOptions / 2) + 1, 'sequencer') as number
   )
   const [sequenceIndex, setSequenceIndex] = useState<number>(() => initState('sequenceIndex', 0, 'sequencer') as number)
-
-  const lfo1Freq = useLambStore((state) => state.lfo1Freq)
 
   const { value: lfo, setFrequency, setPhase } = useLFO(initialized, defaultSeqLfo)
   const lfoRef = useRef<number>(lfo)

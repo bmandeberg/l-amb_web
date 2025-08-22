@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import ReactSwitch from 'react-switch'
-import useLambStore from '@/app/state'
 import { LFOParameters } from '@/tone/createLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { gray, secondaryColor } from '@/app/globals'
@@ -16,6 +15,8 @@ interface LFOControlsProps {
   freqMod: number
   dutyMod: number
   setShape: React.RefObject<null | ((s: 0 | 1) => void)>
+  lfo1Freq: number
+  setLfo1Freq: (freq: number) => void
   lfo1Phase?: React.RefObject<null | number>
   setPhase?: React.RefObject<null | ((phase: number) => void)>
   syncLfos?: boolean
@@ -30,6 +31,8 @@ export default function LFOControls({
   freqMod,
   dutyMod,
   setShape,
+  lfo1Freq,
+  setLfo1Freq,
   lfo1Phase,
   setPhase,
   syncLfos,
@@ -49,9 +52,6 @@ export default function LFOControls({
   )
   const [moddedDutyCycle, setModdedDutyCycle] = useState<number>(dutyCycle)
   const [shape, setLocalShape] = useState<boolean>(() => initState('shape', !!init.shape, 'lfo' + index) as boolean)
-
-  const lfo1Freq = useLambStore((state) => state.lfo1Freq)
-  const setLfo1Freq = useLambStore((state) => state.setLfo1Freq)
 
   useEffect(() => {
     frequencyRef.current = frequency

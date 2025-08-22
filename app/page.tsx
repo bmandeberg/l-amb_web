@@ -11,7 +11,6 @@ import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName } from '@/util/midi'
 import { constrain } from '@/util/math'
 import useLFO from '@/hooks/useLFO'
-import useLambStore from '@/app/state'
 import Voice, { ScaleName, scales, minPitch, maxPitch } from '@/components/Voice'
 import BinaryTree from '@/components/BinaryTree'
 import LFOScope from '@/components/LFOScope'
@@ -112,6 +111,8 @@ export default function LAMBApp() {
     if (voice3Ref.current) voice3Ref.current.frequency.value = pitch3NoteName
     if (voice4Ref.current) voice4Ref.current.frequency.value = pitch4NoteName
   }, [pitch1NoteName, pitch2NoteName, pitch3NoteName, pitch4NoteName])
+
+  const [lfo1Freq, setLfo1Freq] = useState<number>(() => initState('freq', 0.39, 'lfo1') as number)
 
   const lfo1Latch = useMemo(() => solo2 || solo3, [solo2, solo3])
 
@@ -340,7 +341,11 @@ export default function LAMBApp() {
   )
 
   // apply modulation
-  const modMatrix = useLambStore((state) => state.modMatrix)
+  const [modMatrix, setModMatrix] = useState<number[][]>(() => defaultModMatrix()) // [destination][source]
+  const updateModMatrix = useCallback((modMatrix: number[][]) => {
+    setModMatrix(modMatrix)
+    updateLocalStorage('modMatrix', modMatrix)
+  }, [])
 
   const modVal = useCallback(
     (destinationIndex: number) => {
@@ -530,7 +535,8 @@ export default function LAMBApp() {
                       setFrequency={setLfo1Frequency}
                       setDutyCycle={setLfo1Duty}
                       setShape={setLfo1Shape}
-                      lfo1
+                      lfo1Freq={lfo1Freq}
+                      setLfo1Freq={setLfo1Freq}
                       freqMod={modVal(0)}
                       dutyMod={modVal(1)}
                       index={1}
@@ -563,6 +569,8 @@ export default function LAMBApp() {
                       freqMod={modVal(2)}
                       dutyMod={modVal(3)}
                       syncLfos={syncLfos}
+                      lfo1Freq={lfo1Freq}
+                      setLfo1Freq={setLfo1Freq}
                       lfo1Phase={lfo1Phase}
                       setPhase={setLfo2Phase}
                       index={2}
@@ -594,6 +602,8 @@ export default function LAMBApp() {
                       setShape={setLfo3Shape}
                       freqMod={modVal(4)}
                       dutyMod={modVal(5)}
+                      lfo1Freq={lfo1Freq}
+                      setLfo1Freq={setLfo1Freq}
                       syncLfos={syncLfos}
                       lfo1Phase={lfo1Phase}
                       setPhase={setLfo3Phase}
@@ -674,6 +684,7 @@ export default function LAMBApp() {
                   initialized={initialized}
                   lfo1Phase={lfo1Phase}
                   playing={playing}
+                  lfo1Freq={lfo1Freq}
                 />
 
                 <div className={styles.horizontalDivider} style={{ marginTop: -18 }}></div>
@@ -747,7 +758,7 @@ export default function LAMBApp() {
                 </div>
 
                 {/* mod matrix */}
-                <ModMatrix playing={playing} />
+                <ModMatrix playing={playing} modMatrix={modMatrix} setModMatrix={updateModMatrix} />
                 <p className={styles.modMatrixLabel}>MOD MATRIX</p>
               </div>
 
@@ -884,8 +895,24 @@ export default function LAMBApp() {
       screenSizeRatio,
       mounted,
       linkCopied,
+      lfo1Freq,
     ]
   )
 
   return mounted ? content : null
+}
+
+const NUM_MOD_SOURCES = 5
+const NUM_MOD_DESTINATIONS = 13
+
+function defaultModMatrix(): number[][] {
+  const modMatrix = Array.from({ length: NUM_MOD_DESTINATIONS }, () => Array(NUM_MOD_SOURCES).fill(0))
+  // init patch mod matrix
+  modMatrix[6][3] = 0.64
+  modMatrix[7][3] = 0.57
+  modMatrix[8][3] = 0.58
+  modMatrix[9][3] = 1
+  modMatrix[11][4] = 0.39
+
+  return initState('modMatrix', modMatrix) as number[][]
 }

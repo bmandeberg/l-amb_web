@@ -2,7 +2,6 @@ import cn from 'classnames'
 import { useRef, useMemo } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { constrain } from '@/util/math'
-import useLambStore from '@/app/state'
 import styles from './index.module.css'
 
 export const modSources = ['LFO1', 'LFO2', 'LFO3', 'SEQ', 'LFO4']
@@ -22,10 +21,13 @@ export const modDestinations = [
   'DLY TIME',
 ]
 
-export default function ModMatrix({ playing }: { playing: boolean }) {
-  const modMatrix = useLambStore((state) => state.modMatrix)
-  const setModMatrix = useLambStore((state) => state.setModMatrix)
+interface ModMatrixProps {
+  playing: boolean
+  modMatrix: number[][]
+  setModMatrix: (modMatrix: number[][]) => void
+}
 
+export default function ModMatrix({ playing, modMatrix, setModMatrix }: ModMatrixProps) {
   const dragModCell = useRef<{ x: number; y: number } | null>(null)
   const dragModValue = useGesture({
     onDragStart: ({ args: [rowIndex, colIndex] }) => {

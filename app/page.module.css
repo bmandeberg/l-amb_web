@@ -104,6 +104,12 @@
   pointer-events: all;
 }
 
+.linkIcon {
+  margin-top: -8px;
+  cursor: pointer;
+  pointer-events: all;
+}
+
 .copySnackbar {
   position: absolute;
   padding: 8px;
@@ -136,12 +142,6 @@
 .copySnackbar.active {
   opacity: 1;
   right: 110%;
-}
-
-.linkIcon {
-  margin-top: -4px;
-  cursor: pointer;
-  pointer-events: all;
 }
 
 .playStopButton {

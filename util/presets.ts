@@ -15,11 +15,11 @@ export function initState(stateName: string, defaultState: unknown, parentObj?: 
     localState = parsedPreset && parsedPreset[stateName]
   }
 
-  if (presetSetting !== null) {
+  if (presetSetting !== null && presetSetting !== undefined) {
     // first check url query string for preset
     finalState = presetSetting
     updateLocalStorage(stateName, finalState, parentObj, true)
-  } else if (localState !== null) {
+  } else if (localState !== null && localState !== undefined) {
     // next check local storage
     finalState = localState
   } else {

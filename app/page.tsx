@@ -492,6 +492,7 @@ export default function LAMBApp() {
                 alt="Link Icon"
                 width={21}
                 height={21}
+                title="Copy link to this sound"
                 onClick={() => {
                   copyPresetUrl()
                   setLinkCopied(true)

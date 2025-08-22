@@ -35,13 +35,19 @@ export default function LFOControls({
   syncLfos,
   index,
 }: LFOControlsProps) {
-  const [frequency, setLocalFrequency] = useState<number>(() => initState('freq', init.frequency, 'lfo' + index) as number)
+  const [frequency, setLocalFrequency] = useState<number>(
+    () => initState('freq', init.frequency, 'lfo' + index) as number
+  )
   const frequencyRef = useRef<number>(frequency)
+  const [moddedFreq, setModdedFreq] = useState<number>(frequency)
   const [clockDivMultIndex, setClockDivMultIndex] = useState<number>(
     () => initState('clockDivMultIndex', Math.floor(numClockOptions / 2), 'lfo' + index) as number
   )
   const clockDivMultRef = useRef<number>(clockDivMultIndex)
-  const [dutyCycle, setLocalDutyCycle] = useState<number>(() => initState('dutyCycle', init.dutyCycle, 'lfo' + index) as number)
+  const [dutyCycle, setLocalDutyCycle] = useState<number>(
+    () => initState('dutyCycle', init.dutyCycle, 'lfo' + index) as number
+  )
+  const [moddedDutyCycle, setModdedDutyCycle] = useState<number>(dutyCycle)
   const [shape, setLocalShape] = useState<boolean>(() => initState('shape', !!init.shape, 'lfo' + index) as boolean)
 
   const lfo1Freq = useLambStore((state) => state.lfo1Freq)
@@ -67,12 +73,17 @@ export default function LFOControls({
       } else {
         setFrequency?.current?.(hzOrClockIndex)
       }
+      setModdedFreq(hzOrClockIndex)
     },
     [setFrequency, setLfo1Freq, lfo1, syncLfos, lfo1Freq]
   )
 
+  // sync lfos 2 and 3 to lfo1 freq and phase when necessary
+  const lfosPreviouslySunk = useRef(false)
   useEffect(() => {
+    if (lfo1) return
     if (syncLfos) {
+      lfosPreviouslySunk.current = true
       const clockDivMult = clockDivMultOptions[clockDivMultRef.current]
       const divMultFreq =
         clockDivMultRef.current < numClockOptions / 2 ? lfo1Freq / clockDivMult : lfo1Freq * clockDivMult
@@ -82,14 +93,16 @@ export default function LFOControls({
       if (lfo1Phase && lfo1Phase?.current !== null) {
         setPhase?.current?.(lfo1Phase.current)
       }
-    } else {
+    } else if (lfosPreviouslySunk.current) {
       setFrequency?.current?.(frequencyRef.current)
+      lfosPreviouslySunk.current = false
     }
-  }, [lfo1Freq, syncLfos, setFrequency, setPhase, lfo1Phase])
+  }, [lfo1, lfo1Freq, syncLfos, setFrequency, setPhase, lfo1Phase])
 
   const updateDutyCycle = useCallback(
     (d: number) => {
       setDutyCycle?.current?.(d)
+      setModdedDutyCycle(d)
     },
     [setDutyCycle]
   )
@@ -130,8 +143,8 @@ export default function LFOControls({
           />
           <p className={styles.lfoControlValue}>
             {syncLfos
-              ? (clockDivMultIndex < numClockOptions / 2 - 1 ? '÷' : '×') + clockDivMultOptions[clockDivMultIndex]
-              : frequency.toFixed(2) + ' Hz'}
+              ? (clockDivMultIndex < numClockOptions / 2 - 1 ? '÷' : '×') + clockDivMultOptions[moddedFreq]
+              : moddedFreq.toFixed(2) + ' Hz'}
           </p>
           <p className={styles.lfoControlLabel}>FREQ</p>
         </div>
@@ -149,7 +162,7 @@ export default function LFOControls({
             modVal={dutyMod}
             defaultValue={0.5}
           />
-          <p className={styles.lfoControlValue}>{(dutyCycle * 100).toFixed(0) + '%'}</p>
+          <p className={styles.lfoControlValue}>{(moddedDutyCycle * 100).toFixed(0) + '%'}</p>
           <p className={styles.lfoControlLabel}>DUTY</p>
         </div>
         <div className={styles.shapeControl}>
@@ -190,6 +203,8 @@ export default function LFOControls({
       syncLfos,
       clockDivMultIndex,
       index,
+      moddedFreq,
+      moddedDutyCycle,
     ]
   )
 

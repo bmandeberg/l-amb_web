@@ -1,5 +1,6 @@
 import * as Tone from 'tone'
 import { ensureLFOWorkletLoaded } from '@/util/workletLoader'
+import { constrain } from '@/util/math'
 
 export interface LFOParameters {
   frequency: number
@@ -25,8 +26,8 @@ export async function createLFO({
 
   return {
     node,
-    setFrequency: (hz: number) => (node.parameters.get('frequency')!.value = hz),
-    setDuty: (d: number) => (node.parameters.get('dutyCycle')!.value = d),
+    setFrequency: (hz: number) => (node.parameters.get('frequency')!.value = constrain(hz, 0.05, 10)),
+    setDuty: (d: number) => (node.parameters.get('dutyCycle')!.value = constrain(d, 0, 1)),
     setShape: (s: 0 | 1) => (node.parameters.get('shape')!.value = s),
     setPhase: (phase: number) => {
       node.port.postMessage({ type: 'setPhase', value: phase })

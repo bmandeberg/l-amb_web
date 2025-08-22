@@ -31,7 +31,7 @@ export default function TiltContainer({ children, maxTilt, perspective }: TiltCo
         const halfW = window.innerWidth / 2
         const halfH = window.innerHeight / 2
 
-        // Normalised offsets from screen centre (‑1 … 1)
+        // Normalized offsets from screen centre (‑1 … 1)
         const dx = (clientX - halfW) / halfW
         const dy = (clientY - halfH) / halfH
 

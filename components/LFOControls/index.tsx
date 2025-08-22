@@ -41,7 +41,7 @@ export default function LFOControls({
     () => initState('clockDivMultIndex', Math.floor(numClockOptions / 2), 'lfo' + index) as number
   )
   const clockDivMultRef = useRef<number>(clockDivMultIndex)
-  const [dutyCycle, setLocalDutyCycle] = useState<number>(() => initState('duty', init.dutyCycle, 'lfo' + index) as number)
+  const [dutyCycle, setLocalDutyCycle] = useState<number>(() => initState('dutyCycle', init.dutyCycle, 'lfo' + index) as number)
   const [shape, setLocalShape] = useState<boolean>(() => initState('shape', !!init.shape, 'lfo' + index) as boolean)
 
   const lfo1Freq = useLambStore((state) => state.lfo1Freq)
@@ -142,7 +142,7 @@ export default function LFOControls({
             value={dutyCycle}
             onChange={(localDutyCycle) => {
               setLocalDutyCycle(localDutyCycle)
-              updateLocalStorage('duty', localDutyCycle, 'lfo' + index)
+              updateLocalStorage('dutyCycle', localDutyCycle, 'lfo' + index)
             }}
             setModdedValue={updateDutyCycle}
             strokeColor={secondaryColor}

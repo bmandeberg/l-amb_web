@@ -896,6 +896,8 @@ export default function LAMBApp() {
       mounted,
       linkCopied,
       lfo1Freq,
+      modMatrix,
+      updateModMatrix,
     ]
   )
 

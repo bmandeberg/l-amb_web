@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Share_Tech_Mono } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const shareTechMono = Share_Tech_Mono({
@@ -19,7 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={shareTechMono.className}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

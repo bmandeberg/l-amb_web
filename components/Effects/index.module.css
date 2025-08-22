@@ -74,5 +74,4 @@
   border-radius: 50%;
   background-color: var(--secondary-color);
   transform: translateX(-50%);
-  pointer-events: none;
 }

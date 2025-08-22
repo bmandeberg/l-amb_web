@@ -31,7 +31,7 @@ export const DEFAULT_RESONANCE = 12
 export const DEFAULT_DLY = 0.45
 export const DEFAULT_DLY_TIME = 0.315
 export const DEFAULT_DLY_FDBK = 0.7
-export const DEFAULT_REVERB = 0.7
+export const DEFAULT_REVERB = 0.5
 
 export default function Effects({
   delay,

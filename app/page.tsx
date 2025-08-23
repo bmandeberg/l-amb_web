@@ -570,7 +570,6 @@ export default function LAMBApp() {
                       dutyMod={modVal(3)}
                       syncLfos={syncLfos}
                       lfo1Freq={lfo1Freq}
-                      setLfo1Freq={setLfo1Freq}
                       lfo1Phase={lfo1Phase}
                       setPhase={setLfo2Phase}
                       index={2}
@@ -603,7 +602,6 @@ export default function LAMBApp() {
                       freqMod={modVal(4)}
                       dutyMod={modVal(5)}
                       lfo1Freq={lfo1Freq}
-                      setLfo1Freq={setLfo1Freq}
                       syncLfos={syncLfos}
                       lfo1Phase={lfo1Phase}
                       setPhase={setLfo3Phase}

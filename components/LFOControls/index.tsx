@@ -9,14 +9,13 @@ import styles from './index.module.css'
 
 interface LFOControlsProps {
   init: LFOParameters
-  lfo1?: boolean
   setFrequency: React.RefObject<null | ((hz: number) => void)>
   setDutyCycle: React.RefObject<null | ((d: number) => void)>
   freqMod: number
   dutyMod: number
   setShape: React.RefObject<null | ((s: 0 | 1) => void)>
   lfo1Freq: number
-  setLfo1Freq: (freq: number) => void
+  setLfo1Freq?: (freq: number) => void
   lfo1Phase?: React.RefObject<null | number>
   setPhase?: React.RefObject<null | ((phase: number) => void)>
   syncLfos?: boolean
@@ -25,7 +24,6 @@ interface LFOControlsProps {
 
 export default function LFOControls({
   init,
-  lfo1,
   setFrequency,
   setDutyCycle,
   freqMod,
@@ -62,8 +60,8 @@ export default function LFOControls({
 
   const updateFrequency = useCallback(
     (hzOrClockIndex: number) => {
-      if (lfo1) {
-        setLfo1Freq(hzOrClockIndex)
+      if (index === 1) {
+        setLfo1Freq?.(hzOrClockIndex)
       }
 
       if (syncLfos) {
@@ -75,13 +73,14 @@ export default function LFOControls({
       }
       setModdedFreq(hzOrClockIndex)
     },
-    [setFrequency, setLfo1Freq, lfo1, syncLfos, lfo1Freq]
+    [setFrequency, setLfo1Freq, index, syncLfos, lfo1Freq]
   )
 
   // sync lfos 2 and 3 to lfo1 freq and phase when necessary
   const lfosPreviouslySunk = useRef(false)
   useEffect(() => {
-    if (lfo1) return
+    if (index === 1) return
+
     if (syncLfos) {
       lfosPreviouslySunk.current = true
       const clockDivMult = clockDivMultOptions[clockDivMultRef.current]
@@ -97,7 +96,7 @@ export default function LFOControls({
       setFrequency?.current?.(frequencyRef.current)
       lfosPreviouslySunk.current = false
     }
-  }, [lfo1, lfo1Freq, syncLfos, setFrequency, setPhase, lfo1Phase])
+  }, [index, lfo1Freq, syncLfos, setFrequency, setPhase, lfo1Phase])
 
   const updateDutyCycle = useCallback(
     (d: number) => {

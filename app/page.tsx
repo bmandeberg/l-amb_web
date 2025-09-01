@@ -57,6 +57,7 @@ const musicNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 
 const BG_WIDTH = 2048 / 2
 const BG_HEIGHT = 1328 / 2
 
+const VOICE_VOLUME = -12
 const REVERB_DECAY = 3
 
 export default function LAMBApp() {
@@ -113,7 +114,7 @@ export default function LAMBApp() {
   }, [pitch1NoteName, pitch2NoteName, pitch3NoteName, pitch4NoteName])
 
   // global volume
-  const [volume, setVolume] = useState<number>(() => initStateParam('volume', 0.5, 'number') as number)
+  const [volume, setVolume] = useState<number>(() => initStateParam('volume', 0.75, 'number') as number)
   const globalVolume = useRef<Tone.Gain | null>(null)
   const updateVolume = useCallback((volume: number) => {
     setVolume(volume)
@@ -162,7 +163,7 @@ export default function LAMBApp() {
 
     const voice1Gain = new Tone.Gain(0)
     voice1Ref.current = new Tone.OmniOscillator({
-      volume: -8,
+      volume: VOICE_VOLUME,
       frequency: pitch1NoteName,
       type: initState('type', 'fatsawtooth', 'voice1') as VoiceType,
       spread: initState('fatSpread', MAX_DETUNE, 'voice1') as number,
@@ -174,7 +175,7 @@ export default function LAMBApp() {
 
     const voice2Gain = new Tone.Gain(0)
     voice2Ref.current = new Tone.OmniOscillator({
-      volume: -8,
+      volume: VOICE_VOLUME,
       frequency: pitch2NoteName,
       type: initState('type', 'fatsawtooth', 'voice2') as VoiceType,
       spread: initState('fatSpread', MAX_DETUNE, 'voice2') as number,
@@ -191,7 +192,7 @@ export default function LAMBApp() {
 
     const voice3Gain = new Tone.Gain(0)
     voice3Ref.current = new Tone.OmniOscillator({
-      volume: -8,
+      volume: VOICE_VOLUME,
       frequency: pitch3NoteName,
       type: initState('type', 'pulse', 'voice3') as VoiceType,
       spread: initState('fatSpread', MAX_DETUNE, 'voice3') as number,
@@ -208,7 +209,7 @@ export default function LAMBApp() {
 
     const voice4Gain = new Tone.Gain(0)
     voice4Ref.current = new Tone.OmniOscillator({
-      volume: -8,
+      volume: VOICE_VOLUME,
       frequency: pitch4NoteName,
       type: initState('type', 'fatsawtooth', 'voice4') as VoiceType,
       spread: initState('fatSpread', 60, 'voice4') as number,

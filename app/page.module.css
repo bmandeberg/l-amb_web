@@ -126,7 +126,8 @@
   pointer-events: all;
 }
 
-.linkIcon {
+.linkIcon,
+.infoIcon {
   margin-top: -8px;
   cursor: pointer;
   pointer-events: all;
@@ -382,5 +383,16 @@
 
 .active {
   pointer-events: all;
+  opacity: 1;
+}
+
+.infoText {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-time) ease-in-out;
+}
+
+.infoText.active {
   opacity: 1;
 }

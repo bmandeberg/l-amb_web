@@ -65,6 +65,7 @@ export default function LAMBApp() {
   const [mounted, setMounted] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
   const [screenSizeRatio, setScreenSizeRatio] = useState(1)
+  const [showInfo, setShowInfo] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [modOff, setModOff] = useState<boolean>(() => initState('modOff', false) as boolean)
   const [syncLfos, setSyncLfos] = useState<boolean>(() => initState('syncLfos', false) as boolean)
@@ -253,6 +254,7 @@ export default function LAMBApp() {
       const ctx = getNativeContext()
       if (!playing) {
         ctx.resume()
+        setShowInfo(false)
       } else {
         ctx.suspend()
       }
@@ -414,6 +416,15 @@ export default function LAMBApp() {
           draggable="false"
         />
 
+        {/* info text */}
+        <Image
+          className={cn(styles.infoText, { [styles.active]: showInfo })}
+          src="/info-text.png"
+          alt="Info"
+          width={1727}
+          height={958}
+        />
+
         {/* container graphic */}
         <TiltContainer maxTilt={1} perspective={700}>
           <div className={styles.containerGraphicContainer}>
@@ -526,6 +537,18 @@ export default function LAMBApp() {
                   copyPresetUrl()
                   setLinkCopied(true)
                   setTimeout(() => setLinkCopied(false), 2000)
+                }}
+              />
+              <Image
+                className={styles.infoIcon}
+                src="/info.png"
+                alt="Info Icon"
+                width={24}
+                height={24}
+                title="What's this?"
+                onClick={() => {
+                  if (!showInfo && playing) playStop()
+                  setShowInfo((showInfo) => !showInfo)
                 }}
               />
               <a className={styles.manbergLink} href="https://phasemachine.com">
@@ -922,6 +945,7 @@ export default function LAMBApp() {
       updateModMatrix,
       volume,
       updateVolume,
+      showInfo,
     ]
   )
 

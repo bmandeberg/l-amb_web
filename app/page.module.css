@@ -93,11 +93,33 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  position: relative;
 }
 
 .headerRight {
   gap: 14px;
   position: relative;
+}
+
+.globalControls {
+  position: absolute;
+  left: 336px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  display: flex;
+  pointer-events: all;
+}
+
+.globalControls.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.globalKnob {
+  height: 100%;
+  margin-top: -10px;
+  transform: scale(0.6);
 }
 
 .manbergLink {

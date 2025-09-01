@@ -60,6 +60,26 @@ export function updateLocalStorage(stateName: string, localState: unknown, paren
   }
 }
 
+export function initStateParam(stateName: string, defaultState: unknown, type?: 'string' | 'number') {
+  if (!hasWindow() || !window.localStorage) return defaultState
+
+  let finalState = defaultState
+
+  const localState = window.localStorage.getItem(stateName)
+  if (localState) {
+    finalState = type === 'number' ? Number(localState) : localState
+  } else {
+    updateLocalParam(stateName, finalState)
+  }
+
+  return finalState
+}
+
+export function updateLocalParam(stateName: string, localState: unknown) {
+  if (!hasWindow() || !window.localStorage) return
+  window.localStorage.setItem(stateName, String(localState))
+}
+
 export function getParamFromQueryString(param: string) {
   if (!hasWindow() || !window.location) return null
 

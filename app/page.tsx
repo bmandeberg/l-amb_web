@@ -30,7 +30,7 @@ import Effects, {
   DEFAULT_DLY_FDBK,
   DEFAULT_REVERB,
 } from '@/components/Effects'
-import { initState, updateLocalStorage, copyPresetUrl } from '@/util/presets'
+import { initState, updateLocalStorage, copyPresetUrl, initStateParam, updateLocalParam } from '@/util/presets'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = {
@@ -111,6 +111,15 @@ export default function LAMBApp() {
     if (voice3Ref.current) voice3Ref.current.frequency.value = pitch3NoteName
     if (voice4Ref.current) voice4Ref.current.frequency.value = pitch4NoteName
   }, [pitch1NoteName, pitch2NoteName, pitch3NoteName, pitch4NoteName])
+
+  // global volume
+  const [volume, setVolume] = useState<number>(() => initStateParam('volume', 0.5, 'number') as number)
+  const globalVolume = useRef<Tone.Gain | null>(null)
+  const updateVolume = useCallback((volume: number) => {
+    setVolume(volume)
+    if (globalVolume.current) globalVolume.current.gain.value = volume
+    updateLocalParam('volume', volume)
+  }, [])
 
   const [lfo1Freq, setLfo1Freq] = useState<number>(() => initState('freq', 0.39, 'lfo1') as number)
 
@@ -209,8 +218,10 @@ export default function LAMBApp() {
       .start()
     Tone.connect(lfo1Node, new Tone.Pow(2).connect(voice4Gain.gain))
 
+    globalVolume.current = new Tone.Gain(volume).toDestination()
+
     // fx
-    reverb.current = new Tone.Reverb(REVERB_DECAY).toDestination()
+    reverb.current = new Tone.Reverb(REVERB_DECAY).connect(globalVolume.current)
     reverb.current.set({ wet: initState('reverbAmount', DEFAULT_REVERB, 'fx') as number })
     delay.current = new Tone.FeedbackDelay(
       initState('delayTime', DEFAULT_DLY_TIME, 'fx') as number,
@@ -488,6 +499,18 @@ export default function LAMBApp() {
                 height={40}
                 onClick={playStop}
               />
+              <div className={cn(styles.globalControls, { [styles.active]: playing })}>
+                <div className={styles.globalKnob}>
+                  <LinearKnob
+                    min={0}
+                    max={1}
+                    value={volume}
+                    onChange={updateVolume}
+                    strokeColor={secondaryColor}
+                    label="Volume"
+                  />
+                </div>
+              </div>
             </div>
             <div className={styles.headerRight}>
               <div className={cn(styles.copySnackbar, { [styles.active]: linkCopied })}>link copied to clipboard!</div>
@@ -896,6 +919,8 @@ export default function LAMBApp() {
       lfo1Freq,
       modMatrix,
       updateModMatrix,
+      volume,
+      updateVolume,
     ]
   )
 

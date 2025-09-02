@@ -386,13 +386,32 @@
   opacity: 1;
 }
 
-.infoText {
+.infoText,
+.instaLink,
+.emailLink {
   position: absolute;
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--transition-time) ease-in-out;
 }
 
-.infoText.active {
+.infoText.active,
+.instaLink.active,
+.emailLink.active {
   opacity: 1;
+}
+
+.instaLink,
+.emailLink {
+  pointer-events: all;
+}
+
+.instaLink {
+  top: 65.5px;
+  left: 1110px;
+}
+
+.emailLink {
+  top: 107.5px;
+  left: 1156.5px;
 }

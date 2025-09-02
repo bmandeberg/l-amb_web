@@ -391,6 +391,9 @@ export default function LAMBApp() {
     [playing]
   )
 
+  const [instaLinkSrc, setInstaLinkSrc] = useState<string>('/insta-pink.png')
+  const [emailLinkSrc, setEmailLinkSrc] = useState<string>('/email-pink.png')
+
   const content = useMemo(
     () => (
       <div
@@ -420,10 +423,32 @@ export default function LAMBApp() {
         <Image
           className={cn(styles.infoText, { [styles.active]: showInfo })}
           src="/info-text.png"
-          alt="Info"
+          alt="Hi! This is a web version of a hardware synthesizer I'm developing. It will be available soon! Feel free to hit me up @manberg_llc on Instagram or manberg@manberg.zone. Each one of these arcs represents a crossfader. It fades between a synthesizer voice on the right side, and the next crossfader down the tree on the left side. The position of the crossfade is determined by a low frequency oscillator, where you can select the frequency, shape, and duty cycle (symmetry). So, the bottom crossfader will only be heard when both other crossfaders are playing their left sides. The right section is all about modulation. We have a sequencer and an LFO, but you can also use the core LFO's as mod sources. The modulation routing happens in the mod matrix. There are four synthesizer voices. You can tune them to specific keys and scales."
           width={1727}
           height={958}
         />
+        <a href="https://www.instagram.com/manberg_llc/" target="_blank" rel="noopener noreferrer">
+          <Image
+            className={cn(styles.instaLink, { [styles.active]: showInfo })}
+            src={instaLinkSrc}
+            alt="Instagram: @manberg_llc"
+            width={208.5}
+            height={39.5}
+            onMouseEnter={() => setInstaLinkSrc('/insta-blue.png')}
+            onMouseLeave={() => setInstaLinkSrc('/insta-pink.png')}
+          />
+        </a>
+        <a href="mailto:manberg@manberg.zone" target="_blank" rel="noopener noreferrer">
+          <Image
+            className={cn(styles.emailLink, { [styles.active]: showInfo })}
+            src={emailLinkSrc}
+            alt="Email: manberg@manberg.zone"
+            width={307}
+            height={43.5}
+            onMouseEnter={() => setEmailLinkSrc('/email-blue.png')}
+            onMouseLeave={() => setEmailLinkSrc('/email-pink.png')}
+          />
+        </a>
 
         {/* container graphic */}
         <TiltContainer maxTilt={1} perspective={700}>
@@ -946,6 +971,8 @@ export default function LAMBApp() {
       volume,
       updateVolume,
       showInfo,
+      instaLinkSrc,
+      emailLinkSrc,
     ]
   )
 

@@ -401,8 +401,8 @@
   opacity: 1;
 }
 
-.instaLink,
-.emailLink {
+.instaLink.active,
+.emailLink.active {
   pointer-events: all;
 }
 

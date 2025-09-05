@@ -20,12 +20,16 @@
 
 .sequenceStep {
   transform: scale(0.65);
-  pointer-events: all;
+  pointer-events: none;
   width: 68px;
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 8px;
+}
+
+.sequencer.active .sequenceStep {
+  pointer-events: all;
 }
 
 .skipStep {

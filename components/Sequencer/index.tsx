@@ -253,7 +253,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
               />
             </div>
             <p>
-              direction:
+              sequence:
               <br />
               {Object.keys(sequences.current)[sequenceIndex]}
             </p>

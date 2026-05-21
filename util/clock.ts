@@ -3,18 +3,18 @@ export const numClockOptions = (maxDivMult - 1) * 2 + 1
 export const clockDivMultOptions = initClockDivMultOptions()
 
 function initClockDivMultOptions() {
-  const options = []
+  // freq knob sweeps from divide-by-maxDivMult down to 1, then up to multiply-by-maxDivMult
+  // e.g. [9, 8, …, 2, 1, 2, …, 8, 9]
+  const descending = []
+  for (let i = maxDivMult; i >= 1; i--) descending.push(i)
+  const ascending = []
+  for (let i = 2; i <= maxDivMult; i++) ascending.push(i)
+  return [...descending, ...ascending]
+}
 
-  // freq knob sweeps from divide by 9 to multiply by 9 of clock frequency
-  let descending = true
-  let optionIndex = 0
-  for (let i = maxDivMult; i < maxDivMult + 1; descending ? i-- : i++) {
-    if (i < 2) {
-      descending = false
-    }
-    options[optionIndex] = i
-    optionIndex++
-  }
-
-  return options
+// Apply a clock division/multiplication option (by index) to a base frequency.
+// Indices below the midpoint divide; indices above multiply.
+export function divMultFreq(baseFreq: number, index: number): number {
+  const factor = clockDivMultOptions[index]
+  return index < numClockOptions / 2 ? baseFreq / factor : baseFreq * factor
 }

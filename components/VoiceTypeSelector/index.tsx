@@ -75,6 +75,9 @@ export default function VoiceTypeSelector({
     },
   })
 
+  // y of the outer fatsawtooth lines, narrowing as detune increases
+  const fatSpreadY = scaleToRange(fatSpread, 0, MAX_DETUNE, 8, 1)
+
   return (
     <div className={styles.voiceType}>
       {/* triangle */}
@@ -114,7 +117,7 @@ export default function VoiceTypeSelector({
       <svg width={14} height={14} viewBox="0 0 14 14" onClick={() => updateVoiceType('fatsawtooth')} {...dragDetune()}>
         <line
           x1="1"
-          y1={scaleToRange(fatSpread, 0, MAX_DETUNE, 8, 1)}
+          y1={fatSpreadY}
           x2="1"
           y2="13"
           stroke={voiceType === 'fatsawtooth' ? secondaryColor : gray}
@@ -130,7 +133,7 @@ export default function VoiceTypeSelector({
         />
         <line
           x1="13"
-          y1={scaleToRange(fatSpread, 0, MAX_DETUNE, 8, 1)}
+          y1={fatSpreadY}
           x2="13"
           y2="13"
           stroke={voiceType === 'fatsawtooth' ? secondaryColor : gray}

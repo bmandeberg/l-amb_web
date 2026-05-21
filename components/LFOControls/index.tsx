@@ -3,7 +3,7 @@ import ReactSwitch from 'react-switch'
 import { LFOParameters } from '@/tone/createLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { gray, secondaryColor } from '@/app/globals'
-import { clockDivMultOptions, numClockOptions } from '@/util/clock'
+import { clockDivMultOptions, numClockOptions, divMultFreq } from '@/util/clock'
 import { initState, updateLocalStorage } from '@/util/presets'
 import styles from './index.module.css'
 
@@ -65,9 +65,7 @@ export default function LFOControls({
       }
 
       if (syncLfos) {
-        const clockDivMult = clockDivMultOptions[hzOrClockIndex]
-        const divMultFreq = hzOrClockIndex < numClockOptions / 2 ? lfo1Freq / clockDivMult : lfo1Freq * clockDivMult
-        setFrequency?.current?.(divMultFreq)
+        setFrequency?.current?.(divMultFreq(lfo1Freq, hzOrClockIndex))
       } else {
         setFrequency?.current?.(hzOrClockIndex)
       }
@@ -83,10 +81,7 @@ export default function LFOControls({
 
     if (syncLfos) {
       lfosPreviouslySunk.current = true
-      const clockDivMult = clockDivMultOptions[clockDivMultRef.current]
-      const divMultFreq =
-        clockDivMultRef.current < numClockOptions / 2 ? lfo1Freq / clockDivMult : lfo1Freq * clockDivMult
-      setFrequency?.current?.(divMultFreq)
+      setFrequency?.current?.(divMultFreq(lfo1Freq, clockDivMultRef.current))
 
       // set phase to match lfo1 phase
       if (lfo1Phase && lfo1Phase?.current !== null) {

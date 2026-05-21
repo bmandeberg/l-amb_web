@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import ReactSwitch from 'react-switch'
 import cn from 'classnames'
-import { clockDivMultOptions, numClockOptions } from '@/util/clock'
+import { clockDivMultOptions, numClockOptions, divMultFreq } from '@/util/clock'
 import { LFOParameters } from '@/tone/createLFO'
 import useLFO from '@/hooks/useLFO'
 import LinearKnob from '@/components/LinearKnob'
@@ -19,11 +19,6 @@ const DEFAULT_SEQUENCE = [
   0.2814747489200519, 0.6420057152904179, 0.5295824612372204, 0.6034829587242845, 0.7158421774766777,
   0.26268067118446914, 0.6603350180483399, 0.5520729605926757,
 ]
-
-export const sequences = {
-  up: (currentStep: number) => (currentStep + 1) % NUM_STEPS,
-  down: (currentStep: number) => (currentStep - 1 + NUM_STEPS) % NUM_STEPS,
-}
 
 interface SequencerProps {
   setSequencerValue: (sequencerValue: number) => void
@@ -128,9 +123,7 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
   useEffect(() => {
     if (!freeSeq) {
       // set frequency based on division/multiplication of lfo1
-      const clockDivMult = clockDivMultOptions[clockDivMultIndex]
-      const divMultFreq = clockDivMultIndex < numClockOptions / 2 ? lfo1Freq / clockDivMult : lfo1Freq * clockDivMult
-      setFrequency?.current?.(divMultFreq)
+      setFrequency?.current?.(divMultFreq(lfo1Freq, clockDivMultIndex))
 
       // set phase to match lfo1 phase
       if (lfo1Phase && lfo1Phase?.current !== null) {
@@ -272,8 +265,6 @@ function defaultSeqFreq(): number {
   const lfo1Freq = initState('freq', 0.39, 'lfo1') as number
   const internalFreq = initState('internalFreq', 1, 'sequencer') as number
   const clockDivMultIndex = initState('clockDivMultIndex', Math.floor(numClockOptions / 2) + 1, 'sequencer') as number
-  const clockDivMult = clockDivMultOptions[clockDivMultIndex]
-  const divMultFreq = clockDivMultIndex < numClockOptions / 2 ? lfo1Freq / clockDivMult : lfo1Freq * clockDivMult
 
-  return freeSeq ? internalFreq : divMultFreq
+  return freeSeq ? internalFreq : divMultFreq(lfo1Freq, clockDivMultIndex)
 }

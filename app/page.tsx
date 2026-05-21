@@ -233,7 +233,7 @@ export default function LAMBApp() {
     filter.current = new Tone.Filter(initState('lpfCutoff', DEFAULT_LPF, 'fx') as number, 'lowpass').connect(
       delay.current
     )
-    filter.current.set({ Q: initState('filterResonance', DEFAULT_RESONANCE, 'fx') as number })
+    filter.current.set({ Q: initState('lpfResonance', DEFAULT_RESONANCE, 'fx') as number })
     distortion.current = new Tone.Distortion(initState('distortionAmount', DEFAULT_DIST, 'fx') as number).connect(
       filter.current
     )

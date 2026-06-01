@@ -97,6 +97,33 @@ There is no state library. State lives in `useState`/`useRef` in `page.tsx` and 
 Naming consistency matters: a control's `initState` key, its `updateLocalStorage` key, and any
 `defaultModMatrix`/default constant must agree, or presets silently break.
 
+### Named presets (the dropdown)
+
+A "preset" is just a saved snapshot of the live `"preset"` object (a `patch`) plus an `id` and
+`name`. `util/presets.ts` adds the storage layer (`getStoredPresets`/`setStoredPresets`,
+`getLivePatch`/`setLivePatch`, `getActivePresetId`, `deepEqual`, and an `onPatchChange` pub/sub).
+`hooks/usePresetManager.ts` owns the `presets[]`, active id, editable name, `dirty`, and the
+load/save/saveAsNew/delete actions; `components/Presets` + `components/Dropdown` are the header UI.
+Master `volume` is intentionally **not** in a patch (it's a global output level).
+
+The hard part is that L-AMB's state is scattered across many components that only read `initState`
+**once** on mount. So loading a preset can't just `setState` one object. Instead:
+
+1. `loadPreset` writes the chosen patch into the live `"preset"` key, then bumps an `epoch` counter.
+2. `epoch` is broadcast via `PresetContext` (`hooks/PresetContext.tsx`).
+3. Every stateful component calls `useRehydrate(fn)`; on `epoch` change `fn` re-reads its values from
+   storage (`initState`) and pushes them through its **existing** audio-apply path (LFO setter refs,
+   `voiceRef.set()`, FX `.set()`, etc.).
+
+This keeps the Tone.js graph alive, so **playback continues across preset switches** — no reload, no
+re-gesture. When adding a new persisted control, also add its keys to the relevant component's
+`useRehydrate` (and to `page.tsx`'s page-level rehydrate effect for top-level state) or it won't
+update on preset load. Rehydrate routines read every value straight from storage (never from a
+sibling's just-set prop) to avoid cross-component render-order races.
+
+Gotcha: `updateLocalStorage` fires `onPatchChange`, and `initState` writes defaults during render;
+`usePresetManager` therefore defers its dirty-recompute to a microtask to avoid setState-in-render.
+
 ## Audio lifecycle gotchas
 
 - Audio is gated on `initialized`, which only flips true after `Tone.start()` inside the first

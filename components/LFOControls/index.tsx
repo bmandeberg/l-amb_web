@@ -5,6 +5,7 @@ import LinearKnob from '@/components/LinearKnob'
 import { gray, secondaryColor } from '@/app/globals'
 import { clockDivMultOptions, numClockOptions, divMultFreq } from '@/util/clock'
 import { initState, updateLocalStorage } from '@/util/presets'
+import { useRehydrate } from '@/hooks/PresetContext'
 import styles from './index.module.css'
 
 interface LFOControlsProps {
@@ -109,6 +110,26 @@ export default function LFOControls({
     },
     [setShape, index]
   )
+
+  // re-apply this LFO's params (and push them to the worklet) on preset load
+  useRehydrate(() => {
+    const sync = initState('syncLfos', false) as boolean
+    const lfo1FreqStored = initState('freq', 0.39, 'lfo1') as number
+    const newFreq = initState('freq', init.frequency, 'lfo' + index) as number
+    const newDuty = initState('dutyCycle', init.dutyCycle, 'lfo' + index) as number
+    const newShape = initState('shape', !!init.shape, 'lfo' + index) as boolean
+    const newClock = initState('clockDivMultIndex', Math.floor(numClockOptions / 2), 'lfo' + index) as number
+    setLocalFrequency(newFreq)
+    setLocalDutyCycle(newDuty)
+    setLocalShape(newShape)
+    setClockDivMultIndex(newClock)
+    setModdedFreq(sync ? newClock : newFreq)
+    setModdedDutyCycle(newDuty)
+    if (index === 1) setLfo1Freq?.(newFreq)
+    setShape?.current?.(newShape ? 1 : 0)
+    setDutyCycle?.current?.(newDuty)
+    setFrequency?.current?.(sync ? divMultFreq(lfo1FreqStored, newClock) : newFreq)
+  })
 
   const content = useMemo(
     () => (

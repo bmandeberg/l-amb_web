@@ -5,6 +5,7 @@ import { secondaryColor, gray } from '@/app/globals'
 import styles from './index.module.css'
 import { constrain, scaleToRange } from '@/util/math'
 import { initState, updateLocalStorage } from '@/util/presets'
+import { useRehydrate } from '@/hooks/PresetContext'
 
 export const MAX_DETUNE = 100
 
@@ -73,6 +74,23 @@ export default function VoiceTypeSelector({
         voiceRef.current.set({ width: newWidth })
       }
     },
+  })
+
+  // re-apply this voice's oscillator params on preset load
+  useRehydrate(() => {
+    const spread = initState('fatSpread', fatInit ?? MAX_DETUNE, 'voice' + index) as number
+    const width = initState('pulseWidth', pulseInit ?? 0.5, 'voice' + index) as number
+    const type = initState('type', voiceType, 'voice' + index) as VoiceType
+    setFatSpread(spread)
+    setPulseWidth(width)
+    if (voiceRef?.current) {
+      voiceRef.current.type = type
+      if (type === 'pulse') {
+        voiceRef.current.set({ width })
+      } else if (type === 'fatsawtooth') {
+        voiceRef.current.set({ spread })
+      }
+    }
   })
 
   // y of the outer fatsawtooth lines, narrowing as detune increases

@@ -32,6 +32,9 @@ import Effects, {
   DEFAULT_REVERB,
 } from '@/components/Effects'
 import { initState, updateLocalStorage, copyPresetUrl, initStateParam, updateLocalParam } from '@/util/presets'
+import usePresetManager from '@/hooks/usePresetManager'
+import { PresetContext } from '@/hooks/PresetContext'
+import Presets from '@/components/Presets'
 import styles from './page.module.css'
 
 const lfo1Default: LFOParameters = {
@@ -267,6 +270,9 @@ export default function LAMBApp() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code === 'Space') {
+        // don't hijack the spacebar while typing (e.g. preset name)
+        const el = document.activeElement
+        if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) return
         e.preventDefault() // prevent scrolling
         playStop()
       }
@@ -361,6 +367,53 @@ export default function LAMBApp() {
     updateLocalStorage('modMatrix', modMatrix)
   }, [])
 
+  // presets
+  const {
+    presetOptions,
+    activeId: activePresetId,
+    isPlaceholder,
+    name: presetName,
+    setName: setPresetName,
+    dirty: presetDirty,
+    epoch: presetEpoch,
+    loadPreset,
+    savePreset,
+    saveAsNew,
+    deletePreset,
+  } = usePresetManager()
+  const presetContextValue = useMemo(() => ({ epoch: presetEpoch }), [presetEpoch])
+
+  // re-apply page-level state when a preset is loaded (the live patch in
+  // localStorage was already swapped; here we push it into state + audio without
+  // tearing down the Tone.js graph). Child components rehydrate via useRehydrate.
+  useEffect(() => {
+    if (presetEpoch === 0) return
+    setTranspose(initState('transpose', 0) as number)
+    setScale(initState('scale', 7) as number)
+    setPitch1(initState('pitch', 49, 'voice1') as number)
+    setPitch2(initState('pitch', 72, 'voice2') as number)
+    setPitch3(initState('pitch', 65, 'voice3') as number)
+    setPitch4(initState('pitch', 56, 'voice4') as number)
+    setVoice1Type(initState('type', 'fatsawtooth', 'voice1') as VoiceType)
+    setVoice2Type(initState('type', 'fatsawtooth', 'voice2') as VoiceType)
+    setVoice3Type(initState('type', 'pulse', 'voice3') as VoiceType)
+    setVoice4Type(initState('type', 'fatsawtooth', 'voice4') as VoiceType)
+    setModOff(initState('modOff', false) as boolean)
+    setSyncLfos(initState('syncLfos', false) as boolean)
+    setSolo2(initState('solo2', false) as boolean)
+    setSolo3(initState('solo3', false) as boolean)
+    setLfo1Freq(initState('freq', 0.39, 'lfo1') as number)
+    setModMatrix(initState('modMatrix', seedModMatrix()) as number[][])
+
+    const newAuxFreq = initState('freq', 0.1, 'auxLfo') as number
+    setAuxLfoFreq(newAuxFreq)
+    setAuxLfoFrequency?.current?.(newAuxFreq)
+    const newAuxShape = initState('shape', true, 'auxLfo') as boolean
+    setLocalAuxLfoShape(newAuxShape)
+    setAuxLfoShape?.current?.(newAuxShape ? 1 : 0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetEpoch])
+
   const modVal = useCallback(
     (destinationIndex: number) => {
       if (modOff) return 0
@@ -387,469 +440,486 @@ export default function LAMBApp() {
   if (!mounted) return null
 
   return (
-    <div
-      className={cn(styles.page, { [styles.loaded]: mounted })}
-      style={
-        {
-          '--primary-color': primaryColor,
-          '--secondary-color': secondaryColor,
-          '--gray': gray,
-          '--screen-width': screenWidth + 'px',
-          '--screen-height': screenHeight + 'px',
-          '--transition-time': '0.25s',
-          transform: `scale(${screenSizeRatio})`,
-        } as CSS
-      }>
-      {/* background */}
-      <Image
-        className={styles.backgroundImage}
-        src="/bg.jpg"
-        alt="Background"
-        width={BG_WIDTH}
-        height={BG_HEIGHT}
-        draggable="false"
-      />
-
-      {/* info text */}
-      <Image
-        className={cn(styles.infoText, { [styles.active]: showInfo })}
-        src="/info-text.png"
-        alt="Hi! This is a web version of a hardware synthesizer I'm developing. It will be available soon! Feel free to hit me up @manberg_llc on Instagram or manberg@manberg.zone. Each one of these arcs represents a crossfader. It fades between a synthesizer voice on the right side, and the next crossfader down the tree on the left side. The position of the crossfade is determined by a low frequency oscillator, where you can select the frequency, shape, and duty cycle (symmetry). So, the bottom crossfader will only be heard when both other crossfaders are playing their left sides. The right section is all about modulation. We have a sequencer and an LFO, but you can also use the core LFO's as mod sources. The modulation routing happens in the mod matrix. There are four synthesizer voices. You can tune them to specific keys and scales."
-        width={1727}
-        height={958}
-      />
-      <a href="https://www.instagram.com/manberg_llc/" target="_blank" rel="noopener noreferrer">
+    <PresetContext.Provider value={presetContextValue}>
+      <div
+        className={cn(styles.page, { [styles.loaded]: mounted })}
+        style={
+          {
+            '--primary-color': primaryColor,
+            '--secondary-color': secondaryColor,
+            '--gray': gray,
+            '--screen-width': screenWidth + 'px',
+            '--screen-height': screenHeight + 'px',
+            '--transition-time': '0.25s',
+            transform: `scale(${screenSizeRatio})`,
+          } as CSS
+        }>
+        {/* background */}
         <Image
-          className={cn(styles.instaLink, { [styles.active]: showInfo })}
-          src={instaLinkSrc}
-          alt="Instagram: @manberg_llc"
-          width={208.5}
-          height={39.5}
-          onMouseEnter={() => setInstaLinkSrc('/insta-blue.png')}
-          onMouseLeave={() => setInstaLinkSrc('/insta-pink.png')}
+          className={styles.backgroundImage}
+          src="/bg.jpg"
+          alt="Background"
+          width={BG_WIDTH}
+          height={BG_HEIGHT}
+          draggable="false"
         />
-      </a>
-      <a href="mailto:manberg@manberg.zone" target="_blank" rel="noopener noreferrer">
+
+        {/* info text */}
         <Image
-          className={cn(styles.emailLink, { [styles.active]: showInfo })}
-          src={emailLinkSrc}
-          alt="Email: manberg@manberg.zone"
-          width={307}
-          height={43.5}
-          onMouseEnter={() => setEmailLinkSrc('/email-blue.png')}
-          onMouseLeave={() => setEmailLinkSrc('/email-pink.png')}
+          className={cn(styles.infoText, { [styles.active]: showInfo })}
+          src="/info-text.png"
+          alt="Hi! This is a web version of a hardware synthesizer I'm developing. It will be available soon! Feel free to hit me up @manberg_llc on Instagram or manberg@manberg.zone. Each one of these arcs represents a crossfader. It fades between a synthesizer voice on the right side, and the next crossfader down the tree on the left side. The position of the crossfade is determined by a low frequency oscillator, where you can select the frequency, shape, and duty cycle (symmetry). So, the bottom crossfader will only be heard when both other crossfaders are playing their left sides. The right section is all about modulation. We have a sequencer and an LFO, but you can also use the core LFO's as mod sources. The modulation routing happens in the mod matrix. There are four synthesizer voices. You can tune them to specific keys and scales."
+          width={1727}
+          height={958}
         />
-      </a>
+        <a href="https://www.instagram.com/manberg_llc/" target="_blank" rel="noopener noreferrer">
+          <Image
+            className={cn(styles.instaLink, { [styles.active]: showInfo })}
+            src={instaLinkSrc}
+            alt="Instagram: @manberg_llc"
+            width={208.5}
+            height={39.5}
+            onMouseEnter={() => setInstaLinkSrc('/insta-blue.png')}
+            onMouseLeave={() => setInstaLinkSrc('/insta-pink.png')}
+          />
+        </a>
+        <a href="mailto:manberg@manberg.zone" target="_blank" rel="noopener noreferrer">
+          <Image
+            className={cn(styles.emailLink, { [styles.active]: showInfo })}
+            src={emailLinkSrc}
+            alt="Email: manberg@manberg.zone"
+            width={307}
+            height={43.5}
+            onMouseEnter={() => setEmailLinkSrc('/email-blue.png')}
+            onMouseLeave={() => setEmailLinkSrc('/email-pink.png')}
+          />
+        </a>
 
-      {/* container graphic */}
-      <TiltContainer maxTilt={1} perspective={700}>
-        <ContainerGraphic playing={playing} gradientRef={bgGraphicRef} />
-      </TiltContainer>
+        {/* container graphic */}
+        <TiltContainer maxTilt={1} perspective={700}>
+          <ContainerGraphic playing={playing} gradientRef={bgGraphicRef} />
+        </TiltContainer>
 
-      {/* info overlay */}
-      <div className={styles.infoLayer}>
-        {/* header */}
-        <div className={styles.header}>
-          <div className={styles.headerLeft}>
-            <Image src="/logotype.png" alt="L-AMB Logo" width={289.36} height={40} />
-            <Image
-              className={styles.playStopButton}
-              src={!playing ? '/play.svg' : '/stop.svg'}
-              alt="Play/Stop Button"
-              width={40}
-              height={40}
-              onClick={playStop}
-            />
-            <div className={cn(styles.globalControls, { [styles.active]: playing })}>
-              <div className={styles.globalKnob}>
-                <LinearKnob
-                  min={0}
-                  max={1}
-                  value={volume}
-                  onChange={updateVolume}
-                  strokeColor={secondaryColor}
-                  label="Volume"
+        {/* info overlay */}
+        <div className={styles.infoLayer}>
+          {/* header */}
+          <div className={styles.header}>
+            <div className={styles.headerLeft}>
+              <Image src="/logotype.png" alt="L-AMB Logo" width={289.36} height={40} />
+              <Image
+                className={styles.playStopButton}
+                src={!playing ? '/play.svg' : '/stop.svg'}
+                alt="Play/Stop Button"
+                width={40}
+                height={40}
+                onClick={playStop}
+              />
+              <div className={cn(styles.globalControls, { [styles.active]: playing })}>
+                <div className={styles.globalKnob}>
+                  <LinearKnob
+                    min={0}
+                    max={1}
+                    value={volume}
+                    onChange={updateVolume}
+                    strokeColor={secondaryColor}
+                    label="Volume"
+                  />
+                </div>
+                <Presets
+                  presetOptions={presetOptions}
+                  activeId={activePresetId}
+                  name={presetName}
+                  setName={setPresetName}
+                  dirty={presetDirty}
+                  isPlaceholder={isPlaceholder}
+                  loadPreset={loadPreset}
+                  savePreset={savePreset}
+                  saveAsNew={saveAsNew}
+                  deletePreset={deletePreset}
                 />
               </div>
             </div>
-          </div>
-          <div className={styles.headerRight}>
-            <div className={cn(styles.copySnackbar, { [styles.active]: linkCopied })}>link copied to clipboard!</div>
-            <Image
-              className={styles.linkIcon}
-              src="/link.png"
-              alt="Link Icon"
-              width={21}
-              height={21}
-              title="Copy link to this sound"
-              onClick={() => {
-                copyPresetUrl()
-                setLinkCopied(true)
-                setTimeout(() => setLinkCopied(false), 2000)
-              }}
-            />
-            <Image
-              className={styles.infoIcon}
-              src="/info.png"
-              alt="Info Icon"
-              width={24}
-              height={24}
-              title="What's this?"
-              onClick={() => {
-                if (!showInfo && playing) playStop()
-                setShowInfo((showInfo) => !showInfo)
-              }}
-            />
-            <a className={styles.manbergLink} href="https://phasemachine.com">
-              <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
-            </a>
-          </div>
-        </div>
-
-        <TiltContainer maxTilt={0.5} perspective={900}>
-          <div className={cn(styles.infoBody, { [styles.active]: playing })}>
-            {/* main LFO controls */}
-            <div className={styles.lfoControls}>
-              <div className={cn(styles.lfoControlContainer, { [styles.active]: showLfo1Controls })}>
-                <div className={styles.lfoControlHeader}>
-                  <p>LFO1</p>
-                  <div>
-                    <Checkbox
-                      checked={syncLfos}
-                      onChange={(syncLfos) => {
-                        setSyncLfos(syncLfos)
-                        updateLocalStorage('syncLfos', syncLfos)
-                      }}
-                      label="SYNC"
-                    />
-                  </div>
-                </div>
-                <div className={styles.lfoControl}>
-                  <LFOScope value={lfo1} />
-                  <LFOControls
-                    init={lfo1Default}
-                    setFrequency={setLfo1Frequency}
-                    setDutyCycle={setLfo1Duty}
-                    setShape={setLfo1Shape}
-                    lfo1Freq={lfo1Freq}
-                    setLfo1Freq={setLfo1Freq}
-                    freqMod={modVal(0)}
-                    dutyMod={modVal(1)}
-                    index={1}
-                  />
-                </div>
-              </div>
-              <div
-                className={cn(styles.lfoControlContainer, { [styles.active]: showLfo2Controls })}
-                style={{ marginRight: 100 }}>
-                <div className={styles.lfoControlHeader}>
-                  <p>LFO2</p>
-                  <div>
-                    <Checkbox
-                      checked={solo2}
-                      onChange={(solo2) => {
-                        setSolo2(solo2)
-                        updateLocalStorage('solo2', solo2)
-                      }}
-                      label="SOLO"
-                    />
-                  </div>
-                </div>
-                <div className={styles.lfoControl}>
-                  <LFOScope value={lfo2} />
-                  <LFOControls
-                    init={lfo2Default}
-                    setFrequency={setLfo2Frequency}
-                    setDutyCycle={setLfo2Duty}
-                    setShape={setLfo2Shape}
-                    freqMod={modVal(2)}
-                    dutyMod={modVal(3)}
-                    syncLfos={syncLfos}
-                    lfo1Freq={lfo1Freq}
-                    lfo1Phase={lfo1Phase}
-                    setPhase={setLfo2Phase}
-                    index={2}
-                  />
-                </div>
-              </div>
-              <div
-                className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
-                style={{ marginRight: 197 }}>
-                <div className={styles.lfoControlHeader}>
-                  <p>LFO3</p>
-                  <div>
-                    <Checkbox
-                      checked={solo3}
-                      onChange={(solo3) => {
-                        setSolo3(solo3)
-                        updateLocalStorage('solo3', solo3)
-                      }}
-                      label="SOLO"
-                    />
-                  </div>
-                </div>
-                <div className={styles.lfoControl}>
-                  <LFOScope value={lfo3} />
-                  <LFOControls
-                    init={lfo3Default}
-                    setFrequency={setLfo3Frequency}
-                    setDutyCycle={setLfo3Duty}
-                    setShape={setLfo3Shape}
-                    freqMod={modVal(4)}
-                    dutyMod={modVal(5)}
-                    lfo1Freq={lfo1Freq}
-                    syncLfos={syncLfos}
-                    lfo1Phase={lfo1Phase}
-                    setPhase={setLfo3Phase}
-                    index={3}
-                  />
-                </div>
-              </div>
+            <div className={styles.headerRight}>
+              <div className={cn(styles.copySnackbar, { [styles.active]: linkCopied })}>link copied to clipboard!</div>
+              <Image
+                className={styles.linkIcon}
+                src="/link.png"
+                alt="Link Icon"
+                width={21}
+                height={21}
+                title="Copy link to this sound"
+                onClick={() => {
+                  copyPresetUrl()
+                  setLinkCopied(true)
+                  setTimeout(() => setLinkCopied(false), 2000)
+                }}
+              />
+              <Image
+                className={styles.infoIcon}
+                src="/info.png"
+                alt="Info Icon"
+                width={24}
+                height={24}
+                title="What's this?"
+                onClick={() => {
+                  if (!showInfo && playing) playStop()
+                  setShowInfo((showInfo) => !showInfo)
+                }}
+              />
+              <a className={styles.manbergLink} href="https://phasemachine.com">
+                <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
+              </a>
             </div>
+          </div>
 
-            {/* voice controls */}
-            <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
-              <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
-                <p suppressHydrationWarning>{pitch1NoteName}</p>
+          <TiltContainer maxTilt={0.5} perspective={900}>
+            <div className={cn(styles.infoBody, { [styles.active]: playing })}>
+              {/* main LFO controls */}
+              <div className={styles.lfoControls}>
+                <div className={cn(styles.lfoControlContainer, { [styles.active]: showLfo1Controls })}>
+                  <div className={styles.lfoControlHeader}>
+                    <p>LFO1</p>
+                    <div>
+                      <Checkbox
+                        checked={syncLfos}
+                        onChange={(syncLfos) => {
+                          setSyncLfos(syncLfos)
+                          updateLocalStorage('syncLfos', syncLfos)
+                        }}
+                        label="SYNC"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.lfoControl}>
+                    <LFOScope value={lfo1} />
+                    <LFOControls
+                      init={lfo1Default}
+                      setFrequency={setLfo1Frequency}
+                      setDutyCycle={setLfo1Duty}
+                      setShape={setLfo1Shape}
+                      lfo1Freq={lfo1Freq}
+                      setLfo1Freq={setLfo1Freq}
+                      freqMod={modVal(0)}
+                      dutyMod={modVal(1)}
+                      index={1}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={cn(styles.lfoControlContainer, { [styles.active]: showLfo2Controls })}
+                  style={{ marginRight: 100 }}>
+                  <div className={styles.lfoControlHeader}>
+                    <p>LFO2</p>
+                    <div>
+                      <Checkbox
+                        checked={solo2}
+                        onChange={(solo2) => {
+                          setSolo2(solo2)
+                          updateLocalStorage('solo2', solo2)
+                        }}
+                        label="SOLO"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.lfoControl}>
+                    <LFOScope value={lfo2} />
+                    <LFOControls
+                      init={lfo2Default}
+                      setFrequency={setLfo2Frequency}
+                      setDutyCycle={setLfo2Duty}
+                      setShape={setLfo2Shape}
+                      freqMod={modVal(2)}
+                      dutyMod={modVal(3)}
+                      syncLfos={syncLfos}
+                      lfo1Freq={lfo1Freq}
+                      lfo1Phase={lfo1Phase}
+                      setPhase={setLfo2Phase}
+                      index={2}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={cn(styles.lfoControlContainer, { [styles.active]: playing })}
+                  style={{ marginRight: 197 }}>
+                  <div className={styles.lfoControlHeader}>
+                    <p>LFO3</p>
+                    <div>
+                      <Checkbox
+                        checked={solo3}
+                        onChange={(solo3) => {
+                          setSolo3(solo3)
+                          updateLocalStorage('solo3', solo3)
+                        }}
+                        label="SOLO"
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.lfoControl}>
+                    <LFOScope value={lfo3} />
+                    <LFOControls
+                      init={lfo3Default}
+                      setFrequency={setLfo3Frequency}
+                      setDutyCycle={setLfo3Duty}
+                      setShape={setLfo3Shape}
+                      freqMod={modVal(4)}
+                      dutyMod={modVal(5)}
+                      lfo1Freq={lfo1Freq}
+                      syncLfos={syncLfos}
+                      lfo1Phase={lfo1Phase}
+                      setPhase={setLfo3Phase}
+                      index={3}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className={styles.voiceAuxControl}>
-                <p suppressHydrationWarning>{pitch2NoteName}</p>
-              </div>
-              <div className={styles.voiceAuxControl}>
-                <p suppressHydrationWarning>{pitch3NoteName}</p>
-              </div>
-              <div className={styles.voiceAuxControl}>
-                <p suppressHydrationWarning>{pitch4NoteName}</p>
 
-                {/* voice global controls */}
-                <div className={styles.voiceGlobalControls}>
-                  <div className={styles.voiceGlobalControl}>
-                    <LinearKnob
-                      min={0}
-                      max={11}
-                      step={1}
-                      value={transpose}
-                      onChange={(transpose) => {
-                        setTranspose(transpose)
-                        updateLocalStorage('transpose', transpose)
-                      }}
-                      strokeColor={secondaryColor}
-                    />
-                    <p>
-                      root:
-                      <br />
-                      {noteNames[transpose]}
-                    </p>
+              {/* voice controls */}
+              <div className={cn(styles.voiceAux, { [styles.active]: playing })}>
+                <div className={styles.voiceAuxControl} style={{ marginRight: 270 }}>
+                  <p suppressHydrationWarning>{pitch1NoteName}</p>
+                </div>
+                <div className={styles.voiceAuxControl}>
+                  <p suppressHydrationWarning>{pitch2NoteName}</p>
+                </div>
+                <div className={styles.voiceAuxControl}>
+                  <p suppressHydrationWarning>{pitch3NoteName}</p>
+                </div>
+                <div className={styles.voiceAuxControl}>
+                  <p suppressHydrationWarning>{pitch4NoteName}</p>
+
+                  {/* voice global controls */}
+                  <div className={styles.voiceGlobalControls}>
+                    <div className={styles.voiceGlobalControl}>
+                      <LinearKnob
+                        min={0}
+                        max={11}
+                        step={1}
+                        value={transpose}
+                        onChange={(transpose) => {
+                          setTranspose(transpose)
+                          updateLocalStorage('transpose', transpose)
+                        }}
+                        strokeColor={secondaryColor}
+                      />
+                      <p>
+                        root:
+                        <br />
+                        {noteNames[transpose]}
+                      </p>
+                    </div>
+                    <div className={styles.voiceGlobalControl}>
+                      <LinearKnob
+                        min={0}
+                        max={scaleOptions.length - 1}
+                        step={1}
+                        value={scale}
+                        onChange={(scale) => {
+                          setScale(scale)
+                          updateLocalStorage('scale', scale)
+                        }}
+                        strokeColor={secondaryColor}
+                      />
+                      <p>
+                        scale:
+                        <br />
+                        {scaleOptions[scale]}
+                      </p>
+                    </div>
+                    <svg className={styles.voiceGlobalControlDivider} width="60" height="40">
+                      <line x1="0" y1="20" x2="60" y2="20" stroke={secondaryColor} strokeWidth="2" />
+                      <line x1="59" y1="0" x2="59" y2="40" stroke={secondaryColor} strokeWidth="2" />
+                    </svg>
                   </div>
-                  <div className={styles.voiceGlobalControl}>
+                </div>
+              </div>
+
+              {/* modulation */}
+              <div
+                className={cn(styles.modulationContainer, {
+                  [styles.active]: playing,
+                  [styles.bypassed]: modOff,
+                })}>
+                <Sequencer
+                  setSequencerValue={setSequencerValue}
+                  initialized={initialized}
+                  lfo1Phase={lfo1Phase}
+                  playing={playing}
+                  lfo1Freq={lfo1Freq}
+                />
+
+                <div className={styles.horizontalDivider} style={{ marginTop: -18 }}></div>
+
+                <div className={styles.auxLfoContainer}>
+                  <p>LFO4</p>
+
+                  <div className={styles.auxLfoControl}>
                     <LinearKnob
-                      min={0}
-                      max={scaleOptions.length - 1}
-                      step={1}
-                      value={scale}
-                      onChange={(scale) => {
-                        setScale(scale)
-                        updateLocalStorage('scale', scale)
-                      }}
+                      min={0.1}
+                      max={10}
+                      value={auxLfoFreq}
+                      onChange={updateAuxLfoFreq}
                       strokeColor={secondaryColor}
+                      taper="log"
                     />
-                    <p>
-                      scale:
-                      <br />
-                      {scaleOptions[scale]}
-                    </p>
+                    <p className={styles.auxLfoFreq}>{auxLfoFreq.toFixed(2)} Hz</p>
                   </div>
-                  <svg className={styles.voiceGlobalControlDivider} width="60" height="40">
-                    <line x1="0" y1="20" x2="60" y2="20" stroke={secondaryColor} strokeWidth="2" />
-                    <line x1="59" y1="0" x2="59" y2="40" stroke={secondaryColor} strokeWidth="2" />
+
+                  <div className={styles.auxLfoIndicator} style={{ opacity: auxLfo * 0.7 + 0.3 }}></div>
+                </div>
+
+                <div className={styles.shapeControl}>
+                  <svg width={14} height={14} viewBox="0 0 14 14">
+                    <rect
+                      x={0}
+                      y={0}
+                      width={14}
+                      height={14}
+                      stroke={auxLfoShape ? gray : secondaryColor}
+                      strokeWidth={4}
+                      fill="none"
+                    />
+                  </svg>
+                  <ReactSwitch
+                    onChange={updateAuxLfoShape}
+                    checked={auxLfoShape}
+                    uncheckedIcon={false}
+                    checkedIcon={false}
+                    width={48}
+                    height={24}
+                  />
+                  <svg width={14} height={14} viewBox="0 0 14 14">
+                    <polygon
+                      points="7,1 13,13 1,13"
+                      stroke={auxLfoShape ? secondaryColor : gray}
+                      strokeWidth={2}
+                      fill="none"
+                    />
                   </svg>
                 </div>
-              </div>
-            </div>
 
-            {/* modulation */}
-            <div
-              className={cn(styles.modulationContainer, {
-                [styles.active]: playing,
-                [styles.bypassed]: modOff,
-              })}>
-              <Sequencer
-                setSequencerValue={setSequencerValue}
-                initialized={initialized}
-                lfo1Phase={lfo1Phase}
-                playing={playing}
-                lfo1Freq={lfo1Freq}
-              />
+                <div className={styles.horizontalDivider} style={{ marginLeft: 190, marginTop: 30, width: 70 }}></div>
 
-              <div className={styles.horizontalDivider} style={{ marginTop: -18 }}></div>
-
-              <div className={styles.auxLfoContainer}>
-                <p>LFO4</p>
-
-                <div className={styles.auxLfoControl}>
-                  <LinearKnob
-                    min={0.1}
-                    max={10}
-                    value={auxLfoFreq}
-                    onChange={updateAuxLfoFreq}
-                    strokeColor={secondaryColor}
-                    taper="log"
-                  />
-                  <p className={styles.auxLfoFreq}>{auxLfoFreq.toFixed(2)} Hz</p>
+                <div className={styles.modOff}>
+                  <p>MOD OFF</p>
+                  <svg
+                    className={styles.modOffToggle}
+                    width="13"
+                    height="13"
+                    viewBox="0 0 13 13"
+                    onClick={() => {
+                      setModOff((modOff) => {
+                        updateLocalStorage('modOff', !modOff)
+                        return !modOff
+                      })
+                    }}>
+                    <line x1="0" y1="0" x2="13" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
+                    <line x1="13" y1="0" x2="0" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
+                  </svg>
                 </div>
 
-                <div className={styles.auxLfoIndicator} style={{ opacity: auxLfo * 0.7 + 0.3 }}></div>
+                {/* mod matrix */}
+                <ModMatrix playing={playing} modMatrix={modMatrix} setModMatrix={updateModMatrix} />
+                <p className={styles.modMatrixLabel}>MOD MATRIX</p>
               </div>
 
-              <div className={styles.shapeControl}>
-                <svg width={14} height={14} viewBox="0 0 14 14">
-                  <rect
-                    x={0}
-                    y={0}
-                    width={14}
-                    height={14}
-                    stroke={auxLfoShape ? gray : secondaryColor}
-                    strokeWidth={4}
-                    fill="none"
-                  />
-                </svg>
-                <ReactSwitch
-                  onChange={updateAuxLfoShape}
-                  checked={auxLfoShape}
-                  uncheckedIcon={false}
-                  checkedIcon={false}
-                  width={48}
-                  height={24}
-                />
-                <svg width={14} height={14} viewBox="0 0 14 14">
-                  <polygon
-                    points="7,1 13,13 1,13"
-                    stroke={auxLfoShape ? secondaryColor : gray}
-                    strokeWidth={2}
-                    fill="none"
-                  />
-                </svg>
-              </div>
-
-              <div className={styles.horizontalDivider} style={{ marginLeft: 190, marginTop: 30, width: 70 }}></div>
-
-              <div className={styles.modOff}>
-                <p>MOD OFF</p>
-                <svg
-                  className={styles.modOffToggle}
-                  width="13"
-                  height="13"
-                  viewBox="0 0 13 13"
-                  onClick={() => {
-                    setModOff((modOff) => {
-                      updateLocalStorage('modOff', !modOff)
-                      return !modOff
-                    })
-                  }}>
-                  <line x1="0" y1="0" x2="13" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
-                  <line x1="13" y1="0" x2="0" y2="13" stroke={modOff ? secondaryColor : gray} strokeWidth="2" />
-                </svg>
-              </div>
-
-              {/* mod matrix */}
-              <ModMatrix playing={playing} modMatrix={modMatrix} setModMatrix={updateModMatrix} />
-              <p className={styles.modMatrixLabel}>MOD MATRIX</p>
+              {/* effects */}
+              <Effects
+                delay={delay}
+                filter={filter}
+                distortion={distortion}
+                reverb={reverb}
+                distMod={modVal(10)}
+                lpfMod={modVal(11)}
+                dlyTimeMod={modVal(12)}
+                playing={playing}
+              />
             </div>
+          </TiltContainer>
+        </div>
 
-            {/* effects */}
-            <Effects
-              delay={delay}
-              filter={filter}
-              distortion={distortion}
-              reverb={reverb}
-              distMod={modVal(10)}
-              lpfMod={modVal(11)}
-              dlyTimeMod={modVal(12)}
-              playing={playing}
-            />
+        {/* main binary tree graph */}
+        <TiltContainer maxTilt={1} perspective={900}>
+          <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />
+
+          {/* voices */}
+          <div className={cn(styles.voices, { [styles.active]: playing })}>
+            <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
+              <VoiceTypeSelector voiceType={voice1Type} setVoiceType={setVoice1Type} voiceRef={voice1Ref} index={1} />
+              <Voice
+                pitch={pitch1}
+                setPitch={setPitch1}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(6)}
+                level={pitch1Level}
+                index={0}
+              />
+            </div>
+            <div className={styles.voiceContainer}>
+              <VoiceTypeSelector voiceType={voice2Type} setVoiceType={setVoice2Type} voiceRef={voice2Ref} index={2} />
+              <Voice
+                pitch={pitch2}
+                setPitch={setPitch2}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(7)}
+                level={pitch2Level}
+                index={1}
+              />
+            </div>
+            <div className={styles.voiceContainer}>
+              <VoiceTypeSelector
+                voiceType={voice3Type}
+                setVoiceType={setVoice3Type}
+                voiceRef={voice3Ref}
+                pulseInit={0.818}
+                index={3}
+              />
+              <Voice
+                pitch={pitch3}
+                setPitch={setPitch3}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(8)}
+                level={pitch3Level}
+                index={2}
+              />
+            </div>
+            <div className={styles.voiceContainer}>
+              <VoiceTypeSelector
+                voiceType={voice4Type}
+                setVoiceType={setVoice4Type}
+                voiceRef={voice4Ref}
+                fatInit={60}
+                index={4}
+              />
+              <Voice
+                pitch={pitch4}
+                setPitch={setPitch4}
+                scale={scaleOptions[scale] as ScaleName}
+                modVal={modVal(9)}
+                level={lfo1}
+                index={3}
+              />
+            </div>
           </div>
         </TiltContainer>
       </div>
-
-      {/* main binary tree graph */}
-      <TiltContainer maxTilt={1} perspective={900}>
-        <BinaryTree lfo1={lfo1} lfo2={lfo2} lfo3={lfo3} allOn={!playing} solo2={solo2} solo3={solo3} />
-
-        {/* voices */}
-        <div className={cn(styles.voices, { [styles.active]: playing })}>
-          <div className={styles.voiceContainer} style={{ marginRight: 268 }}>
-            <VoiceTypeSelector voiceType={voice1Type} setVoiceType={setVoice1Type} voiceRef={voice1Ref} index={1} />
-            <Voice
-              pitch={pitch1}
-              setPitch={setPitch1}
-              scale={scaleOptions[scale] as ScaleName}
-              modVal={modVal(6)}
-              level={pitch1Level}
-              index={0}
-            />
-          </div>
-          <div className={styles.voiceContainer}>
-            <VoiceTypeSelector voiceType={voice2Type} setVoiceType={setVoice2Type} voiceRef={voice2Ref} index={2} />
-            <Voice
-              pitch={pitch2}
-              setPitch={setPitch2}
-              scale={scaleOptions[scale] as ScaleName}
-              modVal={modVal(7)}
-              level={pitch2Level}
-              index={1}
-            />
-          </div>
-          <div className={styles.voiceContainer}>
-            <VoiceTypeSelector
-              voiceType={voice3Type}
-              setVoiceType={setVoice3Type}
-              voiceRef={voice3Ref}
-              pulseInit={0.818}
-              index={3}
-            />
-            <Voice
-              pitch={pitch3}
-              setPitch={setPitch3}
-              scale={scaleOptions[scale] as ScaleName}
-              modVal={modVal(8)}
-              level={pitch3Level}
-              index={2}
-            />
-          </div>
-          <div className={styles.voiceContainer}>
-            <VoiceTypeSelector
-              voiceType={voice4Type}
-              setVoiceType={setVoice4Type}
-              voiceRef={voice4Ref}
-              fatInit={60}
-              index={4}
-            />
-            <Voice
-              pitch={pitch4}
-              setPitch={setPitch4}
-              scale={scaleOptions[scale] as ScaleName}
-              modVal={modVal(9)}
-              level={lfo1}
-              index={3}
-            />
-          </div>
-        </div>
-      </TiltContainer>
-    </div>
+    </PresetContext.Provider>
   )
 }
 
 const NUM_MOD_SOURCES = 5
 const NUM_MOD_DESTINATIONS = 13
 
-function defaultModMatrix(): number[][] {
+// the factory mod-matrix routing used when no value is stored
+function seedModMatrix(): number[][] {
   const modMatrix = Array.from({ length: NUM_MOD_DESTINATIONS }, () => Array(NUM_MOD_SOURCES).fill(0))
-  // init patch mod matrix
   modMatrix[6][3] = 0.64
   modMatrix[7][3] = 0.57
   modMatrix[8][3] = 0.58
   modMatrix[9][3] = 1
   modMatrix[11][4] = 0.39
+  return modMatrix
+}
 
-  return initState('modMatrix', modMatrix) as number[][]
+function defaultModMatrix(): number[][] {
+  return initState('modMatrix', seedModMatrix()) as number[][]
 }

@@ -39,6 +39,12 @@
   transition: opacity var(--transition-time) ease-in-out;
 }
 
+/* the decorative frame is purely visual; the shared .active utility flips
+   pointer-events to all, so override it here or it intercepts header clicks */
+.containerGraphic.active {
+  pointer-events: none;
+}
+
 .bgClip {
   transform-origin: center;
   transform: scale(0.8);
@@ -57,7 +63,9 @@
   transform: scaleX(0.8);
   transform-origin: center;
   pointer-events: none;
-  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    transform var(--transition-time) ease-in-out;
 }
 
 .dividerLines.active {
@@ -72,7 +80,9 @@
   transform: scale(0.8);
   transform-origin: center;
   pointer-events: none;
-  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    transform var(--transition-time) ease-in-out;
 }
 
 .frameGraphics.open {
@@ -104,16 +114,26 @@
 .globalControls {
   position: absolute;
   left: 336px;
+  /* the transform below makes this a stacking context, which would otherwise
+     trap the preset dropdown menu's z-index under the page content; lift the
+     whole container so the menu overlays everything like a dropdown should */
+  z-index: 3000;
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    transform var(--transition-time) ease-in-out;
   display: flex;
-  pointer-events: all;
+  align-items: flex-start;
+  /* invisible when not playing — don't let the high z-index box intercept
+     clicks meant for the header/play button underneath */
+  pointer-events: none;
 }
 
 .globalControls.active {
   opacity: 1;
   transform: translateY(0);
+  pointer-events: all;
 }
 
 .globalKnob {
@@ -147,7 +167,9 @@
   top: calc(50% - 2px);
   transform: translateY(-50%);
   pointer-events: none;
-  transition: opacity var(--transition-time) ease-in-out, right var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    right var(--transition-time) ease-in-out;
 }
 
 .copySnackbar::after {
@@ -181,7 +203,9 @@
   pointer-events: none;
   opacity: 0;
   transform: translateY(-20%);
-  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    transform var(--transition-time) ease-in-out;
 }
 
 .voices.active {
@@ -225,7 +249,9 @@
   justify-content: flex-end;
   opacity: 0;
   transform: translateX(50%);
-  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    transform var(--transition-time) ease-in-out;
 }
 
 .lfoControlContainer.active {
@@ -256,7 +282,9 @@
   gap: 87px;
   opacity: 0;
   transform: translate(-50%, -50%);
-  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    transform var(--transition-time) ease-in-out;
 }
 
 .voiceAux.active {
@@ -308,7 +336,9 @@
   top: 17.7%;
   opacity: 0;
   transform: translateX(-50%);
-  transition: opacity var(--transition-time) ease-in-out, transform var(--transition-time) ease-in-out;
+  transition:
+    opacity var(--transition-time) ease-in-out,
+    transform var(--transition-time) ease-in-out;
 }
 
 .modulationContainer.active {

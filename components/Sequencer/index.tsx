@@ -7,6 +7,7 @@ import useLFO from '@/hooks/useLFO'
 import LinearKnob from '@/components/LinearKnob'
 import { secondaryColor, gray } from '@/app/globals'
 import { initState, updateLocalStorage } from '@/util/presets'
+import { useRehydrate } from '@/hooks/PresetContext'
 import styles from './index.module.css'
 
 const defaultSeqLfo: LFOParameters = {
@@ -131,6 +132,16 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
       }
     }
   }, [lfo1Freq, setFrequency, freeSeq, clockDivMultIndex, lfo1Phase, setPhase])
+
+  // re-apply sequencer state on preset load (existing effects push freq to the LFO)
+  useRehydrate(() => {
+    setSkip(initState('skip', Array(NUM_STEPS).fill(false), 'sequencer') as boolean[])
+    setValues(initState('values', DEFAULT_SEQUENCE, 'sequencer') as number[])
+    setFreeSeq(initState('freeSeq', false, 'sequencer') as boolean)
+    setInternalFreq(initState('internalFreq', 1, 'sequencer') as number)
+    setClockDivMultIndex(initState('clockDivMultIndex', Math.floor(numClockOptions / 2) + 1, 'sequencer') as number)
+    setSequenceIndex(initState('sequenceIndex', 0, 'sequencer') as number)
+  })
 
   const content = useMemo(
     () => (

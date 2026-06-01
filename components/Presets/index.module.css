@@ -1,0 +1,60 @@
+.presets {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  /* offset the knob's margin-top:-10px so the box lines up with the header row */
+  margin-top: 12px;
+  /* the header (.infoLayer) is pointer-events:none; re-enable for the controls */
+  pointer-events: all;
+}
+
+.controlRow {
+  display: flex;
+  align-items: center;
+  /* buttons are icon-width (no side padding), so this gap is the uniform
+     visual spacing both between buttons and between the dropdown and save */
+  gap: 8px;
+}
+
+/* unified name + dropdown box; width is driven by the input text (Dropdown's
+   sizer), with a floor so a short name still leaves room to click */
+.combo {
+  min-width: 80px;
+}
+
+.editedDot {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background-color: var(--secondary-color);
+  pointer-events: none;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.action.disabled {
+  cursor: default;
+}
+
+/* matches the knob's Volume label: magenta, left-aligned with the control */
+.label {
+  margin-top: 2px;
+  color: var(--secondary-color);
+  font-size: 11px;
+}

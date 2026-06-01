@@ -1,0 +1,155 @@
+.dropdown {
+  position: relative;
+  display: inline-block;
+  user-select: none;
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 24px;
+  padding: 2px 28px 2px 6px;
+  /* opaque light blue (white 18% over bg.jpg's top blue, rgb 86,170,206) with a
+     soft centered glow on top, echoing the synth background's lighter middle */
+  background-color: #74b9d7;
+  background-image: radial-gradient(120% 160% at 50% 50%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+  border: 1px solid var(--gray);
+  color: var(--secondary-color);
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* magenta border only while the menu is open or the editable input is focused */
+.control:focus-within,
+.open .control {
+  border-color: var(--secondary-color);
+}
+
+.value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* editable combobox: input fills the control, control supplies the border/padding */
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--secondary-color);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  outline: none;
+}
+
+.value.placeholder {
+  color: var(--gray);
+}
+
+/* drives the control width (longest option, or current input text in editable
+   mode — see sizerText); horizontal padding must match .control so the width
+   fits the text exactly */
+.sizer {
+  height: 0;
+  padding: 0 28px 0 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  visibility: hidden;
+  overflow: hidden;
+}
+
+.arrow {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 4px 0 4px;
+  /* gray by default; turns magenta on focus/open to match the border */
+  border-color: var(--gray) transparent transparent transparent;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.control:focus-within .arrow {
+  border-top-color: var(--secondary-color);
+}
+
+/* in editable mode only the arrow toggles the menu */
+.arrow.clickable {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+/* enlarge the click target without distorting the border-triangle */
+.arrow.clickable::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  left: -10px;
+  right: -8px;
+}
+
+.open .arrow {
+  border-width: 0 4px 5px 4px;
+  border-color: transparent transparent var(--secondary-color) transparent;
+}
+
+.menu {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: -1px;
+  /* size to the longest option, but never narrower than the input */
+  width: max-content;
+  min-width: 100%;
+  max-width: 280px;
+  box-sizing: border-box;
+  /* opaque light blue (white 22% over bg.jpg's top blue, rgb 86,170,206) with a
+     soft centered glow on top, echoing the synth background's lighter middle */
+  background-color: #7bbdd9;
+  background-image: radial-gradient(110% 90% at 50% 40%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 70%);
+  border: 1px solid var(--secondary-color);
+  overflow-y: auto;
+  z-index: 3000;
+  -webkit-overflow-scrolling: touch;
+}
+
+.menu.above {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: -1px;
+}
+
+.option {
+  padding: 8px 14px 8px 10px;
+  line-height: 16px;
+  font-size: 13px;
+  color: var(--gray);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.option:hover,
+.option.selected {
+  color: var(--secondary-color);
+  background-color: rgba(255, 71, 255, 0.12);
+}
+
+.noOptions {
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--gray);
+  white-space: nowrap;
+}

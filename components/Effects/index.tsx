@@ -6,6 +6,7 @@ import LinearKnob from '../LinearKnob'
 import { secondaryColor } from '@/app/globals'
 import { constrain } from '@/util/math'
 import { initState, updateLocalStorage } from '@/util/presets'
+import { useRehydrate } from '@/hooks/PresetContext'
 import styles from './index.module.css'
 
 interface EffectsProps {
@@ -116,6 +117,31 @@ export default function Effects({
       reverb.current?.set({ wet })
       updateLocalStorage('reverbAmount', wet, 'fx')
     },
+  })
+
+  // re-apply FX params (state + audio nodes) on preset load
+  useRehydrate(() => {
+    const dist = initState('distortionAmount', DEFAULT_DIST, 'fx') as number
+    setDistortionAmount(dist)
+    distortion.current?.set({ distortion: dist })
+    const lpf = initState('lpfCutoff', DEFAULT_LPF, 'fx') as number
+    setFilterCutoff(lpf)
+    filter.current?.set({ frequency: lpf })
+    const reso = initState('lpfResonance', DEFAULT_RESONANCE, 'fx') as number
+    setFilterResonance(reso)
+    filter.current?.set({ Q: reso })
+    const dlyAmt = initState('delayAmount', DEFAULT_DLY, 'fx') as number
+    setDelayAmount(dlyAmt)
+    delay.current?.set({ wet: dlyAmt })
+    const dlyTime = initState('delayTime', DEFAULT_DLY_TIME, 'fx') as number
+    setDelayTime(dlyTime)
+    delay.current?.set({ delayTime: dlyTime })
+    const dlyFb = initState('delayFeedback', DEFAULT_DLY_FDBK, 'fx') as number
+    setDelayFeedback(dlyFb)
+    delay.current?.set({ feedback: dlyFb })
+    const verb = initState('reverbAmount', DEFAULT_REVERB, 'fx') as number
+    setReverbAmount(verb)
+    reverb.current?.set({ wet: verb })
   })
 
   const content = useMemo(

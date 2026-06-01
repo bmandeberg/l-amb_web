@@ -2,7 +2,8 @@ import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import LinearKnob from '@/components/LinearKnob'
 import { lerpHex } from '@/util/math'
 import { primaryColor, gray } from '@/app/globals'
-import { updateLocalStorage } from '@/util/presets'
+import { initState, updateLocalStorage } from '@/util/presets'
+import { useRehydrate } from '@/hooks/PresetContext'
 import styles from './index.module.css'
 
 // MIDI note 24 - 84 (C1 - C6, 32.7Hz - 8372Hz)
@@ -25,6 +26,31 @@ export const scales = {
 }
 export type ScaleName = keyof typeof scales
 
+const scaleOptions = Object.keys(scales)
+
+// the diatonic MIDI notes available for a scale across the voice's pitch range
+function computeAvailablePitches(scale: ScaleName): number[] {
+  let currentPitch = minPitch
+  const scaleIntervals = scales[scale] || scales.chromatic
+  const pitches = [currentPitch]
+  let scaleIndex = 0
+  while (currentPitch < maxPitch) {
+    const nextInterval = scaleIntervals[scaleIndex % scaleIntervals.length]
+    currentPitch += nextInterval
+    if (currentPitch <= maxPitch) pitches.push(currentPitch)
+    scaleIndex++
+  }
+  return pitches
+}
+
+function closestPitchIndex(pitches: number[], pitch: number): number {
+  let closest = 0
+  for (let i = 0; i < pitches.length; i++) {
+    if (Math.abs(pitches[i] - pitch) < Math.abs(pitches[closest] - pitch)) closest = i
+  }
+  return closest
+}
+
 interface VoiceProps {
   pitch: number
   setPitch: (value: number) => void
@@ -42,23 +68,7 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
     pitchRef.current = pitch
   }, [pitch])
 
-  const availablePitches = useMemo<number[]>(() => {
-    let currentPitch = minPitch
-    const scaleIntervals = scales[scale as ScaleName] || scales.chromatic
-    const pitches = [currentPitch]
-    let scaleIndex = 0
-
-    while (currentPitch < maxPitch) {
-      const nextInterval = scaleIntervals[scaleIndex % scaleIntervals.length]
-      currentPitch += nextInterval
-      if (currentPitch <= maxPitch) {
-        pitches.push(currentPitch)
-      }
-      scaleIndex++
-    }
-
-    return pitches
-  }, [scale])
+  const availablePitches = useMemo<number[]>(() => computeAvailablePitches(scale), [scale])
 
   const updatePitch = useCallback(
     (value: number) => {
@@ -77,19 +87,19 @@ export default function Voice({ pitch, setPitch, scale, modVal, level, index }: 
 
   // update pitch to be diatonic when scale or transpose changes
   useEffect(() => {
-    // find closest pitch in availablePitches
-    let closestIndex = 0
-    for (let i = 0; i < availablePitches.length; i++) {
-      if (
-        Math.abs(availablePitches[i] - pitchRef.current) < Math.abs(availablePitches[closestIndex] - pitchRef.current)
-      ) {
-        closestIndex = i
-      }
-    }
-
+    const closestIndex = closestPitchIndex(availablePitches, pitchRef.current)
     updateLocalPitch(closestIndex + 1)
     updatePitch(closestIndex + 1)
   }, [availablePitches, updatePitch, updateLocalPitch])
+
+  // re-apply the knob position from storage on preset load (covers the case where
+  // the scale is unchanged but the saved pitch differs, which the snap effect misses)
+  useRehydrate(() => {
+    const scaleIndex = initState('scale', 7) as number
+    const scaleName = (scaleOptions[scaleIndex] as ScaleName) ?? 'chromatic'
+    const storedPitch = initState('pitch', minPitch, 'voice' + (index + 1)) as number
+    setLocalPitch(closestPitchIndex(computeAvailablePitches(scaleName), storedPitch) + 1)
+  })
 
   const content = useMemo(
     () => (

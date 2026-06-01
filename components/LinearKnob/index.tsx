@@ -181,7 +181,7 @@ export default function LinearKnob({
           <path
             d="M 17.32 52.68 L 35 35"
             fill="none"
-            stroke={coloredIndicator ? strokeColor ?? gray : gray}
+            stroke={coloredIndicator ? (strokeColor ?? gray) : gray}
             strokeWidth="3"
             transform={`rotate(${displayRatio * RANGE} ${CX} ${CY})`}
           />

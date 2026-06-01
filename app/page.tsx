@@ -60,7 +60,7 @@ const scaleOptions = Object.keys(scales)
 const BG_WIDTH = 2048 / 2
 const BG_HEIGHT = 1328 / 2
 
-const VOICE_VOLUME = -12
+const VOICE_VOLUME = -15
 const REVERB_DECAY = 3
 
 export default function LAMBApp() {
@@ -595,9 +595,7 @@ export default function LAMBApp() {
                   setShowInfo((showInfo) => !showInfo)
                 }}
               />
-              <a className={styles.manbergLink} href="https://phasemachine.com">
-                <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
-              </a>
+              <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
             </div>
           </div>
 

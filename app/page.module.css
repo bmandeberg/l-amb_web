@@ -144,10 +144,6 @@
   color: var(--gray);
 }
 
-.manbergLink {
-  pointer-events: all;
-}
-
 .linkIcon,
 .infoIcon {
   margin-top: -8px;

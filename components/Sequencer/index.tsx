@@ -42,9 +42,6 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
   )
   const [sequenceIndex, setSequenceIndex] = useState<number>(() => initState('sequenceIndex', 0, 'sequencer') as number)
 
-  const { value: lfo, setFrequency, setPhase } = useLFO(initialized, defaultSeqLfo)
-  const lfoRef = useRef<number>(lfo)
-
   const skipRef = useRef(skip)
   useEffect(() => {
     skipRef.current = skip
@@ -105,15 +102,15 @@ export default function Sequencer({ setSequencerValue, initialized, lfo1Phase, p
     setSequencerValue(values[step])
   }, [step, values, setSequencerValue])
 
-  useEffect(() => {
-    // advance sequencer at rising edge of internal LFO
-    if (lfo === 1 && lfoRef.current === 0) {
-      advanceStep(seqPhase.current)
-    }
-
-    lfoRef.current = lfo
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lfo])
+  // Internal clock LFO. Edge detection runs per worklet tick (~60fps) via onTick
+  // rather than a React effect, so the sequencer only re-renders when a step
+  // actually advances — not on every tick.
+  const lfoPrevRef = useRef(0)
+  const { setFrequency, setPhase } = useLFO(initialized, defaultSeqLfo, undefined, (v) => {
+    // advance the sequencer at the rising edge of the internal LFO
+    if (v === 1 && lfoPrevRef.current === 0) advanceStep(seqPhase.current)
+    lfoPrevRef.current = v
+  })
 
   useEffect(() => {
     if (freeSeq) {

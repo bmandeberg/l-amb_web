@@ -60,8 +60,9 @@ export default function usePresetManager() {
   const dirty = useMemo(() => {
     void patchVersion // dependency: recompute when the live patch changes
     if (!activePreset) return true // unsaved placeholder
-    return !deepEqual(getLivePatch(), activePreset.patch)
-  }, [activePreset, patchVersion])
+    // a renamed (but otherwise unchanged) preset is still unsaved
+    return name.trim() !== activePreset.name || !deepEqual(getLivePatch(), activePreset.patch)
+  }, [activePreset, patchVersion, name])
 
   const dedupName = useCallback((rawName: string, id: string | null, list: Preset[]): string => {
     const base0 = rawName.trim() || NEW_PRESET_NAME

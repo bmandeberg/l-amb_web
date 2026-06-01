@@ -131,7 +131,7 @@ export default function LAMBApp() {
   const lfo1Latch = useMemo(() => solo2 || solo3, [solo2, solo3])
 
   const {
-    value: lfo1,
+    valueRef: lfo1Ref,
     setFrequency: setLfo1Frequency,
     setDuty: setLfo1Duty,
     setShape: setLfo1Shape,
@@ -139,7 +139,7 @@ export default function LAMBApp() {
     node: lfo1Node,
   } = useLFO(initialized, lfo1Default, lfo1Latch)
   const {
-    value: lfo2,
+    valueRef: lfo2Ref,
     setFrequency: setLfo2Frequency,
     setDuty: setLfo2Duty,
     setShape: setLfo2Shape,
@@ -147,7 +147,7 @@ export default function LAMBApp() {
     node: lfo2Node,
   } = useLFO(initialized, lfo2Default, solo3)
   const {
-    value: lfo3,
+    valueRef: lfo3Ref,
     setFrequency: setLfo3Frequency,
     setDuty: setLfo3Duty,
     setShape: setLfo3Shape,
@@ -337,10 +337,39 @@ export default function LAMBApp() {
   const [auxLfoShape, setLocalAuxLfoShape] = useState<boolean>(() => initState('shape', true, 'auxLfo') as boolean)
 
   const {
-    value: auxLfo,
+    valueRef: auxLfoRef,
     setFrequency: setAuxLfoFrequency,
     setShape: setAuxLfoShape,
   } = useLFO(initialized, { frequency: auxLfoFreq, shape: auxLfoShape ? 1 : 0, dutyCycle: 0.5 } as LFOParameters)
+
+  // Coalesce all four LFO values into a single render per animation frame.
+  // Each useLFO writes its value to a ref every worklet tick (~60fps); sampling
+  // them together here means the page reconciles at most once per frame instead
+  // of once per tick per LFO. Resolution is unchanged; the render churn drops ~4x.
+  const [lfoValues, setLfoValues] = useState<[number, number, number, number]>([0, 0, 0, 0])
+  const [lfo1, lfo2, lfo3, auxLfo] = lfoValues
+
+  useEffect(() => {
+    if (!initialized || !playing) return
+    let raf: number
+    const sample = () => {
+      setLfoValues((prev) => {
+        const next: [number, number, number, number] = [
+          lfo1Ref.current,
+          lfo2Ref.current,
+          lfo3Ref.current,
+          auxLfoRef.current,
+        ]
+        // bail out (no re-render) when nothing moved, e.g. while latched/soloed
+        return next[0] === prev[0] && next[1] === prev[1] && next[2] === prev[2] && next[3] === prev[3] ? prev : next
+      })
+      raf = requestAnimationFrame(sample)
+    }
+    raf = requestAnimationFrame(sample)
+    return () => cancelAnimationFrame(raf)
+    // the lfo refs are stable; only re-arm when play state changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialized, playing])
 
   const updateAuxLfoShape = useCallback(
     (newShape: boolean) => {

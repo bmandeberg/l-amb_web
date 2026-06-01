@@ -52,9 +52,9 @@
   cursor: default;
 }
 
-/* matches the knob's Volume label: magenta, left-aligned with the control */
+/* matches the knob's Volume label: gray, left-aligned with the control */
 .label {
   margin-top: 2px;
-  color: var(--secondary-color);
+  color: var(--gray);
   font-size: 11px;
 }

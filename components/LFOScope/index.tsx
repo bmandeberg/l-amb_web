@@ -44,7 +44,9 @@ export default function LFOScope({ value }: LFOScopeProps) {
       ctx.clearRect(0, 0, width, height)
       ctx.beginPath()
 
-      const getSample = (x: number) => buf[(idx + x) % width]
+      // wrap into [0, width) — JS % can return negative (e.g. idx-1 at idx=0),
+      // which would read buf[-1] === undefined and break the path with NaN
+      const getSample = (x: number) => buf[(((idx + x) % width) + width) % width]
       const toY = (v: number) => (1 - v) * (height - 1)
 
       const win = (i: number) => (getSample(i - 1) + getSample(i) + getSample(i + 1)) / 3

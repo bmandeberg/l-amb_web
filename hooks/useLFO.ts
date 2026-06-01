@@ -3,8 +3,20 @@
 import { useEffect, useState, useRef } from 'react'
 import { createLFO, LFOParameters } from '@/tone/createLFO'
 
-export default function useLFO(initialized: boolean, lfoParams: LFOParameters, latch?: boolean) {
-  const [value, setValue] = useState(0)
+export default function useLFO(
+  initialized: boolean,
+  lfoParams: LFOParameters,
+  latch?: boolean,
+  // optional per-tick callback (~60fps) for consumers that need every sample
+  // imperatively without re-rendering — e.g. the sequencer's clock edge detection
+  onTick?: (value: number, phase: number) => void
+) {
+  // The worklet posts a `value` ~60fps. We keep it in a ref (not state) so each
+  // tick doesn't re-render; a single rAF loop in page.tsx samples every LFO's
+  // ref once per frame and triggers one coalesced render (see lfoValues there).
+  const valueRef = useRef(0)
+  const onTickRef = useRef(onTick)
+  onTickRef.current = onTick
   const setFrequency = useRef<null | ((hz: number) => void)>(null)
   const setDuty = useRef<null | ((d: number) => void)>(null)
   const setShape = useRef<null | ((s: 0 | 1) => void)>(null)
@@ -23,7 +35,8 @@ export default function useLFO(initialized: boolean, lfoParams: LFOParameters, l
       lfoObj.node.port.onmessage = (e) => {
         if (isMounted && e.data.type === 'tick') {
           phase.current = e.data.phase
-          setValue(e.data.value)
+          valueRef.current = e.data.value
+          onTickRef.current?.(e.data.value, e.data.phase)
         }
       }
       setFrequency.current = lfoObj.setFrequency
@@ -46,5 +59,5 @@ export default function useLFO(initialized: boolean, lfoParams: LFOParameters, l
     setLatch.current?.(latch ? 1 : 0)
   }, [initialized, latch])
 
-  return { value, setFrequency, setDuty, setShape, phase, setPhase, node }
+  return { valueRef, setFrequency, setDuty, setShape, phase, setPhase, node }
 }

@@ -118,7 +118,7 @@ export default function LAMBApp() {
   }, [pitch1NoteName, pitch2NoteName, pitch3NoteName, pitch4NoteName])
 
   // global volume
-  const [volume, setVolume] = useState<number>(() => initStateParam('volume', 0.75, 'number') as number)
+  const [volume, setVolume] = useState<number>(() => initStateParam('volume', 0.5, 'number') as number)
   const globalVolume = useRef<Tone.Gain | null>(null)
   const updateVolume = useCallback((volume: number) => {
     setVolume(volume)

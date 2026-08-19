@@ -595,7 +595,9 @@ export default function LAMBApp() {
                   setShowInfo((showInfo) => !showInfo)
                 }}
               />
-              <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
+              <a className={styles.manbergLink} href="https://phasemachine.com">
+                <Image src="/manberg.png" alt="Manberg Logo" width={141.84} height={40} style={{ marginTop: -4 }} />
+              </a>
             </div>
           </div>
 

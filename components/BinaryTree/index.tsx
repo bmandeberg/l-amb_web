@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
 import { expoMap } from '@/util/math'
+import { svgGlowEnabled } from '@/util/touchDevice'
 import cn from 'classnames'
 import styles from './index.module.css'
 
 const HIDDEN_OPACITY = 0.15
+const MIXERS_GLOW = svgGlowEnabled ? 'url(#mixersGlow)' : undefined
 
 interface MixersProps {
   lfo1: number
@@ -118,12 +120,12 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
           <path
             style={{ opacity: allOn ? 1 : lfo3 }}
             d="M349.2,450h66.2s44.8,0,85.9,71.2l86,150h119.3l-100.1-174.4c-41.1-71.2-85.9-71.2-85.9-71.2h-157.4l-14.1,24.4h0Z"
-            filter="url(#mixersGlow)"
+            filter={MIXERS_GLOW}
           />
           <path
             style={{ opacity: allOn ? 1 : 1 - lfo3 }}
             d="M349.2,450h-40.7s-44.8,0-85.9,71.2l-85.3,150H18l99.4-174.4c41.1-71.2,85.9-71.2,85.9-71.2h160l-14.1,24.4h0Z"
-            filter="url(#mixersGlow)"
+            filter={MIXERS_GLOW}
           />
 
           {/* middle arc */}
@@ -131,13 +133,13 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
             className={cn({ [styles.opacityTransition]: solo3 })}
             style={{ opacity: allOn ? 1 : solo3 ? HIDDEN_OPACITY : 1 - lfo2 }}
             d="M468.1,244.1h-40.2s-44.8,0-85.9,71.2l-63.4,110.3h-75.3s-37.6,0-75.5,54.8l109-189.5c41.1-71.2,85.9-71.2,85.9-71.2h159.6l-14.1,24.4h-.1Z"
-            filter="url(#mixersGlow)"
+            filter={MIXERS_GLOW}
           />
           <path
             className={cn({ [styles.opacityTransition]: solo3 })}
             style={{ opacity: allOn ? 1 : solo3 ? HIDDEN_OPACITY : lfo2 }}
             d="M468.1,244.1h66.7s44.8,0,85.9,71.2l205.4,355.9h119.3l-219.4-380.3c-41.1-71.2-85.9-71.2-85.9-71.2h-157.9l-14.1,24.4h0Z"
-            filter="url(#mixersGlow)"
+            filter={MIXERS_GLOW}
           />
 
           {/* top arc */}
@@ -145,13 +147,13 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
             className={cn({ [styles.opacityTransition]: solo2 || solo3 })}
             style={{ opacity: allOn ? 1 : solo2 || solo3 ? HIDDEN_OPACITY : lfo1 }}
             d="M586.9,38.2h67.6s44.8,0,85.9,71.2l324.3,561.8h119.3L845.6,85c-41.1-71.2-85.9-71.2-85.9-71.2h-158.7l-14.1,24.4h0Z"
-            filter="url(#mixersGlow)"
+            filter={MIXERS_GLOW}
           />
           <path
             className={cn({ [styles.opacityTransition]: solo2 || solo3 })}
             style={{ opacity: allOn ? 1 : solo2 || solo3 ? HIDDEN_OPACITY : 1 - lfo1 }}
             d="M586.9,38.2h-39.4s-44.8,0-85.9,71.2l-63.7,110.3h-75.4s-37.8,0-75.9,55.3l109.7-190C397.5,13.8,442.3,13.8,442.3,13.8h158.7l-14.1,24.4h0Z"
-            filter="url(#mixersGlow)"
+            filter={MIXERS_GLOW}
           />
         </g>
 
@@ -171,7 +173,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
               style={{ opacity: allOn ? 0 : 1 - lfo3 }}
               className={styles.clipPath}
               d="M349.2,450h66.2s44.8,0,85.9,71.2l86,150h119.3l-100.1-174.4c-41.1-71.2-85.9-71.2-85.9-71.2h-157.4l-14.1,24.4h0Z"
-              filter="url(#mixersGlow)"
+              filter={MIXERS_GLOW}
             />
           </g>
 
@@ -188,7 +190,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
               style={{ opacity: allOn ? 0 : lfo3 }}
               className={styles.clipPath}
               d="M349.2,450h-40.7s-44.8,0-85.9,71.2l-85.3,150H18l99.4-174.4c41.1-71.2,85.9-71.2,85.9-71.2h160l-14.1,24.4h0Z"
-              filter="url(#mixersGlow)"
+              filter={MIXERS_GLOW}
             />
           </g>
 
@@ -206,7 +208,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
               style={{ opacity: allOn ? 0 : solo3 ? HIDDEN_OPACITY : lfo2 }}
               className={cn(styles.clipPath, { [styles.opacityTransition]: solo3 })}
               d="M468.1,244.1h-40.2s-44.8,0-85.9,71.2l-63.4,110.3h-75.3s-37.6,0-75.5,54.8l109-189.5c41.1-71.2,85.9-71.2,85.9-71.2h159.6l-14.1,24.4h-.1Z"
-              filter="url(#mixersGlow)"
+              filter={MIXERS_GLOW}
             />
           </g>
 
@@ -223,7 +225,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
               style={{ opacity: allOn ? 0 : solo3 ? HIDDEN_OPACITY : 1 - lfo2 }}
               className={cn(styles.clipPath, { [styles.opacityTransition]: solo3 })}
               d="M468.1,244.1h66.7s44.8,0,85.9,71.2l205.4,355.9h119.3l-219.4-380.3c-41.1-71.2-85.9-71.2-85.9-71.2h-157.9l-14.1,24.4h0Z"
-              filter="url(#mixersGlow)"
+              filter={MIXERS_GLOW}
             />
           </g>
 
@@ -241,7 +243,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
               style={{ opacity: allOn ? 0 : solo2 || solo3 ? HIDDEN_OPACITY : 1 - lfo1 }}
               className={cn(styles.clipPath, { [styles.opacityTransition]: solo2 || solo3 })}
               d="M586.9,38.2h67.6s44.8,0,85.9,71.2l324.3,561.8h119.3L845.6,85c-41.1-71.2-85.9-71.2-85.9-71.2h-158.7l-14.1,24.4h0Z"
-              filter="url(#mixersGlow)"
+              filter={MIXERS_GLOW}
             />
           </g>
 
@@ -258,7 +260,7 @@ export default function BinaryTree({ lfo1, lfo2, lfo3, allOn, solo2, solo3 }: Mi
               style={{ opacity: allOn ? 0 : solo2 || solo3 ? HIDDEN_OPACITY : lfo1 }}
               className={cn(styles.clipPath, { [styles.opacityTransition]: solo2 || solo3 })}
               d="M586.9,38.2h-39.4s-44.8,0-85.9,71.2l-63.7,110.3h-75.4s-37.8,0-75.9,55.3l109.7-190C397.5,13.8,442.3,13.8,442.3,13.8h158.7l-14.1,24.4h0Z"
-              filter="url(#mixersGlow)"
+              filter={MIXERS_GLOW}
             />
           </g>
         </g>

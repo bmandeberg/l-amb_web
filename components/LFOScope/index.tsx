@@ -13,6 +13,9 @@ export default function LFOScope({ value }: LFOScopeProps) {
   const latest = useRef(value)
   const idxRef = useRef(0)
   const dataRef = useRef<Float32Array>(new Float32Array(width).fill(0))
+  const rafRef = useRef(0)
+  const loopRef = useRef<() => void>(() => {})
+  const parkedRef = useRef(false)
 
   latest.current = value // keep newest sample
 
@@ -31,14 +34,26 @@ export default function LFOScope({ value }: LFOScopeProps) {
     ctx.lineJoin = 'round'
     ctx.lineCap = 'round'
 
-    let raf: number
+    let prev = NaN // last written sample
+    let stillFrames = 0 // consecutive frames the value has been unchanged
     const loop = () => {
       // 1  write sample into ring-buffer
       const buf = dataRef.current
       let idx = idxRef.current
+      stillFrames = latest.current === prev ? stillFrames + 1 : 0
+      prev = latest.current
       buf[idx] = latest.current
       idx = (idx + 1) % width
       idxRef.current = idx
+
+      // once the whole buffer is one constant value the drawn trace can't change —
+      // park the loop entirely (stopped transport, latched/soloed LFOs); the
+      // value-change effect below resumes it
+      if (stillFrames >= width) {
+        parkedRef.current = true
+        return
+      }
+      rafRef.current = requestAnimationFrame(loop)
 
       // 2  clear & redraw
       ctx.clearRect(0, 0, width, height)
@@ -61,11 +76,19 @@ export default function LFOScope({ value }: LFOScopeProps) {
       }
 
       ctx.stroke()
-      raf = requestAnimationFrame(loop)
     }
-    raf = requestAnimationFrame(loop)
-    return () => cancelAnimationFrame(raf)
+    loopRef.current = loop
+    rafRef.current = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(rafRef.current)
   }, [])
+
+  // wake the parked loop when the value moves again
+  useEffect(() => {
+    if (parkedRef.current) {
+      parkedRef.current = false
+      rafRef.current = requestAnimationFrame(loopRef.current)
+    }
+  }, [value])
 
   return <canvas ref={canvasRef} style={{ display: 'block' }} aria-label="LFO visualiser" />
 }

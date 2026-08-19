@@ -6,6 +6,7 @@ import * as Tone from 'tone'
 import cn from 'classnames'
 import ReactSwitch from 'react-switch'
 import getNativeContext from '@/util/getNativeContext'
+import isTouchDevice from '@/util/touchDevice'
 import { primaryColor, secondaryColor, gray, screenWidth, screenHeight } from './globals'
 import { LFOParameters } from '@/tone/createLFO'
 import { midiNoteNumberToNoteName, noteNames } from '@/util/midi'
@@ -285,6 +286,9 @@ export default function LAMBApp() {
 
   // update linear gradient on the background container when the mouse moves
   useEffect(() => {
+    // mouse-position effect — nothing to track on touch devices
+    if (isTouchDevice()) return
+
     let rafId: number
 
     function mouseMoveHandler(e: MouseEvent) {
@@ -352,7 +356,12 @@ export default function LAMBApp() {
   useEffect(() => {
     if (!initialized || !playing) return
     let raf: number
+    // touch devices get every other frame (~30fps) — halves render work, glows/scopes stay smooth enough
+    const frameSkip = isTouchDevice() ? 2 : 1
+    let frame = 0
     const sample = () => {
+      raf = requestAnimationFrame(sample)
+      if (frame++ % frameSkip !== 0) return
       setLfoValues((prev) => {
         const next: [number, number, number, number] = [
           lfo1Ref.current,
@@ -363,7 +372,6 @@ export default function LAMBApp() {
         // bail out (no re-render) when nothing moved, e.g. while latched/soloed
         return next[0] === prev[0] && next[1] === prev[1] && next[2] === prev[2] && next[3] === prev[3] ? prev : next
       })
-      raf = requestAnimationFrame(sample)
     }
     raf = requestAnimationFrame(sample)
     return () => cancelAnimationFrame(raf)
@@ -496,7 +504,7 @@ export default function LAMBApp() {
         {/* info text */}
         <Image
           className={cn(styles.infoText, { [styles.active]: showInfo })}
-          src="/info-text.png"
+          src="/info-text.webp"
           alt="Hi! This is a web version of a hardware synthesizer I'm developing. It will be available soon! Feel free to hit me up @manberg_llc on Instagram or manberg@manberg.zone. Each one of these arcs represents a crossfader. It fades between a synthesizer voice on the right side, and the next crossfader down the tree on the left side. The position of the crossfade is determined by a low frequency oscillator, where you can select the frequency, shape, and duty cycle (symmetry). So, the bottom crossfader will only be heard when both other crossfaders are playing their left sides. The right section is all about modulation. We have a sequencer and an LFO, but you can also use the core LFO's as mod sources. The modulation routing happens in the mod matrix. There are four synthesizer voices. You can tune them to specific keys and scales."
           width={1727}
           height={958}

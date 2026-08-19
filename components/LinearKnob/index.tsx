@@ -4,6 +4,7 @@ import { useMemo, useRef, useCallback, useEffect } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { gray } from '@/app/globals'
 import { constrain, polar, snapToStep } from '@/util/math'
+import { svgGlowEnabled } from '@/util/touchDevice'
 import styles from './index.module.css'
 
 const GLOW_OPACITY = 0.8
@@ -194,7 +195,7 @@ export default function LinearKnob({
               stroke={strokeColor || gray}
               strokeWidth="3"
               strokeLinecap="round"
-              filter={glow ? `url(#${svgFilterId})` : undefined}
+              filter={glow && svgGlowEnabled ? `url(#${svgFilterId})` : undefined}
             />
           )}
         </svg>

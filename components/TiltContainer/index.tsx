@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import isTouchDevice from '@/util/touchDevice'
 import styles from './index.module.css'
 
 interface TiltContainerProps {
@@ -13,8 +14,8 @@ export default function TiltContainer({ children, maxTilt, perspective }: TiltCo
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    // Bail‑out during SSR (shouldn’t ever run, but double safety)
-    if (typeof window === 'undefined') return
+    // no mouse to follow on touch devices — skip the tilt entirely
+    if (isTouchDevice()) return
 
     const el = ref.current
     if (!el) return
